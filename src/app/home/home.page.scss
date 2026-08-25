@@ -25,3 +25,18 @@
 #container a {
   text-decoration: none;
 }
+
+.home__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.home__context {
+  margin: 0 0 5px;
+  color: var(--slot-text-muted);
+  font-size: 18px;
+  text-align: right;
+}

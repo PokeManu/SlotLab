@@ -1,20 +1,20 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Suca
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen] = true>
+ <app-topbar></app-topbar>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">SlotLab</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <main class="home">
+    <section class="home__intro">
+        <div class="home__heading">
+          <p class="home__greeting">Ciao Francesco</p>
+          <h1>Trova il tuo spazio</h1>
+        </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+        <p class="home__context">
+          Campus di Ingegneria
+          <span aria-hidden="true">.</span>
+          Martedì 18 Agosto
+        </p>
+    </section>
+  </main>
+
+
 </ion-content>
