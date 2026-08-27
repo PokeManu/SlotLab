@@ -1,4 +1,4 @@
-<ion-content [fullscreen] = true>
+<ion-content [fullscreen]="true">
  <app-topbar></app-topbar>
 
   <main class="home">
@@ -9,11 +9,15 @@
         </div>
 
         <p class="home__context">
-          Campus di Ingegneria
-          <span aria-hidden="true">.</span>
+          Campus di Viale delle Scienze
+          <span aria-hidden="true">·</span>
           Martedì 18 Agosto
         </p>
     </section>
+
+    <app-space-search></app-space-search>
+    <app-quick-filters></app-quick-filters>
+    <app-campus-map></app-campus-map>
   </main>
 
 

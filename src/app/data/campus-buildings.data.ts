@@ -1,0 +1,256 @@
+import { CampusBuilding } from '../models/campus-building.models';
+
+export const CAMPUS_BUILDINGS: CampusBuilding[] = [
+  {
+    id: 'building-02',
+    buildingNumber: 2,
+    name: 'Edificio 2',
+    address: 'Viale delle Scienze, Edificio 2, Palermo',
+    uses: ['Centro Orientamento e Tutorato'],
+    coordinates: {
+      latitude: 38.1068248,
+      longitude: 13.352513
+    },
+    aboveGroundFloors: 3,
+    basementFloors: 0
+  },
+  {
+    id: 'building-03',
+    buildingNumber: 3,
+    name: 'Edificio 3',
+    address: 'Viale delle Scienze, Edificio 3, Palermo',
+    uses: [
+      'Didattica e servizi agli studenti',
+      'Post Lauream',
+      'Internazionalizzazione'
+    ],
+    coordinates: {
+      latitude: 38.107172,
+      longitude: 13.3530283
+    },
+    aboveGroundFloors: 2,
+    basementFloors: 1
+  },
+  {
+    id: 'building-04',
+    buildingNumber: 4,
+    name: 'Edificio 4',
+    address: 'Viale delle Scienze, Edificio 4, Palermo',
+    uses: ['Scienze agrarie, alimentari e forestali'],
+    coordinates: {
+      latitude: 38.1078889,
+      longitude: 13.3527173
+    },
+    aboveGroundFloors: 3,
+    basementFloors: 1
+  },
+  {
+    id: 'building-05',
+    buildingNumber: 5,
+    name: 'Edificio 5',
+    address: 'Viale delle Scienze, Edificio 5, Palermo',
+    uses: ['Area agroalimentare'],
+    coordinates: {
+      latitude: 38.1075549,
+      longitude: 13.3512888
+    },
+    aboveGroundFloors: 3,
+    basementFloors: 0
+  },
+  {
+    id: 'building-06',
+    buildingNumber: 6,
+    name: 'Edificio 6',
+    address: 'Viale delle Scienze, Edificio 6, Palermo',
+    uses: ['Ingegneria', 'Amministrazione centrale'],
+    coordinates: {
+      latitude: 38.1059492,
+      longitude: 13.3504286
+    },
+    aboveGroundFloors: 4,
+    basementFloors: 1
+  },
+  {
+    id: 'building-07',
+    buildingNumber: 7,
+    name: 'Edificio 7',
+    address: 'Viale delle Scienze, Edificio 7, Palermo',
+    uses: ['Ingegneria'],
+    coordinates: {
+      latitude: 38.1050554,
+      longitude: 13.3488747
+    },
+    aboveGroundFloors: 4,
+    basementFloors: 1
+  },
+  {
+    id: 'building-08',
+    buildingNumber: 8,
+    name: 'Edificio 8',
+    address: 'Viale delle Scienze, Edificio 8, Palermo',
+    uses: ['Ingegneria', 'Architettura', 'Amministrazione centrale'],
+    coordinates: {
+      latitude: 38.1051682,
+      longitude: 13.3475838
+    },
+    aboveGroundFloors: 4,
+    basementFloors: null
+  },
+  {
+    id: 'building-09',
+    buildingNumber: 9,
+    name: 'Edificio 9',
+    address: 'Viale delle Scienze, Edificio 9, Palermo',
+    uses: ['Ingegneria'],
+    coordinates: {
+      latitude: 38.1036268,
+      longitude: 13.3457991
+    },
+    aboveGroundFloors: 4,
+    basementFloors: 1
+  },
+  {
+    id: 'building-10',
+    buildingNumber: 10,
+    name: 'Edificio 10',
+    address: 'Viale delle Scienze, Edificio 10, Palermo',
+    uses: ['Ingegneria'],
+    coordinates: {
+      latitude: 38.103955,
+      longitude: 13.345634
+    },
+    aboveGroundFloors: 1,
+    basementFloors: 1
+  },
+  {
+    id: 'building-11',
+    buildingNumber: 11,
+    name: 'Edificio 11',
+    address: 'Viale delle Scienze, Edificio 11, Palermo',
+    uses: ['Sistema Informativo di Ateneo'],
+    coordinates: {
+      latitude: 38.1029944,
+      longitude: 13.3453127
+    },
+    aboveGroundFloors: 2,
+    basementFloors: 1
+  },
+  {
+    id: 'building-12',
+    buildingNumber: 12,
+    name: 'Edificio 12',
+    address: 'Viale delle Scienze, Edificio 12, Palermo',
+    uses: ['Scienze umanistiche'],
+    coordinates: {
+      latitude: 38.1025434,
+      longitude: 13.3460809
+    },
+    aboveGroundFloors: 8,
+    basementFloors: 1
+  },
+  {
+    id: 'building-13',
+    buildingNumber: 13,
+    name: 'Edificio 13',
+    address: 'Viale delle Scienze, Edificio 13, Palermo',
+    uses: [
+      'Scienze economiche, aziendali e statistiche',
+      'Aula Magna'
+    ],
+    coordinates: {
+      latitude: 38.102846,
+      longitude: 13.3483073
+    },
+    aboveGroundFloors: 6,
+    basementFloors: 1
+  },
+  {
+    id: 'building-14',
+    buildingNumber: 14,
+    name: 'Edificio 14',
+    address: 'Viale delle Scienze, Edificio 14, Palermo',
+    uses: ['Architettura'],
+    coordinates: {
+      latitude: 38.1017179,
+      longitude: 13.3471544
+    },
+    aboveGroundFloors: 5,
+    basementFloors: 0
+  },
+  {
+    id: 'building-15',
+    buildingNumber: 15,
+    name: 'Edificio 15',
+    address: 'Viale delle Scienze, Edificio 15, Palermo',
+    uses: [
+      'Scienze psicologiche, pedagogiche e della formazione',
+      'Scienze dell’esercizio fisico',
+      'Amministrazione centrale'
+    ],
+    coordinates: {
+      latitude: 38.1019604,
+      longitude: 13.3449954
+    },
+    aboveGroundFloors: 9,
+    basementFloors: 1
+  },
+  {
+    id: 'building-16',
+    buildingNumber: 16,
+    name: 'Edificio 16',
+    address: 'Viale delle Scienze, Edificio 16, Palermo',
+    uses: [
+      'Scienze biologiche, chimiche e farmaceutiche',
+      'Culture e società',
+      'Amministrazione centrale'
+    ],
+    coordinates: {
+      latitude: 38.1004189,
+      longitude: 13.3449737
+    },
+    aboveGroundFloors: 3,
+    basementFloors: 3
+  },
+  {
+    id: 'building-17',
+    buildingNumber: 17,
+    name: 'Edificio 17',
+    address: 'Viale delle Scienze, Edificio 17, Palermo',
+    uses: ['Fisica e chimica'],
+    coordinates: {
+      latitude: 38.0993237,
+      longitude: 13.3443788
+    },
+    aboveGroundFloors: 3,
+    basementFloors: 1
+  },
+  {
+    id: 'building-18',
+    buildingNumber: 18,
+    name: 'Edificio 18',
+    address: 'Viale delle Scienze, Edificio 18, Palermo',
+    uses: [
+      'Fisica e chimica',
+      'Area tecnica e patrimonio immobiliare'
+    ],
+    coordinates: {
+      latitude: 38.0985535,
+      longitude: 13.3436033
+    },
+    aboveGroundFloors: 9,
+    basementFloors: 1
+  },
+  {
+    id: 'building-19',
+    buildingNumber: 19,
+    name: 'Edificio 19',
+    address: 'Viale delle Scienze, Edificio 19, Palermo',
+    uses: ['Polo didattico', 'Aule multimediali'],
+    coordinates: {
+      latitude: 38.1041405,
+      longitude: 13.3496401
+    },
+    aboveGroundFloors: null,
+    basementFloors: null
+  }
+];

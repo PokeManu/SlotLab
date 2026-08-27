@@ -109,3 +109,59 @@
   outline: 3px solid var(--slot-primary);
   outline-offset: 3px;
 }
+
+@media (max-width: 700px) {
+  .topbar {
+    flex-wrap: wrap;
+    min-height: auto;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .topbar__brand {
+    order: 1;
+  }
+
+  .topbar__logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+
+  .topbar__logo ion-icon {
+    font-size: 23px;
+  }
+
+  .topbar__brand-name {
+    font-size: 24px;
+  }
+
+  .topbar__user {
+    order: 2;
+  }
+
+  .topbar__username {
+    display: none;
+  }
+
+  .topbar__notification,
+  .topbar__avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .topbar__navigation {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .topbar__link {
+    flex: 1;
+    padding: 11px 12px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+}

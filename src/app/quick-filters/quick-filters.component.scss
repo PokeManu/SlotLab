@@ -1,0 +1,51 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 36px;
+}
+
+.quick-filters__button {
+  min-height: 52px;
+  padding: 0 22px;
+  border: 1px solid var(--slot-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--slot-text-muted);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 100ms ease;
+}
+
+.quick-filters__button--active {
+  border-color: var(--slot-primary-soft);
+  background: var(--slot-primary-soft);
+  color: var(--slot-background);
+}
+
+.quick-filters__button:not(.quick-filters__button--active):hover {
+  border-color: var(--slot-primary);
+  color: var(--slot-text);
+}
+
+.quick-filters__button:active {
+  transform: translateY(1px);
+}
+
+.quick-filters__button:focus-visible {
+  outline: 3px solid var(--slot-primary);
+  outline-offset: 3px;
+}
