@@ -45,6 +45,56 @@ ion-content {
   text-align: right;
 }
 
+.home__overview {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.home__overview app-campus-map,
+.home__overview app-next-booking {
+  min-width: 0;
+}
+
+.recommended-spaces {
+  margin-top: 64px;
+}
+
+.recommended-spaces__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.recommended-spaces__header h2 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.recommended-spaces__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.recommended-spaces__grid app-space-card {
+  min-width: 0;
+}
+
+@media (max-width: 1000px) {
+  .home__overview {
+    grid-template-columns: 1fr;
+  }
+
+  .recommended-spaces__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 700px) {
   .home {
     padding: 40px 20px 64px;
@@ -63,5 +113,17 @@ ion-content {
   .home__context {
     font-size: 16px;
     text-align: left;
+  }
+
+  .recommended-spaces {
+    margin-top: 48px;
+  }
+
+  .recommended-spaces__header h2 {
+    font-size: 28px;
+  }
+
+  .recommended-spaces__grid {
+    grid-template-columns: 1fr;
   }
 }

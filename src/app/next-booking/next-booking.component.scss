@@ -1,0 +1,112 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.next-booking {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 32px;
+  border: 1px solid var(--slot-border);
+  border-radius: 20px;
+  background: var(--slot-surface);
+  color: var(--slot-text);
+}
+
+.next-booking__eyebrow {
+  margin: 0;
+  color: var(--slot-primary-soft);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.next-booking__title {
+  margin: 8px 0 0;
+  color: var(--slot-text);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.next-booking__status {
+  margin: 14px 0 0;
+  color: var(--slot-text-muted);
+  font-size: 16px;
+}
+
+.next-booking__status[data-status='confirmed'] {
+  color: #79dab5;
+}
+
+.next-booking__status[data-status='pending'] {
+  color: #f0c66e;
+}
+
+.next-booking__status[data-status='cancelled'] {
+  color: #ff9292;
+}
+
+.next-booking__details {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--slot-border);
+  border-bottom: 1px solid var(--slot-border);
+  list-style: none;
+}
+
+.next-booking__detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--slot-text-muted);
+  font-size: 16px;
+}
+
+.next-booking__detail ion-icon {
+  flex-shrink: 0;
+  color: var(--slot-primary-soft);
+  font-size: 20px;
+}
+
+.next-booking__button {
+  width: 100%;
+  min-height: 56px;
+  margin-top: auto;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--slot-primary);
+  color: var(--slot-text);
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.next-booking__button:hover {
+  filter: brightness(1.08);
+}
+
+.next-booking__button:active {
+  transform: translateY(1px);
+}
+
+.next-booking__button:focus-visible {
+  outline: 3px solid var(--slot-text);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .next-booking {
+    padding: 24px;
+  }
+
+  .next-booking__title {
+    font-size: 24px;
+  }
+}

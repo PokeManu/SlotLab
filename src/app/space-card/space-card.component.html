@@ -1,0 +1,43 @@
+<article class="space-card">
+  <div class="space-card__media">
+    @if (space.image) {
+      <img
+        class="space-card__image"
+        [src]="space.image"
+        [alt]="'Foto di ' + space.name"
+        loading="lazy"
+      >
+    } @else {
+      <div
+        class="space-card__placeholder"
+        aria-hidden="true"
+      ></div>
+    }
+
+    <span class="space-card__type">
+      {{ space.type }}
+    </span>
+  </div>
+
+  <div class="space-card__content">
+    <h3 class="space-card__name">
+      {{ space.name }}
+    </h3>
+
+    <p class="space-card__details">
+      {{ space.building }}
+      <span aria-hidden="true">·</span>
+      piano {{ space.floor }}
+      <span aria-hidden="true">·</span>
+      {{ space.seats }}
+      {{ space.seats === 1 ? 'posto' : 'posti' }}
+    </p>
+  </div>
+
+  <button
+    class="space-card__action"
+    type="button"
+    [attr.aria-label]="'Apri ' + space.name"
+    (click)="openSpace()"
+  ></button>
+</article>

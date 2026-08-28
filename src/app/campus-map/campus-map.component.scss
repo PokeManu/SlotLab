@@ -1,9 +1,11 @@
 :host {
   display: block;
-  margin-top: 24px;
+  height: 100%;
 }
 
 .campus-map {
+  box-sizing: border-box;
+  height: 100%;
   padding: 20px;
   background: var(--slot-surface);
   border: 1px solid var(--slot-border);

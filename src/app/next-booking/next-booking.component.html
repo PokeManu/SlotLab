@@ -1,0 +1,72 @@
+<article
+  class="next-booking"
+  aria-labelledby="next-booking-title"
+>
+  <header class="next-booking__header">
+    <p class="next-booking__eyebrow">
+      Prossima prenotazione
+    </p>
+
+    <h2
+      id="next-booking-title"
+      class="next-booking__title"
+    >
+      {{ booking.spaceName }}
+    </h2>
+
+    <p
+      class="next-booking__status"
+      [attr.data-status]="booking.status"
+    >
+      {{ statusLabel }}
+    </p>
+  </header>
+
+  <ul class="next-booking__details">
+    <li class="next-booking__detail">
+      <ion-icon
+        name="time-outline"
+        aria-hidden="true"
+      ></ion-icon>
+
+      <span>
+        {{ booking.dateLabel }},
+        {{ booking.startTime }}–{{ booking.endTime }}
+      </span>
+    </li>
+
+    <li class="next-booking__detail">
+      <ion-icon
+        name="location-outline"
+        aria-hidden="true"
+      ></ion-icon>
+      <span>
+        {{ booking.building }}, piano {{ booking.floor }}
+      </span>
+    </li>
+
+    <li class="next-booking__detail">
+      <ion-icon
+        name="people-outline"
+        aria-hidden="true"
+      ></ion-icon>
+
+      <span>
+        {{ booking.participants }}
+        {{
+          booking.participants === 1
+            ? 'partecipante'
+            : 'partecipanti'
+        }}
+      </span>
+    </li>
+  </ul>
+
+  <button
+    class="next-booking__button"
+    type="button"
+    (click)="openBooking()"
+  >
+    Apri prenotazione
+  </button>
+</article>
