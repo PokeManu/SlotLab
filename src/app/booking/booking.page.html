@@ -1,0 +1,92 @@
+<ion-content [fullscreen]="true">
+ <main class="booking-page">
+  <header class="booking-header">
+    <a class="back-button" [routerLink]="['/spaces', space.id]" aria-label="Torna al dettaglio dello spazio">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </a>
+    <h1>Nuova prenotazione</h1>
+  </header>
+
+  <section class="booking-card room-summary">
+    <div class="summary-icon">
+      <ion-icon name="book-outline"></ion-icon>
+    </div>
+
+    <div class="summary-content">
+      <h2>{{space.name}}</h2>
+      <p>{{space.building}}, piano {{space.floor}}</p>
+      <p>{{space.seats}} posti
+        @if (space.accessible){
+          <span> · Accessibile</span>
+        }
+      </p>
+    </div>
+  </section>
+
+  <section class="booking-card field-row">
+    <ion-icon name="field-icon" name="calendar-outline"></ion-icon>
+    <div class="field-content">
+      <span class="field-label">Data</span>
+      <strong>Oggi, 22 Agosto</strong>
+    </div>
+
+    <ion-icon class="field-arrow" name="chevron-down-outline"></ion-icon>
+  </section>
+
+  <section class="booking-card time-section">
+    <h2>Fascia oraria</h2>
+    <div class="time-slots">
+      @for (time of timeSlots; track time){
+        <button
+        type="button"
+        class="time-slot"
+        [class.time-slot--selected]="selectedTime === time"
+        [attr.aria-pressed]="selectedTime === time"
+        (click)="selectTime(time)">{{time}}</button>
+      }
+    </div>
+  </section>
+
+  <section class="booking-card participants">
+    <div class="participants__label">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Partecipanti</span>
+    </div>
+
+    <div class="counter">
+      <button type="button" aria-label="Diminuisci partecipanti" [disabled]="participants === 1" (click)="decreaseParticipants()">
+        <ion-icon name="remove-outline"></ion-icon>
+      </button>
+      <strong>{{participants}}</strong>
+      <button type="button" aria-label="Aumenta partecipanti" [disabled]="participants === space.seats" (click)="increaseParticipants()">
+        <ion-icon name="add-outline"></ion-icon>
+      </button>
+    </div>
+  </section>
+
+  <section class="booking-card field-row">
+    <ion-icon class="field-icon" name="desktop-outline"></ion-icon>
+    <label class="field-content">
+      <span class="field-label">Risorsa (opzionale)</span>
+      <select [value]="selectedResource" (change)="changeResource($event)">
+        <option value="Nessuna">Nessuna</option>
+        <option value="Proiettore">Proiettore</option>
+        <option value="Lavagna interattiva">Lavagna interattiva</option>
+        <option value="Computer">Computer</option>
+      </select>
+    </label>
+
+    <ion-icon class="field-arrow" name="chevron-down-outline"></ion-icon>
+  </section>
+
+  <section class="booking-card duration">
+    <div>
+      <ion-icon name="time-outline"></ion-icon>
+      <span>Durata</span>
+    </div>
+    <strong>2 ore</strong>
+  </section>
+
+  <button class="primary-button" type="button" (click)="confirmBooking()">Conferma prenotazione</button>
+ </main>
+</ion-content>
