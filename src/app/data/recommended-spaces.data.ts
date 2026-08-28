@@ -2,8 +2,8 @@ import { SpaceSummary } from '../models/space-summary.model';
 
 export const RECOMMENDED_SPACES: SpaceSummary[] = [
   {
-    id: 'aula-studio-a3',
-    name: 'Aula Studio A3',
+    id: 'aula-studio-a1',
+    name: 'Aula Studio A1',
     type: 'Aula studio',
     building: 'Edificio 6',
     floor: 2,
