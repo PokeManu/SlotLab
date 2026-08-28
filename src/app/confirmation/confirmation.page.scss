@@ -1,0 +1,255 @@
+ :host {
+    display: block;
+  }
+
+  ion-content {
+    --background:
+      radial-gradient(
+        circle at 50% 20%,
+        rgba(54, 82, 128, 0.22),
+        transparent 42%
+      ),
+      var(--slot-background);
+
+    --color: var(--slot-text);
+  }
+
+  .confirmation-page {
+    box-sizing: border-box;
+    width: min(100%, 500px);
+    min-height: 100%;
+    margin: 0 auto;
+    padding:
+      calc(90px + env(safe-area-inset-top))
+      24px
+      calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .success-icon {
+    display: grid;
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 26px;
+    place-items: center;
+    border-radius: 50%;
+    background: #78dfbd;
+    box-shadow:
+      0 12px 32px rgba(88, 219, 177, 0.18);
+    color: #081526;
+  }
+
+  .success-icon ion-icon {
+    font-size: 54px;
+  }
+
+  .confirmation-heading {
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .confirmation-heading h1 {
+    margin: 0 0 10px;
+    color: var(--slot-text);
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  .confirmation-heading p {
+    margin: 0;
+    color: var(--slot-text-muted);
+    font-size: 16px;
+  }
+
+  .confirmation-card {
+    box-sizing: border-box;
+    border: 1px solid var(--slot-border);
+    border-radius: 15px;
+    background: rgba(20, 35, 59, 0.78);
+  }
+
+  .booking-summary {
+    display: flex;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .room-icon {
+    display: grid;
+    width: 82px;
+    height: 82px;
+    flex: 0 0 82px;
+    place-items: center;
+    border-radius: 13px;
+    background: #263958;
+    color: var(--slot-text-muted);
+  }
+
+  .room-icon ion-icon {
+    font-size: 33px;
+  }
+
+  .booking-summary__content {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .booking-summary h2 {
+    margin: 5px 0 14px;
+    color: var(--slot-text);
+    font-size: 21px;
+    font-weight: 600;
+  }
+
+  .booking-summary p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+    color: var(--slot-text-muted);
+    font-size: 15px;
+  }
+
+  .booking-summary p ion-icon {
+    flex: 0 0 auto;
+    font-size: 20px;
+  }
+
+  .booking-summary .selected-resource {
+    display: block;
+    padding-top: 3px;
+    color: #78dfbd;
+  }
+
+  .booking-code {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 17px;
+    padding: 22px;
+    color: var(--slot-text-muted);
+  }
+
+  .booking-code strong {
+    color: #78dfbd;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .qr-button {
+    display: flex;
+    width: 100%;
+    min-height: 66px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 42px;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 14px;
+    background:
+      linear-gradient(
+        135deg,
+        #4f7fff,
+        #5b68f5
+      );
+    color: white;
+    font: inherit;
+    font-size: 18px;
+    cursor: pointer;
+    transition:
+      filter 160ms ease,
+      transform 160ms ease;
+  }
+
+  .qr-button ion-icon {
+    font-size: 23px;
+  }
+
+  .qr-button:hover {
+    filter: brightness(1.08);
+  }
+
+  .qr-button:active {
+    transform: scale(0.99);
+  }
+
+  .qr-panel {
+    margin-top: 18px;
+    padding: 22px;
+    border: 1px solid var(--slot-border);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #081526;
+    text-align: center;
+  }
+
+  .qr-panel p {
+    margin: 16px 0 0;
+  }
+
+  .fake-qr {
+    display: grid;
+    width: 180px;
+    height: 180px;
+    box-sizing: border-box;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0 auto;
+    padding: 14px;
+    background: white;
+  }
+
+  .fake-qr span {
+    background: #081526;
+  }
+
+  .fake-qr span:nth-child(2),
+  .fake-qr span:nth-child(4),
+  .fake-qr span:nth-child(6),
+  .fake-qr span:nth-child(8) {
+    transform: scale(0.6);
+  }
+
+  .home-link {
+    display: block;
+    margin-top: 30px;
+    padding: 10px;
+    color: var(--slot-primary);
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .home-link:hover {
+    text-decoration: underline;
+  }
+
+  .qr-button:focus-visible,
+  .home-link:focus-visible {
+    outline: 3px solid #8da8ff;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 380px) {
+    .confirmation-page {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    .booking-summary {
+      gap: 14px;
+      padding: 17px;
+    }
+
+    .room-icon {
+      width: 64px;
+      height: 64px;
+      flex-basis: 64px;
+    }
+
+    .booking-code {
+      padding: 18px;
+    }
+  }
