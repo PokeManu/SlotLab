@@ -26,7 +26,7 @@ import { RECOMMENDED_SPACES } from '../data/recommended-spaces.data';
 export class HomePage {
   readonly nextBooking: BookingSummary = {
     id: 'booking-001',
-    spaceName: 'Aula Studio A3',
+    spaceName: 'Aula Studio A1',
     status: 'confirmed',
     dateLabel: 'Oggi',
     startTime: '10:00',

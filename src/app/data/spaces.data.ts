@@ -13,7 +13,7 @@ export interface Space {
   export const SPACES: Space[] = [
     {
       id: 'AulaStudioA1',
-      name: 'Aula Studio A3',
+      name: 'Aula Studio A1',
       type: 'Aula studio',
       building: 'Edificio 6',
       floor: 2,
