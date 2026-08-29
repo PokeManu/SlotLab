@@ -18,15 +18,24 @@ export const routes: Routes = [
   },
   {
     path: 'spaces/:id',
-    loadComponent: () => import('./space-detail/space-detail.page').then( m => m.SpaceDetailPage)
+    loadComponent: () =>
+      import('./space-detail/space-detail.page').then(
+        (m) => m.SpaceDetailPage
+      ),
   },
   {
     path: 'booking/:id',
-    loadComponent: () => import('./booking/booking.page').then( m => m.BookingPage)
+    loadComponent: () =>
+      import('./booking/booking.page').then(
+        (m) => m.BookingPage
+      ),
   },
   {
     path: 'confirmation/:id',
-    loadComponent: () => import('./confirmation/confirmation.page').then( m => m.ConfirmationPage)
+    loadComponent: () =>
+      import('./confirmation/confirmation.page').then(
+        (m) => m.ConfirmationPage
+      ),
   },
   {
     path: '**',

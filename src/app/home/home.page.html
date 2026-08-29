@@ -35,7 +35,9 @@
 
       <div class="recommended-spaces__grid">
         @for (space of recommendedSpaces; track space.id) {
-        <app-space-card [space]="space"></app-space-card>
+        <app-space-card
+        [space]="space"
+        (spaceOpened)="openSpace($event)"></app-space-card>
         }
       </div>
     </section>
