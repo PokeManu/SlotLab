@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
 import { ConfirmationPage } from './confirmation.page';
 
 describe('ConfirmationPage', () => {
@@ -6,6 +8,10 @@ describe('ConfirmationPage', () => {
   let fixture: ComponentFixture<ConfirmationPage>;
 
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([])],
+    });
+
     fixture = TestBed.createComponent(ConfirmationPage);
     component = fixture.componentInstance;
     fixture.detectChanges();

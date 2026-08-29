@@ -1,13 +1,74 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>confirmation</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">confirmation</ion-title>
-    </ion-toolbar>
-  </ion-header>
+ <main class="confirmation-page">
+  <div class="success-icon" aria-hidden="true">
+    <ion-icon name="checkmark-outline"></ion-icon>
+  </div>
+  <section class="confirmation-heading">
+    <h1>Prenotazione confermata</h1>
+    <p>La tua Prenotazione è stata registrata.</p>
+  </section>
+
+  <section class="confirmation-card booking-summary">
+    <div class="room-icon">
+      <ion-icon name="book-outline"></ion-icon>
+    </div>
+
+    <div class="booking-summary__content">
+      <h2>{{space.name}}</h2>
+      <p>
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Oggi, {{selectedTime}}</span>
+      </p>
+      <p>
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{space.building}}, piano {{space.floor}}</span>
+      </p>
+
+      <p>
+        <ion-icon name="people-outline"></ion-icon>
+        <span>{{participants}} partecipanti</span>
+      </p>
+
+      @if (selectedResource !== 'Nessuna'){
+        <p class="selected-resource">
+          Risorsa: {{selectedResource}}
+        </p>
+      }
+    </div>
+  </section>
+
+  <section class="confirmation-card booking-code">
+    <span>Codice prenotazione</span>
+    <strong>{{bookingCode}}</strong>
+  </section>
+
+  <button class="qr-button" type="button" [attr.aria-expanded]="showQrCode" (click)="toggleQrCode()">
+    <ion-icon name="qr-code-outline"></ion-icon>
+    @if (showQrCode){
+      Nascondi QR
+    } @else{
+      Mostra QR per il check-in
+    }
+  </button>
+
+  @if(showQrCode){
+    <section class="qr-panel">
+      <div class="fake-qr" aria-hidden="true">
+         <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+      </div>
+
+      <p>Codice check-in: <strong>{{bookingCode}}</strong></p>
+    </section>
+  }
+
+  <a class="home-link" routerLink="/home">Torna alla home</a>
+ </main>
 </ion-content>

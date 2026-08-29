@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { SpaceSearchComponent } from '../space-search/space-search.component';
@@ -24,6 +25,7 @@ import { RECOMMENDED_SPACES } from '../data/recommended-spaces.data';
   ],
 })
 export class HomePage {
+  private readonly router = inject(Router);
   readonly nextBooking: BookingSummary = {
     id: 'booking-001',
     spaceName: 'Aula Studio A1',
@@ -37,4 +39,8 @@ export class HomePage {
   };
 
   readonly recommendedSpaces = RECOMMENDED_SPACES;
+
+  openSpace(spaceId: string): void {
+    this.router.navigate(['/spaces', spaceId]);
+  }
 }
