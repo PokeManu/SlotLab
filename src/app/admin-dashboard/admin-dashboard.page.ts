@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
+
   import {
     barChartOutline,
     bookOutline,
@@ -20,6 +22,7 @@ import { addIcons } from 'ionicons';
     label: string;
     icon: string;
     active: boolean;
+    route: string;
   }
 
   interface AdminBooking{
@@ -41,7 +44,7 @@ import { addIcons } from 'ionicons';
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
-  imports: [IonContent, IonIcon],
+  imports: [IonContent, IonIcon, RouterLink],
 })
 export class AdminDashboardPage{
   readonly navigationItems: NavigationItem[] = [
@@ -49,26 +52,31 @@ export class AdminDashboardPage{
       label: 'Panoramica',
       icon: 'grid-outline',
       active: true,
+      route: '/admin'
     },
     {
       label: 'Prenotazioni',
       icon: 'calendar-outline',
       active: false,
+      route: '/admin/bookings'
     },
     {
       label: 'Spazi',
       icon: 'business-outline',
       active: false,
+      route: '/admin/spaces'
     },
     {
       label: 'Segnalazioni',
       icon: 'construct-outline',
       active: false,
+      route: '/admin/reports'
     },
     {
       label: 'Statistiche',
       icon: 'bar-chart-outline',
       active: false,
+      route: 'admin/statistics'
     },
   ];
 

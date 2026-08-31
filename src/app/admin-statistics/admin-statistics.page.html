@@ -1,0 +1,188 @@
+<ion-content [fullscreen]="true" class="admin-content">
+    <div class="admin-shell">
+      <aside class="sidebar" aria-label="Navigazione amministratore">
+        <div class="brand">
+          <span class="brand__icon">
+            <ion-icon name="checkbox-outline"></ion-icon>
+          </span>
+
+          <span class="brand__name">SlotLab</span>
+        </div>
+
+        <nav class="sidebar__navigation">
+          @for (item of navigationItems; track item.label) {
+            <button
+              type="button"
+              class="nav-item"
+              [class.nav-item--active]="item.active"
+              [routerLink]="item.route"
+            >
+              <ion-icon [name]="item.icon"></ion-icon>
+              <span>{{ item.label }}</span>
+            </button>
+          }
+        </nav>
+
+        <div class="administrator">
+          <span class="administrator__avatar">FG</span>
+
+          <span class="administrator__information">
+            <strong>Francesco</strong>
+            <small>Amministratore</small>
+          </span>
+        </div>
+      </aside>
+
+      <main class="statistics-management">
+        <header class="statistics-header">
+          <h1>Statistiche</h1>
+
+          <label class="date-filter">
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span class="sr-only">Seleziona il periodo</span>
+
+            <select aria-label="Seleziona il periodo">
+              <option value="august-2026">1–31 agosto 2026</option>
+              <option value="july-2026">1–31 luglio 2026</option>
+              <option value="june-2026">1–30 giugno 2026</option>
+            </select>
+
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </label>
+        </header>
+
+        <section class="statistics-metrics" aria-label="Riepilogo
+        statistiche">
+          @for (metric of metrics; track metric.label) {
+            <article class="metric-card">
+              <span class="metric-card__label">
+                {{ metric.label }}
+              </span>
+
+              <strong class="metric-card__value">
+                {{ metric.value }}
+              </strong>
+
+              <small class="metric-card__trend">
+                {{ metric.trend }}
+              </small>
+            </article>
+          }
+        </section>
+
+        <section
+          class="statistics-panel bookings-chart"
+          aria-labelledby="bookings-chart-title"
+        >
+          <header class="panel-header">
+            <h2 id="bookings-chart-title">Prenotazioni per giorno</h2>
+
+            <button
+              type="button"
+              class="panel-menu"
+              aria-label="Opzioni del grafico"
+            >
+              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+            </button>
+          </header>
+
+          <div class="chart-area">
+            <div class="chart-y-axis" aria-hidden="true">
+              <span>100</span>
+              <span>80</span>
+              <span>60</span>
+              <span>40</span>
+              <span>20</span>
+              <span>0</span>
+            </div>
+
+            <div
+              class="bar-chart"
+              role="img"
+              aria-label="Grafico delle prenotazioni giornaliere di
+              agosto 2026"
+            >
+              @for (booking of dailyBookings; track booking.day) {
+                <span
+                  class="bar-chart__bar"
+                  [style.height.%]="booking.value"
+                >
+                  <span class="sr-only">
+                    Giorno {{ booking.day }}:
+                    {{ booking.value }} prenotazioni
+                  </span>
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="chart-x-axis" aria-hidden="true">
+            <span>1 ago</span>
+            <span>6 ago</span>
+            <span>11 ago</span>
+            <span>16 ago</span>
+            <span>21 ago</span>
+            <span>26 ago</span>
+            <span>31 ago</span>
+          </div>
+        </section>
+
+        <section
+          class="statistics-panel usage-panel"
+          aria-labelledby="usage-title"
+        >
+          <header class="panel-header">
+            <h2 id="usage-title">Utilizzo per tipologia</h2>
+
+            <button
+              type="button"
+              class="panel-menu"
+              aria-label="Opzioni di utilizzo"
+            >
+              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+            </button>
+          </header>
+
+          <div class="usage-content">
+            <div
+              class="donut-chart"
+              role="img"
+              aria-label="Aule studio 48%, laboratori 32%, sale riunioni
+              20%"
+            >
+              <div class="donut-chart__center">
+                <strong>72%</strong>
+                <span>Utilizzo medio</span>
+              </div>
+            </div>
+
+            <ul class="usage-legend">
+              @for (category of usageCategories; track category.label) {
+                <li>
+                  <span
+                    class="usage-legend__dot"
+                    [class.usage-legend__dot--blue]="
+                      category.color === 'blue'
+                    "
+                    [class.usage-legend__dot--green]="
+                      category.color === 'green'
+                    "
+                    [class.usage-legend__dot--orange]="
+                      category.color === 'orange'
+                    "
+                  ></span>
+
+                  <span class="usage-legend__label">
+                    {{ category.label }}
+                  </span>
+
+                  <strong>{{ category.percentage }}%</strong>
+                </li>
+              }
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  </ion-content>

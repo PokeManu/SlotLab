@@ -1,0 +1,193 @@
+<ion-content [fullscreen]="true" class="admin-content">
+  <div class="admin-shell">
+    <aside class="sidebar" aria-label="Navigazione amministratore">
+      <div class="brand">
+        <span class="brand__icon">
+          <ion-icon name="checkbox-outline"></ion-icon>
+        </span>
+
+        <span class="brand__name">SlotLab</span>
+      </div>
+
+      <nav class="sidebar__navigation">
+        @for (item of navigationItem; track item.label){
+          <button type="button" class="nav-item" [class.nav-item--active]="item.active" [routerLink]="item.route">
+            <ion-icon [name]="item.icon"></ion-icon>
+            <span>{{item.label}}</span>
+          </button>
+        }
+      </nav>
+
+      <div class="administrator">
+        <span class="administrator__avatar">FG</span>
+        <span class="administrator__information">
+          <strong>Francesco</strong>
+          <small>Amministratore</small>
+        </span>
+      </div>
+    </aside>
+
+    <main class="report-management">
+      <header class="reports-header">
+        <h1>Segnalazioni</h1>
+      </header>
+
+      <nav class="report-filters" aria-label="Filtra le segnalazioni">
+        <button type="button" [class.report-filter--active] = "activeFilter === 'all'" (click)="setFilter('all')">
+          Tutte
+        </button>
+
+        <button type="button" [class.report-filter--active]="activeFilter === 'open'" (click)="setFilter('open')">
+          Aperte
+        </button>
+
+        <button type="button" [class.report-filter--active]="activeFilter === 'in-progress'" (click)="setFilter('in-progress')">
+          In lavorazione
+        </button>
+
+        <button type="button" [class.report-filter--active]="activeFilter === 'resolved'" (click)="setFilter('resolved')">
+          Risolte
+        </button>
+      </nav>
+
+      <section class="reports-layout">
+        <div class="reports-list" aria-label="Elenco delle segnalazioni">
+          @for (report of filteredReports; track report.id){
+            <button type="button"
+                    class="report-item"
+                    [class.report-item--selected]="selectedReport.id === report.id"
+                    (click)="selectReport(report)">
+              <span class="report-item__icon"
+                    [class.report-item__icon--high]="report.priority === 'high'"
+                    [class.report-item__icon--medium]="report.priority === 'medium'"
+                    [class.report-item__icon--low]="report.priority === 'low'">
+                <ion-icon [name]="report.icon"></ion-icon>
+              </span>
+
+              <span class="report-item__information">
+                <strong>{{report.title}}</strong>
+                <small>{{report.space}}</small>
+                <small>{{report.date}}</small>
+              </span>
+
+              <span class="priority-pill"
+                    [class.priority-pill--high]="report.priority === 'high'"
+                    [class.priority-pill--medium]="report.priority === 'medium'"
+                    [class.priority-pill--low]="report.priority === 'low'">
+              {{ report.priorityLabel}}
+              </span>
+            </button>
+          } @empty{
+            <p class="empty-reports">
+              Non sono presenti segnalazioni per questo filtro
+            </p>
+          }
+        </div>
+
+        <article class="report-detail">
+          <header class="report-detail__header">
+            <h2>Dettaglio segnalazione</h2>
+          </header>
+          <div class="report-detail__content">
+            <dl class="report-information">
+              <div>
+                <dt>Titolo</dt>
+                <dd>{{selectedReport.title}}</dd>
+              </div>
+
+              <div>
+                <dt>Spazio</dt>
+                <dd class="information-with-icon">
+                  <ion-icon name="location-outline"></ion-icon>
+                  <span>{{selectedReport.space}}</span>
+                </dd>
+              </div>
+
+              <div>
+                <dt>Segnalato da</dt>
+                <dd class="information-with-icon">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{selectedReport.reporter}}</span>
+                </dd>
+              </div>
+
+              <div>
+                <dt>Data segnalazione</dt>
+                <dd class="information-with-icon">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>{{selectedReport.date}}</span>
+                </dd>
+              </div>
+            </dl>
+
+            <section class="report-description">
+              <h3>Descrizione</h3>
+              <p>{{selectedReport.description}}</p>
+            </section>
+
+            @if (selectedReport.attachment; as attachment){
+              <section class="report-attachment">
+                <h3>Allegati</h3>
+                <div class="attachment-card">
+                  <span class="attachment-card__icon">
+                    <ion-icon name="image-outline"></ion-icon>
+                  </span>
+
+                  <span class="attachment-card__information">
+                    <strong>{{attachment.name}}</strong>
+                    <small>{{attachment.size}}</small>
+                  </span>
+
+                  <button type="button" class="attachment-card__menu" aria-label="Azioni allegato">
+                    <span aria-hidden="true">⋮</span>
+                  </button>
+                </div>
+              </section>
+            }
+
+            <section class="report-update" aria-label="Aggiorna segnalazione">
+              <label class="update-field">
+                <span>Stato</span>
+                <span class="select-wrapper">
+                  <span class="status-dot"
+                        [class.status-dot--open]="selectedReport.status === 'open'"
+                        [class.status-dot--progress]="selectedReport.status === 'in-progress'"
+                        [class.status-dot--resolved]="selectedReport.status === 'resolved'">
+                  </span>
+
+                  <select [value]="selectedReport.status">
+                    <option value="open">Aperta</option>
+                    <option value="in-progress">In lavorazione</option>
+                    <option value="resolved">Risolta</option>
+                  </select>
+
+                  <ion-icon name="chevron-down-outline"></ion-icon>
+                </span>
+              </label>
+
+              <label class="update-field">
+                <span>Assegnata a</span>
+                <span class="select-wrapper">
+                  <ion-icon class="select-wrapper__leading-icon" name="person-outline"></ion-icon>
+
+                  <select [value]="selectedReport.assignee">
+                    <option value="Ufficio tecnico">Ufficio tecnico</option>
+                    <option value="Servizi generali">Servizi generali</option>
+                    <option value="Amministrazione">Amministrazione</option>
+                  </select>
+                  <ion-icon name="chevron-down-outline"></ion-icon>
+                </span>
+              </label>  
+
+              <button type="button" class="save-report-button">
+                Salva aggiornamento
+              </button>
+            </section>
+          </div>
+
+
+        </article>
+      </section>
+    </main>
+  </div>
+</ion-content>

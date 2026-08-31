@@ -1,0 +1,446 @@
+ <ion-content [fullscreen]="true">
+    <div class="admin-layout">
+      <aside class="sidebar">
+        <a
+          class="sidebar__brand"
+          routerLink="/admin"
+          aria-label="Vai alla panoramica di SlotLab"
+        >
+          <span class="sidebar__brand-icon">
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </span>
+
+          <span>SlotLab</span>
+        </a>
+
+        <nav
+          class="sidebar__navigation"
+          aria-label="Navigazione amministratore"
+        >
+          @for (item of sidebarItems; track item.route) {
+            <a
+              class="sidebar__link"
+              [class.sidebar__link--active]="
+                item.route === '/admin/bookings'
+              "
+              [routerLink]="item.route"
+            >
+              <ion-icon [name]="item.icon"></ion-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <div class="sidebar__profile">
+          <div class="sidebar__avatar" aria-hidden="true">
+            FG
+          </div>
+
+          <div class="sidebar__user">
+            <strong>Francesco</strong>
+            <span>Amministratore</span>
+          </div>
+
+          <button
+            class="sidebar__logout"
+            type="button"
+            aria-label="Esci"
+          >
+            <ion-icon name="log-out-outline"></ion-icon>
+          </button>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="page-header">
+          <h1>Gestione prenotazioni</h1>
+
+          <button
+            class="primary-button page-header__button"
+            type="button"
+            (click)="createBooking()"
+          >
+            <ion-icon name="add-outline"></ion-icon>
+            <span>Nuova prenotazione</span>
+          </button>
+        </header>
+
+        <section
+          class="filters"
+          aria-label="Filtri delle prenotazioni"
+        >
+          <label class="search-field">
+            <ion-icon name="search-outline"></ion-icon>
+
+            <input
+              type="search"
+              placeholder="Cerca per spazio o utente"
+              aria-label="Cerca per spazio, utente o codice"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="applyFilters()"
+            />
+          </label>
+
+          <div class="filters__selects">
+            <label class="select-field">
+              <span class="sr-only">Filtra per data</span>
+
+              <select
+                [(ngModel)]="selectedDate"
+                (ngModelChange)="applyFilters()"
+              >
+                <option value="">Data</option>
+                <option value="2026-08-31">Oggi</option>
+                <option value="2026-09-01">Domani</option>
+              </select>
+
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </label>
+
+            <label class="select-field">
+              <span class="sr-only">Filtra per spazio</span>
+
+              <select
+                [(ngModel)]="selectedSpace"
+                (ngModelChange)="applyFilters()"
+              >
+                <option value="">Spazio</option>
+
+                @for (space of availableSpaces; track space) {
+                  <option [value]="space">{{ space }}</option>
+                }
+              </select>
+
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </label>
+
+            <label class="select-field">
+              <span class="sr-only">Filtra per stato</span>
+
+              <select
+                [(ngModel)]="selectedStatus"
+                (ngModelChange)="applyFilters()"
+              >
+                <option value="">Stato</option>
+                <option value="Confermata">Confermata</option>
+                <option value="Check-in">Check-in</option>
+                <option value="Annullata">Annullata</option>
+              </select>
+
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </label>
+          </div>
+        </section>
+
+        <div class="booking-workspace">
+          <section class="booking-panel">
+            <div class="booking-panel__heading">
+              <h2>Prenotazioni</h2>
+
+              @if (
+                searchTerm ||
+                selectedDate ||
+                selectedSpace ||
+                selectedStatus
+              ) {
+                <button
+                  class="clear-filters"
+                  type="button"
+                  (click)="resetFilters()"
+                >
+                  Azzera filtri
+                </button>
+              }
+            </div>
+
+            <div class="booking-table-wrapper">
+              <table class="booking-table">
+                <thead>
+                  <tr>
+                    <th>Orario</th>
+                    <th>Spazio</th>
+                    <th>Prenotato da</th>
+                    <th>Partecipanti</th>
+                    <th>Stato</th>
+                    <th class="booking-table__actions-heading">
+                      Azioni
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (
+                    booking of visibleBookings;
+                    track booking.code
+                  ) {
+                    <tr
+                      tabindex="0"
+                      [class.booking-table__row--selected]="
+                        selectedBooking.code === booking.code
+                      "
+                      (click)="selectBooking(booking)"
+                      (keydown.enter)="selectBooking(booking)"
+                    >
+                      <td data-label="Orario">
+                        {{ booking.startTime }}–{{ booking.endTime }}
+                      </td>
+
+                      <td data-label="Spazio">
+                        {{ booking.space }}
+                      </td>
+
+                      <td data-label="Prenotato da">
+                        {{ booking.bookedBy }}
+                      </td>
+
+                      <td data-label="Partecipanti">
+                        {{ booking.participants }}
+                      </td>
+
+                      <td data-label="Stato">
+                        <span
+                          class="booking-status"
+                          [ngClass]="statusModifier(booking.status)"
+                        >
+                          {{ booking.status }}
+                        </span>
+                      </td>
+
+                      <td
+                        class="booking-table__actions"
+                        data-label="Azioni"
+                      >
+                        <button
+                          class="icon-button"
+                          type="button"
+                          aria-label="Mostra dettaglio prenotazione"
+                          (click)="
+                            openBookingDetails($event, booking)
+                          "
+                        >
+                          <ion-icon name="eye-outline"></ion-icon>
+                        </button>
+
+                        <div class="row-menu">
+                          <button
+                            class="icon-button"
+                            type="button"
+                            aria-label="Apri azioni prenotazione"
+                            [attr.aria-expanded]="
+                              openedMenuCode === booking.code
+                            "
+                            (click)="
+                              toggleActions($event, booking.code)
+                            "
+                          >
+                            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                          </button>
+
+                          @if (openedMenuCode === booking.code) {
+                            <div class="row-menu__popover">
+                              <button
+                                type="button"
+                                (click)="editBooking($event, booking)">
+                                <ion-icon name="create-outline"></ion-icon>
+                                Modifica
+                              </button>
+
+                              @if (booking.status !== 'Annullata') {
+                                <button
+                                  class="row-menu__danger"
+                                  type="button"
+                                  (click)="cancelBooking($event, booking)">
+                                  <ion-icon name="trash-outline"></ion-icon>
+                                  Annulla
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td
+                        class="booking-table__empty"
+                        colspan="6"
+                      >
+                        Nessuna prenotazione corrisponde ai filtri
+                        selezionati.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <footer class="booking-panel__footer">
+              <p>
+                {{ firstVisibleBookingNumber }}–{{
+                  lastVisibleBookingNumber
+                }}
+                di {{ filteredBookings.length }} prenotazioni
+              </p>
+
+              <nav
+                class="pagination"
+                aria-label="Pagine delle prenotazioni"
+              >
+                <button
+                  type="button"
+                  aria-label="Pagina precedente"
+                  [disabled]="currentPage === 1"
+                  (click)="previousPage()"
+                >
+                  <ion-icon name="chevron-back-outline"></ion-icon>
+                </button>
+
+                @for (page of pageNumbers; track page) {
+                  <button
+                    type="button"
+                    [class.pagination__page--active]="
+                      currentPage === page
+                    "
+                    [attr.aria-current]="
+                      currentPage === page ? 'page' : null
+                    "
+                    (click)="goToPage(page)"
+                  >
+                    {{ page }}
+                  </button>
+                }
+
+                <button
+                  type="button"
+                  aria-label="Pagina successiva"
+                  [disabled]="currentPage === totalPages"
+                  (click)="nextPage()"
+                >
+                  <ion-icon name="chevron-forward-outline"></ion-icon>
+                </button>
+              </nav>
+            </footer>
+          </section>
+
+          <aside class="booking-details">
+            <h2>Dettaglio prenotazione</h2>
+
+            <dl class="booking-details__list">
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="tag-outline"></ion-icon>
+                  <span class="sr-only">Codice</span>
+                </dt>
+                <dd>Codice: {{ selectedBooking.code }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="book-outline"></ion-icon>
+                  <span class="sr-only">Spazio</span>
+                </dt>
+                <dd>{{ selectedBooking.space }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span class="sr-only">Utente</span>
+                </dt>
+                <dd>{{ selectedBooking.bookedBy }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span class="sr-only">Orario</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.dateLabel }},
+                  {{ selectedBooking.startTime }}–{{
+                    selectedBooking.endTime
+                  }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="business-outline"></ion-icon>
+                  <span class="sr-only">Edificio</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.building }}, piano
+                  {{ selectedBooking.floor }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="people-outline"></ion-icon>
+                  <span class="sr-only">Partecipanti</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.participants }}
+                  {{
+                    selectedBooking.participants === 1
+                      ? 'partecipante'
+                      : 'partecipanti'
+                  }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <span
+                    class="booking-details__status-dot"
+                    [class.booking-details__status-dot--cancelled]="
+                      selectedBooking.status === 'Annullata'
+                    "
+                  ></span>
+                  <span class="sr-only">Stato</span>
+                </dt>
+                <dd>
+                  Stato:
+                  <span
+                    class="booking-details__status-text"
+                    [class.booking-details__status-text--cancelled]="
+                      selectedBooking.status === 'Annullata'
+                    "
+                  >
+                    {{ selectedBooking.status }}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="booking-details__actions">
+              <button
+                class="primary-button"
+                type="button"
+                (click)="editSelectedBooking()"
+              >
+                <ion-icon name="create-outline"></ion-icon>
+                <span>Modifica prenotazione</span>
+              </button>
+
+              <button
+                class="danger-button"
+                type="button"
+                [disabled]="selectedBooking.status === 'Annullata'"
+                (click)="cancelSelectedBooking()"
+              >
+                <ion-icon name="trash-outline"></ion-icon>
+                <span>
+                  {{
+                    selectedBooking.status === 'Annullata'
+                      ? 'Prenotazione annullata'
+                      : 'Annulla prenotazione'
+                  }}
+                </span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </ion-content>
