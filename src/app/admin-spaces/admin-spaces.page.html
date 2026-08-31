@@ -1,0 +1,121 @@
+<ion-content [fullscreen]="true">
+  <div class="admin-shell">
+    <aside class="sidebar" aria-label="Navigazione amministratore">
+      <div class="brand">
+        <span class="brand__icon">
+          <ion-icon name="checkbox-outline"></ion-icon>
+        </span>
+        <span class="brand__name">SlotLab</span>
+      </div>
+
+      <nav class="sidebar__navigation">
+        @for (item of navigationItems; track item.label){
+          <button type="button" class="nav-item" [class.nav-item--active]="item.active" [routerLink]="item.route">
+            <ion-icon [name]="item.icon"></ion-icon>
+            <span>{{item.label}}</span>
+          </button>
+        }
+      </nav>
+
+      <div class="administrator">
+        <span class="administrator__avatar">FG</span>
+        <span class="administrator__information">
+          <strong>Francesco</strong>
+          <small>Amministratore</small>
+        </span>
+      </div>
+    </aside>
+
+    <main class="space-management">
+      <header class="spaces-header">
+        <h1>Gestione spazi</h1>
+        <button type="button" class="add-space-button">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Aggiungi spazio</span>
+        </button>
+      </header>
+
+      <label class="space-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <span class="sr-only">Cerca uno spazio</span>
+        <input type="search" placeholder="Cerca uno spazio">
+      </label>
+
+      <section class="space-filters" aria-label="Filtri degli spazi">
+        <button type="button" class="filter-button">
+          <span>Edificio</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+
+        <button type="button" class="filter-button">
+          <span>Tipologia</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+
+        <button type="button" class="filter-button">
+          <span>Stato</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+      </section>
+
+      <section class="spaces-table" aria-label="Elenco degli spazi">
+        <div class="spaces-table__header">
+          <span>Spazio</span>
+          <span>Edificio</span>
+          <span>Capienza</span>
+          <span>Stato</span>
+          <span>Azioni</span>
+        </div>
+
+        <div class="spaces-table__body">
+          @for (space of spaces; track space.name){
+            <article class="space-row">
+              <div class="space-row__iname">
+                <span class="space-row__icon">
+                  <ion-icon [name]="space.icon"></ion-icon>
+                </span>
+
+                <strong>{{space.name}}</strong>
+              </div>
+              <span class="space-row__building">{{space.building}}</span>
+              <span class="space-row__capacity">{{space.capacity}}</span>
+
+              <span class="status-pill"
+                    [class.status-pill--available]="space.status==='available'"
+                    [class.status-pill--in-use]="space.status==='in-use'"
+                    [class.status-pill--maintenance]="space.status==='maintenance'">
+                  {{space.statusLabel}}
+              </span>
+              
+              <div class="space-row__actions">
+                <button type="button" class="icon-button" [attr.aria-label]="'Modifica ' + space.name">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+
+                <button type="button" class="icon-button" [attr.aria-label]="'Altre azioni per '+ space.name">
+                  <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+
+      <footer class="spaces-table__footer">
+        <span>1-3 di 3 spazi</span>
+
+        <nav class="pagination" aria-label="Paginazione degli spazi">
+          <button type="button" class="pagination__button" aria-label="Pagina precedente" disabled>
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+
+          <button type="button" class="pagination__button pagination__button--active" aria-label="Pagina 1" aria-current="page">1</button>
+
+          <button type="button" class="pagination__button" aria-label="Pagina successiva" disabled>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </nav>
+      </footer>
+     </section>
+    </main>
+  </div>
+</ion-content>

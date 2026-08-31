@@ -10,7 +10,7 @@
 
       <nav class="sidebar__navigation">
         @for(item of navigationItems; track item.label){
-          <button type="button" class="nav-item" [class.nav-item--active]="item.active">
+          <button type="button" class="nav-item" [class.nav-item--active]="item.active" [routerLink]="item.route">
             <ion-icon [name]="item.icon"></ion-icon>
             <span>{{item.label}}</span>
           </button>
