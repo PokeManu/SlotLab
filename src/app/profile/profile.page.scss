@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--slot-background);
+  --color: var(--slot-text);
+}
+
+.section-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1484px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 48px 80px;
+}
+
+.section-page__eyebrow {
+  margin: 0 0 8px;
+  color: var(--slot-primary-soft);
+  font-size: 16px;
+}
+
+.section-page h1 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 46px;
+  font-weight: 500;
+}
+
+.section-page__placeholder {
+  margin: 24px 0 0;
+  color: var(--slot-text-muted);
+  font-size: 18px;
+}
+
+@media (max-width: 700px) {
+  .section-page {
+    padding: 40px 20px calc(100px + env(safe-area-inset-bottom));
+  }
+
+  .section-page h1 {
+    font-size: 34px;
+  }
+}

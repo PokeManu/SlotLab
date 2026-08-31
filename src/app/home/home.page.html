@@ -5,7 +5,7 @@
     <section class="home__intro">
       <div class="home__heading">
         <p class="home__greeting">Ciao Francesco</p>
-        <h1>Trova il tuo spazio</h1>
+        <h1>Il tuo campus</h1>
       </div>
 
       <p class="home__context">
@@ -15,33 +15,41 @@
       </p>
     </section>
 
-    <app-space-search></app-space-search>
-    <app-quick-filters></app-quick-filters>
-
-    <section class="home__overview" aria-label="Mappa e prossima prenotazione">
-
-      <app-campus-map></app-campus-map>
-
-      <app-next-booking [booking]="nextBooking"></app-next-booking>
-
-    </section>
-
-    <section class="recommended-spaces" aria-labelledby="recommended-spaces-title">
+    <section
+      class="recommended-spaces"
+      aria-labelledby="recommended-spaces-title"
+    >
       <header class="recommended-spaces__header">
         <h2 id="recommended-spaces-title">
           Spazi consigliati
         </h2>
+
+        <span class="recommended-spaces__all">
+          Vedi tutti
+        </span>
       </header>
 
       <div class="recommended-spaces__grid">
         @for (space of recommendedSpaces; track space.id) {
-        <app-space-card
-        [space]="space"
-        (spaceOpened)="openSpace($event)"></app-space-card>
+          <app-space-card
+            [space]="space"
+            (spaceOpened)="openSpace($event)"
+          ></app-space-card>
         }
       </div>
     </section>
+
+    <section
+      class="home__overview"
+      aria-label="Mappa e prossima prenotazione"
+    >
+      <app-campus-map></app-campus-map>
+
+      <app-next-booking
+        [booking]="nextBooking"
+      ></app-next-booking>
+    </section>
   </main>
-
-
 </ion-content>
+
+<app-mobile-navigation></app-mobile-navigation>

@@ -1,0 +1,64 @@
+<article class="space-list-item">
+  <div class="space-list-item__media">
+    @if (space.image) {
+      <img
+        class="space-list-item__image"
+        [src]="space.image"
+        [alt]="'Foto di ' + space.name"
+        loading="lazy"
+      >
+    } @else {
+      <div
+        class="space-list-item__placeholder"
+        aria-hidden="true"
+      ></div>
+    }
+  </div>
+
+  <div class="space-list-item__content">
+    <span class="space-list-item__type">
+      {{ space.type }}
+    </span>
+
+    <h3 class="space-list-item__name">
+      {{ space.name }}
+    </h3>
+
+    <p class="space-list-item__details">
+      {{ space.building }}
+      <span aria-hidden="true">·</span>
+      piano {{ space.floor }}
+      <span aria-hidden="true">·</span>
+      {{ space.seats }}
+      {{ space.seats === 1 ? 'posto' : 'posti' }}
+    </p>
+
+    <p class="space-list-item__availability">
+      {{ availability }}
+    </p>
+  </div>
+
+  <button
+    class="space-list-item__favorite"
+    type="button"
+    [attr.aria-label]="
+      favorite
+        ? 'Rimuovi ' + space.name + ' dai preferiti'
+        : 'Aggiungi ' + space.name + ' ai preferiti'
+    "
+    [attr.aria-pressed]="favorite"
+    (click)="toggleFavorite()"
+  >
+    <ion-icon
+      [name]="favorite ? 'heart' : 'heart-outline'"
+      aria-hidden="true"
+    ></ion-icon>
+  </button>
+
+  <button
+    class="space-list-item__action"
+    type="button"
+    [attr.aria-label]="'Apri ' + space.name"
+    (click)="openSpace()"
+  ></button>
+</article>

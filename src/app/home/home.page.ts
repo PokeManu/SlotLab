@@ -2,13 +2,12 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
-import { SpaceSearchComponent } from '../space-search/space-search.component';
-import { QuickFiltersComponent } from '../quick-filters/quick-filters.component';
 import { CampusMapComponent } from '../campus-map/campus-map.component';
 import { NextBookingComponent } from '../next-booking/next-booking.component';
 import { BookingSummary } from '../models/booking-summary.model';
 import { SpaceCardComponent } from '../space-card/space-card.component';
 import { RECOMMENDED_SPACES } from '../data/recommended-spaces.data';
+import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 
 @Component({
   selector: 'app-home',
@@ -17,11 +16,10 @@ import { RECOMMENDED_SPACES } from '../data/recommended-spaces.data';
   imports: [
     IonContent,
     TopbarComponent,
-    SpaceSearchComponent,
-    QuickFiltersComponent,
     CampusMapComponent,
     NextBookingComponent,
     SpaceCardComponent,
+    MobileNavigationComponent,
   ],
 })
 export class HomePage {

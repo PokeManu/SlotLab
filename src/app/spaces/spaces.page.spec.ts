@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { TopbarComponent } from './topbar-component.component';
+import { SpacesPage } from './spaces.page';
 
-describe('TopbarComponent', () => {
-  let component: TopbarComponent;
-  let fixture: ComponentFixture<TopbarComponent>;
+describe('SpacesPage', () => {
+  let component: SpacesPage;
+  let fixture: ComponentFixture<SpacesPage>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -14,7 +14,7 @@ describe('TopbarComponent', () => {
       ],
     });
 
-    fixture = TestBed.createComponent(TopbarComponent);
+    fixture = TestBed.createComponent(SpacesPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

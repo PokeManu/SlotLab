@@ -1,43 +1,74 @@
- <header class="topbar">
-    <div class="topbar__brand">
-      <span class="topbar__logo">
-        <ion-icon name="calendar-clear-outline"></ion-icon>
-      </span>
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__logo">
+      <ion-icon name="calendar-clear-outline"></ion-icon>
+    </span>
 
-      <span class="topbar__brand-name">
-        SlotLab
-      </span>
-    </div>
+    <span class="topbar__brand-name">
+      SlotLab
+    </span>
+  </div>
 
-    <nav class="topbar__navigation" aria-label="Navigazione principale">
-      <button class="topbar__link topbar__link--active" type="button">
-        Home
-      </button>
+  <nav
+    class="topbar__navigation"
+    aria-label="Navigazione principale"
+  >
+    <a
+      class="topbar__link"
+      routerLink="/home"
+      routerLinkActive="topbar__link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Home
+    </a>
 
-      <button class="topbar__link" type="button">
-        Spazi
-      </button>
+    <a
+      class="topbar__link"
+      routerLink="/spaces"
+      routerLinkActive="topbar__link--active"
+    >
+      Spazi
+    </a>
 
-      <button class="topbar__link" type="button">
-        Prenotazioni
-      </button>
+    <a
+      class="topbar__link"
+      routerLink="/bookings"
+      routerLinkActive="topbar__link--active"
+    >
+      Prenotazioni
+    </a>
 
-    </nav>
+    <a
+      class="topbar__link"
+      routerLink="/favorites"
+      routerLinkActive="topbar__link--active"
+    >
+      Preferiti
+    </a>
+  </nav>
 
-    <div class="topbar__user">
-      <button
-      class = "topbar__notification"
+  <div class="topbar__user">
+    <button
+      class="topbar__notification"
       type="button"
       aria-label="Apri le notifiche"
-      >
-
+    >
       <ion-icon name="notifications-outline"></ion-icon>
+    </button>
 
-      </button>
+    <a
+      class="topbar__profile"
+      routerLink="/profile"
+      routerLinkActive="topbar__profile--active"
+      aria-label="Apri il profilo di Francesco"
+    >
+      <span class="topbar__avatar">
+        FG
+      </span>
 
-      <span class="topbar__avatar">FG</span>
-      <span class ="topbar__username">Francesco</span>
-
-    </div>
-
-  </header>
+      <span class="topbar__username">
+        Francesco
+      </span>
+    </a>
+  </div>
+</header>

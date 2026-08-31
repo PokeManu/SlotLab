@@ -1,7 +1,8 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy
+  Input,
+  OnDestroy,
 } from '@angular/core';
 
 import * as L from 'leaflet';
@@ -16,6 +17,10 @@ import { CampusBuilding } from '../models/campus-building.models';
   imports: [],
 })
 export class CampusMapComponent implements AfterViewInit, OnDestroy {
+  @Input() eyebrow = 'Campus di Viale delle Scienze';
+  @Input() heading = 'Esplora gli edifici';
+  @Input() hint = 'Seleziona un edificio sulla mappa';
+
   private map?: L.Map;
 
   ngAfterViewInit(): void {

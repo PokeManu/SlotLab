@@ -1,0 +1,73 @@
+<ion-content [fullscreen]="true">
+  <app-topbar></app-topbar>
+
+  <main class="spaces">
+    <section class="spaces__intro">
+      <div>
+        <p class="spaces__greeting">
+          Ciao Francesco
+        </p>
+
+        <h1>
+          <span class="spaces__title-desktop">
+            Esplora gli spazi
+          </span>
+
+          <span class="spaces__title-mobile">
+            Trova uno spazio
+          </span>
+        </h1>
+      </div>
+
+      <p class="spaces__context">
+        Campus di Viale delle Scienze
+        <span aria-hidden="true">·</span>
+        24 spazi
+      </p>
+
+      <button
+        class="spaces__mobile-notification"
+        type="button"
+        aria-label="Apri le notifiche"
+      >
+        <ion-icon name="notifications-outline"></ion-icon>
+      </button>
+    </section>
+
+    <app-space-search></app-space-search>
+
+    <app-quick-filters></app-quick-filters>
+
+    <section class="spaces__workspace" aria-label="Mappa ed elenco degli spazi">
+      <app-campus-map eyebrow="" heading="Mappa del campus" hint="Seleziona un edificio o uno spazio"></app-campus-map>
+
+      <section class="spaces__results" aria-labelledby="spaces-results-title">
+        <header class="spaces__results-header">
+          <div>
+            <h2 id="spaces-results-title">
+              Spazi disponibili
+            </h2>
+
+            <p>
+              {{ spaces.length }}
+              {{ spaces.length === 1 ? 'risultato' : 'risultati' }}
+            </p>
+          </div>
+        </header>
+
+        <div class="spaces__results-list">
+          @for (space of spaces; track space.id) {
+          <app-space-list-item [space]="space" [favorite]="favoriteSpaceIds.has(space.id)"
+            (spaceOpened)="openSpace($event)" (favoriteToggled)="toggleFavorite($event)"></app-space-list-item>
+          } @empty {
+          <p class="spaces__empty">
+            Nessuno spazio disponibile.
+          </p>
+          }
+        </div>
+      </section>
+    </section>
+  </main>
+</ion-content>
+
+<app-mobile-navigation></app-mobile-navigation>

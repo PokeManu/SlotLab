@@ -1,0 +1,226 @@
+:host {
+  display: block;
+}
+
+.booking-item {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 90px 72px minmax(0, 1fr) auto;
+  grid-template-areas:
+    'time icon information status'
+    'time icon information actions';
+  min-height: 190px;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 28px 32px;
+  border: 1px solid var(--slot-border);
+  border-radius: 18px;
+  background: var(--slot-surface);
+  color: var(--slot-text);
+}
+
+.booking-item__time {
+  grid-area: time;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 22px;
+  border-right: 1px solid var(--slot-border);
+  color: var(--slot-text-muted);
+  font-size: 17px;
+}
+
+.booking-item__space-icon {
+  grid-area: icon;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  background: rgb(121 168 255 / 10%);
+  color: var(--slot-text-muted);
+}
+
+.booking-item__space-icon ion-icon {
+  font-size: 34px;
+}
+
+.booking-item__information {
+  grid-area: information;
+  min-width: 0;
+}
+
+.booking-item__information h3 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.booking-item__information p {
+  margin: 8px 0 0;
+  color: var(--slot-text-muted);
+  font-size: 17px;
+}
+
+.booking-item__participants {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px !important;
+}
+
+.booking-item__participants ion-icon {
+  font-size: 20px;
+}
+
+.booking-item__status {
+  grid-area: status;
+  align-self: start;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgb(71 190 147 / 14%);
+  color: #79dab5;
+  font-size: 14px;
+}
+
+.booking-item__status[data-status='pending'] {
+  background: rgb(240 198 110 / 14%);
+  color: #f0c66e;
+}
+
+.booking-item__status[data-status='cancelled'] {
+  background: rgb(255 146 146 / 14%);
+  color: #ff9292;
+}
+
+.booking-item__actions {
+  grid-area: actions;
+  display: flex;
+  align-self: end;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 36px;
+}
+
+.booking-item__actions button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.booking-item__check-in {
+  display: flex;
+  min-width: 220px;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 24px;
+  border-radius: 13px;
+  background: var(--slot-primary);
+  color: var(--slot-text);
+  font-size: 17px;
+}
+
+.booking-item__check-in ion-icon {
+  font-size: 22px;
+}
+
+.booking-item__cancel {
+  padding: 10px 0;
+  background: transparent;
+  color: var(--slot-primary-soft);
+  font-size: 17px;
+}
+
+.booking-item__actions button:focus-visible {
+  outline: 3px solid var(--slot-text);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .booking-item {
+    grid-template-columns: 62px 52px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'time icon information status'
+      'actions actions actions actions';
+    min-height: 0;
+    gap: 18px 14px;
+    padding: 18px 14px 16px;
+    border-radius: 15px;
+  }
+
+  .booking-item__time {
+    align-self: stretch;
+    justify-content: center;
+    gap: 4px;
+    padding-right: 14px;
+    font-size: 14px;
+  }
+
+  .booking-item__space-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+  }
+
+  .booking-item__space-icon ion-icon {
+    font-size: 25px;
+  }
+
+  .booking-item__information h3 {
+    font-size: 17px;
+  }
+
+  .booking-item__information p {
+    margin-top: 5px;
+    font-size: 14px;
+  }
+
+  .booking-item__participants {
+    margin-top: 10px !important;
+  }
+
+  .booking-item__participants ion-icon {
+    font-size: 17px;
+  }
+
+  .booking-item__status {
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+
+  .booking-item__actions {
+    width: 100%;
+    gap: 20px;
+  }
+
+  .booking-item__check-in {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .booking-item__cancel {
+    flex: 0 0 120px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 430px) {
+  .booking-item {
+    grid-template-columns: 62px 52px minmax(0, 1fr);
+    grid-template-areas:
+      'time icon information'
+      'time icon status'
+      'actions actions actions';
+  }
+
+  .booking-item__status {
+    justify-self: start;
+  }
+}

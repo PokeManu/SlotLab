@@ -1,0 +1,47 @@
+<article class="booking-item">
+  <div class="booking-item__time" aria-label="Orario della prenotazione">
+    <span>{{ booking.startTime }}</span>
+    <span aria-hidden="true">–</span>
+    <span>{{ booking.endTime }}</span>
+  </div>
+
+  <div class="booking-item__space-icon" aria-hidden="true">
+    <ion-icon [name]="spaceIcon"></ion-icon>
+  </div>
+
+  <div class="booking-item__information">
+    <h3>{{ booking.spaceName }}</h3>
+
+    <p>
+      {{ booking.building }} · piano {{ booking.floor }}
+    </p>
+
+    <p class="booking-item__participants">
+      <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
+      <span>
+        {{ booking.participants }}
+        {{ booking.participants === 1 ? 'partecipante' : 'partecipanti' }}
+      </span>
+    </p>
+  </div>
+
+  <span
+    class="booking-item__status"
+    [attr.data-status]="booking.status"
+  >
+    {{ statusLabel }}
+  </span>
+
+  <div class="booking-item__actions">
+    @if (booking.canCheckIn) {
+      <button class="booking-item__check-in" type="button">
+        <ion-icon name="scan-outline" aria-hidden="true"></ion-icon>
+        Check-in
+      </button>
+    }
+
+    <button class="booking-item__cancel" type="button">
+      Annulla
+    </button>
+  </div>
+</article>
