@@ -1,19 +1,20 @@
 import { Component } from '@angular/core';
-import{
+import {
   ActivatedRoute,
   Router,
   RouterLink,
-}from '@angular/router';
+} from '@angular/router';
 
-import{
+import {
   IonContent,
   IonIcon,
-}from '@ionic/angular';
+} from '@ionic/angular';
 
-import {addIcons} from 'ionicons';
+import { addIcons } from 'ionicons';
 
-import{
+import {
   accessibilityOutline,
+  alertCircleOutline,
   arrowBackOutline,
   checkmarkCircleOutline,
   easelOutline,
@@ -21,31 +22,38 @@ import{
   locationOutline,
   peopleOutline,
   wifiOutline,
-}from 'ionicons/icons';
+} from 'ionicons/icons';
 
-import{
+import {
   findSpace,
   Space,
-}from '../data/spaces.data';
+} from '../data/spaces.data';
 
 @Component({
   selector: 'app-space-detail',
   templateUrl: './space-detail.page.html',
   styleUrls: ['./space-detail.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink],
+  imports: [
+    IonContent,
+    IonIcon,
+    RouterLink,
+  ],
 })
-export class SpaceDetailPage{
+export class SpaceDetailPage {
   space: Space;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-  ){
-    const spaceId= this.activatedRoute.snapshot.paramMap.get('id');
+  ) {
+    const spaceId =
+      this.activatedRoute.snapshot.paramMap.get('id');
+
     this.space = findSpace(spaceId);
 
     addIcons({
       accessibilityOutline,
+      alertCircleOutline,
       arrowBackOutline,
       checkmarkCircleOutline,
       easelOutline,
@@ -56,9 +64,17 @@ export class SpaceDetailPage{
     });
   }
 
-  openBooking(): void{
+  openBooking(): void {
     this.router.navigate([
       '/booking',
+      this.space.id,
+    ]);
+  }
+
+  openReport(): void {
+    this.router.navigate([
+      '/reports',
+      'new',
       this.space.id,
     ]);
   }

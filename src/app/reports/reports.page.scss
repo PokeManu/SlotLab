@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--slot-background);
+  --color: var(--slot-text);
+}
+
+.reports-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
+
+.reports-page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.reports-page__eyebrow {
+  margin: 0 0 8px;
+  color: var(--slot-primary-soft);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.reports-page__header h1 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.reports-page__description {
+  margin: 12px 0 0;
+  color: var(--slot-text-muted);
+  font-size: 17px;
+}
+
+.reports-page__summary {
+  margin: 0 0 4px;
+  color: var(--slot-text-muted);
+  font-size: 16px;
+  text-align: right;
+}
+
+.reports-page__list {
+  display: grid;
+  gap: 16px;
+}
+
+.reports-page__empty {
+  padding: 64px 24px;
+  border: 1px solid var(--slot-border);
+  border-radius: 16px;
+  background: var(--slot-surface);
+  text-align: center;
+}
+
+.reports-page__empty h2 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.reports-page__empty p {
+  margin: 10px 0 0;
+  color: var(--slot-text-muted);
+  font-size: 16px;
+}
+
+@media (max-width: 700px) {
+  app-topbar {
+    display: none;
+  }
+
+  .reports-page {
+    padding: 32px 20px calc(100px + env(safe-area-inset-bottom));
+  }
+
+  .reports-page__header {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  .reports-page__eyebrow {
+    display: none;
+  }
+
+  .reports-page__header h1 {
+    font-size: 30px;
+  }
+
+  .reports-page__description {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .reports-page__summary {
+    display: none;
+  }
+
+  .reports-page__list {
+    gap: 14px;
+  }
+
+  .reports-page__empty {
+    padding: 48px 20px;
+  }
+
+  .reports-page__empty h2 {
+    font-size: 21px;
+  }
+}

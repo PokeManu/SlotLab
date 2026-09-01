@@ -1,59 +1,91 @@
 <ion-content [fullscreen]="true">
- <main class ="space-detail">
-  <header class="detail-header">
-    <a class="back-button" routerLink="/home" aria-label="Torna alla home">
-      <ion-icon name="arrow-back-outline"></ion-icon>
-    </a>
-    <h1>Dettaglio spazio</h1>
-  </header>
+  <main class="space-detail">
+    <header class="detail-header">
+      <a
+        class="back-button"
+        routerLink="/home"
+        aria-label="Torna alla home"
+      >
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </a>
 
-  <img class="room-image" [src]="space.image" [alt]="'Fotografia di ' + space.name"/>
+      <h1>Dettaglio spazio</h1>
+    </header>
 
-  <section class="space-information">
-    <h2>{{space.name}}</h2>
-    <p>
-      <ion-icon name="location-outline"></ion-icon>
-      <span>{{space.building}}, piano {{space.floor}}</span>
-    </p>
+    <img
+      class="room-image"
+      [src]="space.image"
+      [alt]="'Fotografia di ' + space.name"
+    />
 
-    <p>
-      <ion-icon name="people-outline"></ion-icon>
-      <span>{{space.seats}} posti</span>
-    </p>
+    <section class="space-information">
+      <h2>{{ space.name }}</h2>
 
-    @if (space.accessible){
       <p>
-        <ion-icon name="accessibility-outline"></ion-icon>
-        <span>Accessibile</span>
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{ space.building }}, piano {{ space.floor }}</span>
       </p>
-    }
 
-    <span class="availability">
-      <ion-icon name="checkmark-circle-outline"></ion-icon>
-      Disponibile oggi
-    </span>
-  </section>
+      <p>
+        <ion-icon name="people-outline"></ion-icon>
+        <span>{{ space.seats }} posti</span>
+      </p>
 
-  <section class="services">
-    <h3>Servizi inclusi</h3>
-    <div class="services__grid">
-      <article class="service-card">
-        <ion-icon name="wifi-outline"></ion-icon>
-        <span>Wi-Fi</span>
-      </article>
+      @if (space.accessible) {
+        <p>
+          <ion-icon name="accessibility-outline"></ion-icon>
+          <span>Accessibile</span>
+        </p>
+      }
 
-      <article class="service-card">
-        <ion-icon name="flash-outline"></ion-icon>
-        <span>Prese elettriche</span>
-      </article>
+      <span class="availability">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        Disponibile oggi
+      </span>
+    </section>
 
-      <article class="service-card">
-        <ion-icon name="easel-outline"></ion-icon>
-        <span>Lavagna</span>
-      </article>
+    <section class="services">
+      <h3>Servizi inclusi</h3>
+
+      <div class="services__grid">
+        <article class="service-card">
+          <ion-icon name="wifi-outline"></ion-icon>
+          <span>Wi-Fi</span>
+        </article>
+
+        <article class="service-card">
+          <ion-icon name="flash-outline"></ion-icon>
+          <span>Prese elettriche</span>
+        </article>
+
+        <article class="service-card">
+          <ion-icon name="easel-outline"></ion-icon>
+          <span>Lavagna</span>
+        </article>
+      </div>
+    </section>
+
+    <div class="detail-actions">
+      <button
+        class="primary-button"
+        type="button"
+        (click)="openBooking()"
+      >
+        Verifica disponibilità
+      </button>
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="openReport()"
+      >
+        <ion-icon
+          name="alert-circle-outline"
+          aria-hidden="true"
+        ></ion-icon>
+
+        Segnala un problema
+      </button>
     </div>
-  </section>
-
-  <button class="primary-button" type="button" (click)="openBooking()">Verifica disponibilità</button>
- </main>
+  </main>
 </ion-content>

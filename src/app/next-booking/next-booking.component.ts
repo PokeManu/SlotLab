@@ -45,9 +45,6 @@ export class NextBookingComponent {
     switch (this.booking.status) {
       case 'confirmed':
         return 'Prenotazione confermata';
-
-      case 'pending':
-        return 'Prenotazione in attesa';
       
       case 'cancelled':
         return 'Prenotazione annullata';

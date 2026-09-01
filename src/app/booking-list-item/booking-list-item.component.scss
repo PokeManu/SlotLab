@@ -86,11 +86,6 @@
   font-size: 14px;
 }
 
-.booking-item__status[data-status='pending'] {
-  background: rgb(240 198 110 / 14%);
-  color: #f0c66e;
-}
-
 .booking-item__status[data-status='cancelled'] {
   background: rgb(255 146 146 / 14%);
   color: #ff9292;

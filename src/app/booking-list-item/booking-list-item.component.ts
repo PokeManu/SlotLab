@@ -39,8 +39,6 @@ export class BookingListItemComponent {
     switch (this.booking.status) {
       case 'confirmed':
         return 'Confermata';
-      case 'pending':
-        return 'In attesa';
       case 'cancelled':
         return 'Annullata';
     }

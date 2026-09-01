@@ -55,6 +55,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'reports/new/:spaceId',
+    loadComponent: () =>
+      import('./report-create/report-create.page').then(
+        (m) => m.ReportCreatePage
+      ),
+  },
+  {
+    path: 'reports',
+    loadComponent: () =>
+      import('./reports/reports.page').then(
+        (m) => m.ReportsPage
+      ),
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',
