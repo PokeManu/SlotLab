@@ -98,7 +98,14 @@
   border-radius: 50%;
   background: transparent;
   color: var(--slot-text);
+  text-decoration: none;
   cursor: pointer;
+}
+
+.topbar__notification--active {
+  border-color: var(--slot-primary);
+  background: rgb(79 127 255 / 12%);
+  color: var(--slot-primary-soft);
 }
 
 .topbar__notification ion-icon {

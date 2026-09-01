@@ -48,13 +48,14 @@
   </nav>
 
   <div class="topbar__user">
-    <button
-      class="topbar__notification"
-      type="button"
-      aria-label="Apri le notifiche"
-    >
-      <ion-icon name="notifications-outline"></ion-icon>
-    </button>
+  <a
+    class="topbar__notification"
+    routerLink="/notifications"
+    routerLinkActive="topbar__notification--active"
+    aria-label="Apri le notifiche"
+  >
+    <ion-icon name="notifications-outline"></ion-icon>
+  </a>
 
     <a
       class="topbar__profile"
