@@ -3,20 +3,25 @@
   aria-labelledby="campus-map-title"
 >
   <header class="campus-map__header">
-
     <div>
-      <p class="campus-map__eyebrow">Campus di Viale delle Scienze</p>
-      <h2 id="campus-map-title">Esplora gli edifici</h2>
+      @if (eyebrow) {
+        <p class="campus-map__eyebrow">
+          {{ eyebrow }}
+        </p>
+      }
+
+      <h2 id="campus-map-title">
+        {{ heading }}
+      </h2>
     </div>
 
     <p class="campus-map__hint">
-      Seleziona un edificio sulla mappa
+      {{ hint }}
     </p>
-
   </header>
 
   <div
-    id="campus-map"
+    #mapContainer
     class="campus-map__canvas"
     aria-label="Mappa interattiva degli edifici universitari"
   ></div>

@@ -150,10 +150,16 @@
     font-size: 30px;
   }
 
+  .detail-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
   .primary-button {
     width: 100%;
     min-height: 66px;
-    margin-top: 28px;
+    margin-top: 0;
     padding: 14px 20px;
     border: 0;
     border-radius: 14px;
@@ -182,6 +188,36 @@
 
   .primary-button:focus-visible {
     outline: 3px solid #8da8ff;
+    outline-offset: 3px;
+  }
+
+  .secondary-button {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border: 1px solid var(--slot-border);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--slot-text-muted);
+    font: inherit;
+    font-size: 17px;
+    cursor: pointer;
+  }
+
+  .secondary-button ion-icon {
+    font-size: 21px;
+  }
+
+  .secondary-button:hover {
+    border-color: var(--slot-primary);
+    color: var(--slot-text);
+  }
+
+  .secondary-button:focus-visible {
+    outline: 3px solid var(--slot-primary);
     outline-offset: 3px;
   }
 

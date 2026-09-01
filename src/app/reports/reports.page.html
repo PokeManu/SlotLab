@@ -1,0 +1,44 @@
+<ion-content [fullscreen]="true">
+  <app-topbar></app-topbar>
+
+  <main class="reports-page">
+    <header class="reports-page__header">
+      <div>
+        <p class="reports-page__eyebrow">
+          IL TUO PROFILO
+        </p>
+
+        <h1>Le mie segnalazioni</h1>
+
+        <p class="reports-page__description">
+          Controlla lo stato dei problemi che hai segnalato.
+        </p>
+      </div>
+
+      <p class="reports-page__summary">
+        {{ reports.length }} segnalazioni inviate
+      </p>
+    </header>
+
+    <section
+      class="reports-page__list"
+      aria-label="Storico delle segnalazioni"
+    >
+      @for (report of reports; track report.id) {
+        <app-report-list-item
+          [report]="report"
+        ></app-report-list-item>
+      } @empty {
+        <div class="reports-page__empty">
+          <h2>Nessuna segnalazione</h2>
+
+          <p>
+            Le segnalazioni inviate compariranno qui.
+          </p>
+        </div>
+      }
+    </section>
+  </main>
+</ion-content>
+
+<app-mobile-navigation></app-mobile-navigation>

@@ -1,0 +1,28 @@
+<ion-content [fullscreen]="true">
+  <app-topbar></app-topbar>
+
+  <main class="profile">
+    <h1 class="profile__titile">Profile</h1>
+
+    <section class="profile__identity" aria-labelledby="proile-user-name">
+      <div class="profile__avatar" aria-hidden="true">{{user.initials}}</div>
+      <h2 id="profile-user-name" class="profile__name">{{user.fullName}}</h2>
+      <p class="profile__role">{{user.role}}</p>
+      <a class="profile__email" [href]="'mailto:' + user.email">{{user.email}}</a>
+    </section>
+
+    <nav class="profile-menu" aria-label="Impostazioni del profilo">
+      @for(item of menuItems; track item.label){
+        <button class="profile-menu__item" type="button">
+          <ion-icon [name]="item.icon" class="profile-menu__icon" aria-hidden="true"></ion-icon>
+          <span class="profile-menu__label">{{item.label}}</span>
+          <ion-icon class="profile-menu__chevron" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </button>
+      }
+    </nav>
+
+    <button class="profile__logout" type="button" (click)="logout()">Esci</button>
+  </main>
+</ion-content>
+
+<app-mobile-navigation></app-mobile-navigation>

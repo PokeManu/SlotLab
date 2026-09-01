@@ -1,43 +1,75 @@
- <header class="topbar">
-    <div class="topbar__brand">
-      <span class="topbar__logo">
-        <ion-icon name="calendar-clear-outline"></ion-icon>
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__logo">
+      <ion-icon name="calendar-clear-outline"></ion-icon>
+    </span>
+
+    <span class="topbar__brand-name">
+      SlotLab
+    </span>
+  </div>
+
+  <nav
+    class="topbar__navigation"
+    aria-label="Navigazione principale"
+  >
+    <a
+      class="topbar__link"
+      routerLink="/home"
+      routerLinkActive="topbar__link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Home
+    </a>
+
+    <a
+      class="topbar__link"
+      routerLink="/spaces"
+      routerLinkActive="topbar__link--active"
+    >
+      Spazi
+    </a>
+
+    <a
+      class="topbar__link"
+      routerLink="/bookings"
+      routerLinkActive="topbar__link--active"
+    >
+      Prenotazioni
+    </a>
+
+    <a
+      class="topbar__link"
+      routerLink="/favorites"
+      routerLinkActive="topbar__link--active"
+    >
+      Preferiti
+    </a>
+  </nav>
+
+  <div class="topbar__user">
+  <a
+    class="topbar__notification"
+    routerLink="/notifications"
+    routerLinkActive="topbar__notification--active"
+    aria-label="Apri le notifiche"
+  >
+    <ion-icon name="notifications-outline"></ion-icon>
+  </a>
+
+    <a
+      class="topbar__profile"
+      routerLink="/profile"
+      routerLinkActive="topbar__profile--active"
+      aria-label="Apri il profilo di Francesco"
+    >
+      <span class="topbar__avatar">
+        FG
       </span>
 
-      <span class="topbar__brand-name">
-        SlotLab
+      <span class="topbar__username">
+        Francesco
       </span>
-    </div>
-
-    <nav class="topbar__navigation" aria-label="Navigazione principale">
-      <button class="topbar__link topbar__link--active" type="button">
-        Home
-      </button>
-
-      <button class="topbar__link" type="button">
-        Spazi
-      </button>
-
-      <button class="topbar__link" type="button">
-        Prenotazioni
-      </button>
-
-    </nav>
-
-    <div class="topbar__user">
-      <button
-      class = "topbar__notification"
-      type="button"
-      aria-label="Apri le notifiche"
-      >
-
-      <ion-icon name="notifications-outline"></ion-icon>
-
-      </button>
-
-      <span class="topbar__avatar">FG</span>
-      <span class ="topbar__username">Francesco</span>
-
-    </div>
-
-  </header>
+    </a>
+  </div>
+</header>

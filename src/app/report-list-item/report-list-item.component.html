@@ -1,0 +1,42 @@
+<article class="report-item">
+  <div
+    class="report-item__icon"
+    aria-hidden="true"
+  >
+    <ion-icon [name]="categoryIcon"></ion-icon>
+  </div>
+
+  <div class="report-item__content">
+    <header class="report-item__header">
+      <div>
+        <p class="report-item__category">
+          {{ categoryLabel }}
+        </p>
+
+        <h2>{{ report.spaceName }}</h2>
+      </div>
+
+      <span
+        class="report-item__status"
+        [attr.data-status]="report.status"
+      >
+        {{ statusLabel }}
+      </span>
+    </header>
+
+    <p class="report-item__location">
+      {{ report.building }}
+      <span aria-hidden="true">·</span>
+      piano {{ report.floor }}
+    </p>
+
+    <p class="report-item__description">
+      {{ report.description }}
+    </p>
+
+    <footer class="report-item__footer">
+      <span>Segnalazione {{ report.id }}</span>
+      <time>{{ report.dateLabel }}</time>
+    </footer>
+  </div>
+</article>

@@ -1,7 +1,10 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy
+  ElementRef,
+  Input,
+  OnDestroy,
+  viewChild,
 } from '@angular/core';
 
 import * as L from 'leaflet';
@@ -16,6 +19,13 @@ import { CampusBuilding } from '../models/campus-building.models';
   imports: [],
 })
 export class CampusMapComponent implements AfterViewInit, OnDestroy {
+  @Input() eyebrow = 'Campus di Viale delle Scienze';
+  @Input() heading = 'Esplora gli edifici';
+  @Input() hint = 'Seleziona un edificio sulla mappa';
+
+  private mapContainer =
+    viewChild<ElementRef<HTMLDivElement>>('mapContainer');
+
   private map?: L.Map;
 
   ngAfterViewInit(): void {
@@ -31,7 +41,13 @@ export class CampusMapComponent implements AfterViewInit, OnDestroy {
   }
 
   private initializeMap(): void {
-    this.map = L.map('campus-map').setView(
+    const mapContainer = this.mapContainer();
+
+    if (!mapContainer) {
+      return;
+    }
+
+    this.map = L.map(mapContainer.nativeElement).setView(
       [38.1037, 13.348],
       16
     );

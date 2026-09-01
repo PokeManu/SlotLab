@@ -1,6 +1,5 @@
 export type BookingStatus =
     | 'confirmed'
-    | 'pending'
     | 'cancelled';
 
 export interface BookingSummary {

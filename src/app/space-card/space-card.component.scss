@@ -9,7 +9,7 @@
   height: 100%;
   overflow: hidden;
   border: 1px solid var(--slot-border);
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--slot-surface);
   color: var(--slot-text);
   transition:
@@ -19,7 +19,7 @@
 
 .space-card__media {
   position: relative;
-  height: 210px;
+  height: 128px;
   overflow: hidden;
   background: var(--slot-surface);
 }
@@ -34,34 +34,34 @@
 
 .space-card__type {
   position: absolute;
-  bottom: 18px;
-  left: 18px;
+  bottom: 14px;
+  left: 14px;
   z-index: 1;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
   background: var(--slot-background);
   color: var(--slot-text-muted);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .space-card__content {
-  padding: 24px;
+  padding: 18px 20px;
   border-top: 1px solid var(--slot-border);
 }
 
 .space-card__name {
   margin: 0;
   color: var(--slot-text);
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.25;
 }
 
 .space-card__details {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--slot-text-muted);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .space-card__action:focus-visible {
-  border-radius: 20px;
+  border-radius: 16px;
   outline: 3px solid var(--slot-primary);
   outline-offset: -4px;
 }

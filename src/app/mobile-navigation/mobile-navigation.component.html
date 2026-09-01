@@ -1,0 +1,50 @@
+<nav
+  class="mobile-navigation"
+  aria-label="Navigazione mobile"
+>
+  <a
+    class="mobile-navigation__link"
+    routerLink="/home"
+    routerLinkActive="mobile-navigation__link--active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <ion-icon name="home-outline"></ion-icon>
+    <span>Home</span>
+  </a>
+
+  <a
+    class="mobile-navigation__link"
+    routerLink="/spaces"
+    routerLinkActive="mobile-navigation__link--active"
+  >
+    <ion-icon name="search-outline"></ion-icon>
+    <span>Cerca</span>
+  </a>
+
+  <a
+    class="mobile-navigation__link"
+    routerLink="/bookings"
+    routerLinkActive="mobile-navigation__link--active"
+  >
+    <ion-icon name="calendar-outline"></ion-icon>
+    <span>Prenotazioni</span>
+  </a>
+
+  <a
+    class="mobile-navigation__link"
+    routerLink="/favorites"
+    routerLinkActive="mobile-navigation__link--active"
+  >
+    <ion-icon name="heart-outline"></ion-icon>
+    <span>Preferiti</span>
+  </a>
+
+  <a
+    class="mobile-navigation__link"
+    routerLink="/profile"
+    routerLinkActive="mobile-navigation__link--active"
+  >
+    <ion-icon name="person-outline"></ion-icon>
+    <span>Profilo</span>
+  </a>
+</nav>

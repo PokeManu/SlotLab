@@ -81,12 +81,14 @@
 
 @media (max-width: 700px) {
   .space-search {
-    flex-direction: column;
+    display: block;
+    margin-bottom: 16px;
   }
 
   .space-search__field {
-    height: 60px;
+    height: 58px;
     padding: 0 18px;
+    border-radius: 16px;
   }
 
   .space-search__field ion-icon {
@@ -99,9 +101,6 @@
   }
 
   .space-search__filter-button {
-    flex: none;
-    width: 100%;
-    min-height: 60px;
-    font-size: 18px;
+    display: none;
   }
 }

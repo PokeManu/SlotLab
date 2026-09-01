@@ -1,0 +1,80 @@
+<ion-content [fullscreen]="true">
+  <app-topbar></app-topbar>
+
+  <main class="bookings">
+    <header class="bookings__header">
+      <h1>Le mie prenotazioni</h1>
+    </header>
+
+    <section
+      class="bookings__controls"
+      aria-label="Filtri delle prenotazioni"
+    >
+      <button
+        class="bookings__month"
+        type="button"
+        aria-label="Mese visualizzato: Agosto 2026"
+      >
+        <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+        <span>Agosto 2026</span>
+        <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+      <div
+        class="bookings__tabs"
+        role="group"
+        aria-label="Periodo delle prenotazioni"
+      >
+        <button
+          type="button"
+          [class.bookings__tab--active]="selectedView === 'upcoming'"
+          [attr.aria-pressed]="selectedView === 'upcoming'"
+          (click)="selectView('upcoming')"
+        >
+          Prossime
+        </button>
+
+        <button
+          type="button"
+          [class.bookings__tab--active]="selectedView === 'past'"
+          [attr.aria-pressed]="selectedView === 'past'"
+          (click)="selectView('past')"
+        >
+          Passate
+        </button>
+      </div>
+    </section>
+
+    @if (selectedView === 'upcoming') {
+      <div class="bookings__groups">
+        @for (group of upcomingBookingGroups; track group.dateLabel) {
+          <section
+            class="bookings__group"
+            [attr.aria-labelledby]="'booking-group-' + $index"
+          >
+            <h2 [id]="'booking-group-' + $index">
+              {{ group.dateLabel }}
+            </h2>
+
+            <div class="bookings__list">
+              @for (booking of group.bookings; track booking.id) {
+                <app-booking-list-item
+                  [booking]="booking"
+                ></app-booking-list-item>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    } @else {
+      <section class="bookings__empty" aria-live="polite">
+        <h2>Nessuna prenotazione passata</h2>
+        <p>
+          Le prenotazioni completate compariranno in questa sezione.
+        </p>
+      </section>
+    }
+  </main>
+</ion-content>
+
+<app-mobile-navigation></app-mobile-navigation>

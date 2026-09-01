@@ -1,0 +1,161 @@
+<ion-content [fullscreen]="true">
+  <main class="report-create-page">
+    <header class="report-create-page__header">
+      <a
+        class="report-create-page__back"
+        [routerLink]="['/spaces', space.id]"
+        aria-label="Torna al dettaglio dello spazio"
+      >
+        <ion-icon
+          name="arrow-back-outline"
+          aria-hidden="true"
+        ></ion-icon>
+      </a>
+
+      <h1>Segnala un problema</h1>
+    </header>
+
+    @if (!submitted) {
+      <section class="report-create-page__intro">
+        <h2>Come possiamo aiutarti?</h2>
+
+        <p>
+          Descrivi il problema riscontrato nello spazio.
+          La segnalazione verrà inviata al personale responsabile.
+        </p>
+      </section>
+
+      <section class="report-create-page__space">
+        <div
+          class="report-create-page__space-icon"
+          aria-hidden="true"
+        >
+          <ion-icon name="location-outline"></ion-icon>
+        </div>
+
+        <div>
+          <p>SPAZIO SELEZIONATO</p>
+          <h2>{{ space.name }}</h2>
+
+          <span>
+            {{ space.building }}
+            · piano {{ space.floor }}
+          </span>
+        </div>
+      </section>
+
+      <form
+        class="report-create-page__form"
+        #reportForm="ngForm"
+        (ngSubmit)="submitReport()"
+      >
+        <div class="report-create-page__field">
+          <label for="report-category">
+            Tipologia del problema
+          </label>
+
+          <select
+            id="report-category"
+            name="reportCategory"
+            required
+            [(ngModel)]="category"
+          >
+            <option value="" disabled>
+              Seleziona una tipologia
+            </option>
+
+            <option value="equipment">
+              Attrezzatura
+            </option>
+
+            <option value="cleaning">
+              Pulizia
+            </option>
+
+            <option value="accessibility">
+              Accessibilità
+            </option>
+
+            <option value="other">
+              Altro
+            </option>
+          </select>
+        </div>
+
+        <div class="report-create-page__field">
+          <label for="report-description">
+            Descrizione
+          </label>
+
+          <textarea
+            id="report-description"
+            name="reportDescription"
+            rows="6"
+            required
+            minlength="10"
+            maxlength="500"
+            placeholder="Descrivi il problema riscontrato..."
+            [(ngModel)]="description"
+            #descriptionControl="ngModel"
+          ></textarea>
+
+          <div class="report-create-page__field-info">
+            <span>Minimo 10 caratteri</span>
+            <span>{{ description.length }}/500</span>
+          </div>
+
+          @if (
+            descriptionControl.invalid &&
+            descriptionControl.touched
+          ) {
+            <p class="report-create-page__error">
+              Inserisci una descrizione di almeno 10 caratteri.
+            </p>
+          }
+        </div>
+
+        <button
+          class="report-create-page__submit"
+          type="submit"
+          [disabled]="reportForm.invalid"
+        >
+          Invia segnalazione
+        </button>
+      </form>
+    } @else {
+      <section
+        class="report-create-page__success"
+        role="status"
+      >
+        <div
+          class="report-create-page__success-icon"
+          aria-hidden="true"
+        >
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+
+        <h2>Segnalazione inviata</h2>
+
+        <p>
+          La segnalazione relativa a
+          <strong>{{ space.name }}</strong>
+          è stata inviata correttamente.
+        </p>
+
+        <a
+          class="report-create-page__primary-link"
+          routerLink="/reports"
+        >
+          Vedi le mie segnalazioni
+        </a>
+
+        <a
+          class="report-create-page__secondary-link"
+          [routerLink]="['/spaces', space.id]"
+        >
+          Torna allo spazio
+        </a>
+      </section>
+    }
+  </main>
+</ion-content>
