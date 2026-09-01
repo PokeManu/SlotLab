@@ -7,40 +7,116 @@ ion-content {
   --color: var(--slot-text);
 }
 
-.section-page {
+.favorites-page {
   box-sizing: border-box;
   width: 100%;
   max-width: 1484px;
   min-height: 100%;
   margin: 0 auto;
-  padding: 48px 80px;
+  padding: 48px 40px;
 }
 
-.section-page__eyebrow {
+.favorites-page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+
+.favorites-page__eyebrow {
   margin: 0 0 8px;
   color: var(--slot-primary-soft);
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
-.section-page h1 {
+.favorites-page__header h1 {
   margin: 0;
   color: var(--slot-text);
-  font-size: 46px;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.favorites-page__summary {
+  margin: 0 0 6px;
+  color: var(--slot-text-muted);
+  font-size: 17px;
+  text-align: right;
+}
+
+.favorites-page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.favorites-page__empty {
+  grid-column: 1 / -1;
+  padding: 64px 24px;
+  border: 1px solid var(--slot-border);
+  border-radius: 16px;
+  background: var(--slot-surface);
+  text-align: center;
+}
+
+.favorites-page__empty h2 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 24px;
   font-weight: 500;
 }
 
-.section-page__placeholder {
-  margin: 24px 0 0;
+.favorites-page__empty p {
+  margin: 10px 0 0;
   color: var(--slot-text-muted);
-  font-size: 18px;
+  font-size: 16px;
+}
+
+@media (max-width: 1000px) {
+  .favorites-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 700px) {
-  .section-page {
-    padding: 40px 20px calc(100px + env(safe-area-inset-bottom));
+  app-topbar {
+    display: none;
   }
 
-  .section-page h1 {
-    font-size: 34px;
+  .favorites-page {
+    padding: 32px 20px calc(100px + env(safe-area-inset-bottom));
+  }
+
+  .favorites-page__header {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  .favorites-page__eyebrow {
+    display: none;
+  }
+
+  .favorites-page__header h1 {
+    font-size: 30px;
+  }
+
+  .favorites-page__summary {
+    display: none;
+  }
+
+  .favorites-page__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .favorites-page__empty {
+    padding: 48px 20px;
+  }
+
+  .favorites-page__empty h2 {
+    font-size: 21px;
   }
 }

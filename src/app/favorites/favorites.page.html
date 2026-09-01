@@ -1,12 +1,44 @@
 <ion-content [fullscreen]="true">
   <app-topbar></app-topbar>
 
-  <main class="section-page">
-    <p class="section-page__eyebrow">SlotLab</p>
-    <h1>Preferiti</h1>
-    <p class="section-page__placeholder">
-      Contenuto in preparazione.
-    </p>
+  <main class="favorites-page">
+    <header class="favorites-page__header">
+      <div>
+        <p class="favorites-page__eyebrow">I TUOI SPAZI</p>
+        <h1>Spazi preferiti</h1>
+      </div>
+
+      <p class="favorites-page__summary">
+        Campus di Viale delle Scienze
+        <span aria-hidden="true">·</span>
+        {{ favoriteSpaces.length }} preferiti
+      </p>
+    </header>
+
+    <app-space-search
+      placeholder="Cerca tra i preferiti"
+      [showFilterButton]="false"
+    ></app-space-search>
+
+    <section
+      class="favorites-page__grid"
+      aria-label="Elenco degli spazi preferiti"
+    >
+      @for (space of favoriteSpaces; track space.id) {
+        <app-favorite-space-card
+          [space]="space"
+          (spaceOpened)="openSpace($event)"
+          (favoriteRemoved)="removeFavorite($event)"
+        ></app-favorite-space-card>
+      } @empty {
+        <div class="favorites-page__empty">
+          <h2>Nessuno spazio preferito</h2>
+          <p>
+            Gli spazi aggiunti ai preferiti compariranno qui.
+          </p>
+        </div>
+      }
+    </section>
   </main>
 </ion-content>
 

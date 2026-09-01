@@ -1,0 +1,64 @@
+<article class="favorite-space-card">
+  <div
+    class="favorite-space-card__icon"
+    aria-hidden="true"
+  >
+    <ion-icon [name]="iconName"></ion-icon>
+  </div>
+
+  <div class="favorite-space-card__content">
+    <h2 class="favorite-space-card__name">
+      {{ space.name }}
+    </h2>
+
+    <p class="favorite-space-card__location">
+      {{ space.building }}
+      <span aria-hidden="true">·</span>
+      piano {{ space.floor }}
+    </p>
+
+    <p class="favorite-space-card__capacity">
+      Capacità:
+      {{ space.seats }}
+      {{
+        space.type === 'Laboratorio'
+          ? 'postazioni'
+          : 'posti'
+      }}
+    </p>
+
+    <p
+      class="favorite-space-card__availability"
+      [class.favorite-space-card__availability--warning]="
+        space.availabilityTone === 'warning'
+      "
+    >
+      <span
+        class="favorite-space-card__status-dot"
+        aria-hidden="true"
+      ></span>
+
+      {{ space.availability }}
+    </p>
+  </div>
+
+  <button
+    class="favorite-space-card__favorite"
+    type="button"
+    [attr.aria-label]="'Rimuovi ' + space.name + ' dai preferiti'"
+    aria-pressed="true"
+    (click)="removeFavorite()"
+  >
+    <ion-icon
+      name="heart"
+      aria-hidden="true"
+    ></ion-icon>
+  </button>
+
+  <button
+    class="favorite-space-card__action"
+    type="button"
+    [attr.aria-label]="'Apri ' + space.name"
+    (click)="openSpace()"
+  ></button>
+</article>
