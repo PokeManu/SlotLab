@@ -5,6 +5,7 @@ Questa cartella contiene lo schema SQLite, il sistema di migrazione e i dati ini
 ## File
 
 - `schema.sql`: prima migrazione, con le 16 tabelle applicative.
+- `migrations/002-slot-occurrences-integrity.sql`: seconda migrazione, corregge il vincolo sui valori nulli degli snapshot consolidati.
 - `migrate.js`: applica in ordine le migrazioni non ancora registrate.
 - `seed.js`: inserisce il catalogo dei servizi e crea l'amministratore tecnico.
 - `db.js`: inizializza le migrazioni e mantiene la connessione condivisa usata da Express.
@@ -26,9 +27,18 @@ La prima esecuzione:
 1. crea `db/database.sqlite` se non esiste;
 2. crea la tabella tecnica `schema_migrations`;
 3. applica `schema.sql` in una transazione;
-4. registra versione, nome, checksum e data UTC.
+4. applica la migrazione 2 in una nuova transazione;
+5. registra versione, nome, checksum e data UTC di ogni migrazione nella relativa transazione.
 
-Le esecuzioni successive non ricreano le tabelle. Verificano che la migrazione registrata non sia stata modificata e mostrano che il database è già aggiornato.
+Le esecuzioni successive verificano i checksum delle migrazioni già registrate e applicano soltanto quelle mancanti. Quando tutte sono presenti, il database è già aggiornato.
+
+## Correzione degli snapshot — Migrazione 2
+
+Uno snapshot non consolidato ha `offered_capacity`, `was_offered` e `finalized_at` tutti nulli. Dopo il consolidamento, tutti e tre devono essere valorizzati: una fascia offerta ha capienza positiva; una fascia non offerta ha capienza zero.
+
+Il `CHECK` iniziale poteva restituire `NULL`, che SQLite accetta. La migrazione 2 richiede esplicitamente i valori non nulli e ricostruisce soltanto `slot_occurrences`, conservando dati, ID, unicità e cancellazione a cascata. Conserva anche il contatore degli ID già utilizzati e poi eliminati. `schema.sql` e il suo checksum restano invariati.
+
+Se esistono snapshot incompatibili con il nuovo vincolo, la copia fallisce e la transazione ripristina la tabella originale, senza registrare la versione 2. I dati devono essere esaminati e corretti esplicitamente prima di riprovare: la migrazione non inventa capienze o stati mancanti.
 
 ## Usare un database diverso
 

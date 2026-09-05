@@ -16,5 +16,8 @@
     "express": "^5.2.1",
     "nodemon": "^3.1.14",
     "sqlite3": "^6.0.1"
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
   }
 }

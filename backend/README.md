@@ -15,6 +15,16 @@ Il backend usa Express, JavaScript CommonJS e SQLite. La struttura rimane voluta
 
 Non vengono create cartelle vuote per controller, servizi o repository. Saranno introdotte quando il relativo flusso verrà implementato, evitando file segnaposto privi di comportamento.
 
+## Ripristinare il componente SQLite
+
+Se, dopo aver copiato il progetto o cambiato ambiente Node, compare `Could not locate the bindings file`, dalla cartella `backend` eseguire:
+
+```bash
+npm rebuild sqlite3
+```
+
+Il comando richiede accesso alla rete per scaricare il componente nativo compatibile; se non disponibile, tenta la compilazione locale. `package.json` autorizza lo script di installazione di `sqlite3@6.0.1` nelle versioni npm che richiedono `allowScripts`. Dopo un aggiornamento di questa dipendenza occorre riesaminare anche tale autorizzazione.
+
 ## Avvio
 
 Dalla cartella `backend`:
@@ -46,4 +56,4 @@ Dalla cartella `backend`:
 npm test
 ```
 
-I test creano un database e un server temporanei. Verificano migrazioni ripetibili, 16 tabelle applicative, chiavi esterne, connessione condivisa, dati iniziali idempotenti e risposte HTTP di base. Al termine eliminano i dati temporanei e non modificano `db/database.sqlite`.
+La suite comprende nove test e crea database e server temporanei. Verifica migrazioni ripetibili, 16 tabelle applicative, chiavi esterne, connessione condivisa, dati iniziali idempotenti e risposte HTTP di base. Verifica inoltre gli snapshot in inserimento e aggiornamento, il passaggio dalla migrazione 1 alla 2 senza perdita di dati o riutilizzo degli ID e il rollback in presenza di dati storici incompleti. Al termine elimina i dati temporanei e non modifica `db/database.sqlite`.

@@ -11,6 +11,11 @@ const migrations = [
     name: 'initial_schema',
     filePath: path.join(__dirname, 'schema.sql'),
   },
+  {
+    version: 2,
+    name: 'slot_occurrences_integrity',
+    filePath: path.join(__dirname, 'migrations', '002-slot-occurrences-integrity.sql'),
+  },
 ];
 
 function openDatabase(databasePath) {
