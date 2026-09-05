@@ -1,34 +1,86 @@
-const express = require('express');
-const cors = require('cors');
-const db = require('./db/db')
+const app = require('./app');
+const { closeDatabase, connectDatabase } = require('./db/db');
 
+const PORT = process.env.PORT === undefined ? 3000 : Number(process.env.PORT);
+let httpServer = null;
 
-const app = express(); // instanziamo un oggetto express, che rappresenta la nostra applicazione
+if (!Number.isInteger(PORT) || PORT < 0 || PORT > 65535) {
+  throw new Error('La porta del server non e valida.');
+}
 
-//Middleware
+async function startServer() {
+  if (httpServer) {
+    return httpServer;
+  }
 
-app.use(cors());
+  await connectDatabase();
 
-// Permette al server di leggere dati in formato JSON
-app.use(express.json());
+  return new Promise((resolve, reject) => {
+    const server = app.listen(PORT);
 
-app.get('/api/impostazioni', (req, res) => {
-    db.all("SELECT * FROM impostazioni", [], (err, rows) => {
-        if (err) return res.status(500).json({ errore: err.message });
-        res.json(rows);
+    server.once('listening', () => {
+      httpServer = server;
+      const address = server.address();
+      console.log(`Server in ascolto su http://localhost:${address.port}`);
+      resolve(server);
     });
-});
-// in questo modo possiamo definire le rotte, gestire le richieste HTTP, configurazioni
-// Porta del server
-const PORT = 3000;
 
+    server.once('error', async (error) => {
+      try {
+        await closeDatabase();
+      } catch (closeError) {
+        console.error(`Chiusura del database non riuscita: ${closeError.message}`);
+      }
 
-// Rotta base
-app.get('/', (req, res) => {
-res.send('Server attivo');
-});
-// Avvia il server
+      reject(error);
+    });
+  });
+}
 
-app.listen(PORT, () => {
-console.log(`Server in ascolto su http://localhost:${PORT}`);
-});
+async function stopServer() {
+  if (httpServer) {
+    const serverToClose = httpServer;
+    httpServer = null;
+
+    await new Promise((resolve, reject) => {
+      serverToClose.close((error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve();
+      });
+    });
+  }
+
+  await closeDatabase();
+}
+
+async function shutdown(signal) {
+  console.log(`Chiusura richiesta da ${signal}.`);
+
+  try {
+    await stopServer();
+    process.exitCode = 0;
+  } catch (error) {
+    console.error(`Chiusura non riuscita: ${error.message}`);
+    process.exitCode = 1;
+  }
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error(`Avvio non riuscito: ${error.message}`);
+    process.exitCode = 1;
+  });
+
+  process.once('SIGINT', () => shutdown('SIGINT'));
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+module.exports = {
+  app,
+  startServer,
+  stopServer,
+};

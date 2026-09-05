@@ -2,9 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:migrate": "node db/migrate.js",
+    "db:seed": "node db/seed.js",
+    "start": "node server.js",
+    "test": "node --test test/backend.test.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
