@@ -26,6 +26,7 @@ function readConfig(environment = process.env) {
       jwtSecret,
       accessTokenSeconds: 30 * 60,
       refreshTokenSeconds: 7 * 24 * 60 * 60,
+      refreshCookieName: 'slotlab_refresh',
       refreshCookie: {
         httpOnly: true,
         secure: true,

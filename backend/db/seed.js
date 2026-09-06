@@ -1,5 +1,6 @@
 const { closeDatabase, connectDatabase } = require('./db');
 const { hashPassword } = require('../security/password');
+const { normalizeAndValidateAccount } = require('../security/validation');
 
 const services = [
   { code: 'wifi', name: 'Wi-Fi' },
@@ -73,48 +74,6 @@ function readAdminFromEnvironment(environment = process.env) {
   };
 }
 
-function normalizeAndValidateAdmin(admin) {
-  if (
-    !admin ||
-    typeof admin.firstName !== 'string' ||
-    typeof admin.lastName !== 'string' ||
-    typeof admin.email !== 'string' ||
-    typeof admin.password !== 'string'
-  ) {
-    throw new Error("I dati dell'amministratore non sono completi.");
-  }
-
-  const firstName = admin.firstName.trim();
-  const lastName = admin.lastName.trim();
-  const email = admin.email.trim().toLowerCase();
-  const password = admin.password;
-
-  if (!firstName || !lastName) {
-    throw new Error("Nome e cognome dell'amministratore sono obbligatori.");
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error("L'email dell'amministratore non e valida.");
-  }
-
-  const validPassword =
-    password.length >= 8 &&
-    password.length <= 64 &&
-    !/\s/.test(password) &&
-    /[A-Z]/.test(password) &&
-    /[a-z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    /[^A-Za-z0-9]/.test(password);
-
-  if (!validPassword) {
-    throw new Error(
-      'La password deve avere 8-64 caratteri, senza spazi, con maiuscola, minuscola, numero e carattere speciale.',
-    );
-  }
-
-  return { firstName, lastName, email, password };
-}
-
 async function insertServices(database) {
   for (const service of services) {
     await run(
@@ -173,7 +132,7 @@ async function insertAdminIfMissing(database, admin) {
 }
 
 async function seed(options = {}) {
-  const admin = normalizeAndValidateAdmin(
+  const admin = normalizeAndValidateAccount(
     options.admin || readAdminFromEnvironment(),
   );
   const database = await connectDatabase({ databasePath: options.databasePath });

@@ -18,6 +18,7 @@ process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString('hex');
 const { connectDatabase, getDatabase } = require('../db/db');
 const { migrate } = require('../db/migrate');
 const { seed } = require('../db/seed');
+const { verifyPassword } = require('../security/password');
 const { startServer, stopServer } = require('../server');
 
 const testAdmin = {
@@ -235,7 +236,10 @@ test('la connessione condivisa usa lo schema completo', async () => {
 
 test('i dati iniziali non producono duplicati', async () => {
   const firstRun = await seed({ databasePath, admin: testAdmin });
-  const secondRun = await seed({ databasePath, admin: testAdmin });
+  const secondRun = await seed({
+    databasePath,
+    admin: { ...testAdmin, password: 'DifferentPassword2026!' },
+  });
   const database = getDatabase();
   const serviceCount = await get(
     database,
@@ -265,16 +269,22 @@ test('i dati iniziali non producono duplicati', async () => {
     /^scrypt\$16384\$8\$1\$[a-f0-9]{32}\$[a-f0-9]{128}$/,
   );
   assert.equal(admin.password_hash.includes(testAdmin.password), false);
+  assert.equal(await verifyPassword(testAdmin.password, admin.password_hash), true);
+  assert.equal(await verifyPassword('DifferentPassword2026!', admin.password_hash), false);
 });
 
 test('il seed rifiuta password non valide', async () => {
-  await assert.rejects(
-    seed({
-      databasePath,
-      admin: { ...testAdmin, email: 'weak@example.test', password: 'debole' },
-    }),
-    /La password deve avere 8-64 caratteri/,
-  );
+  const invalidDatabasePath = path.join(testDirectory, 'invalid-password.sqlite');
+  for (const password of ['debole', ' TestAdmin2026!', 'TestAdmin2026!\n']) {
+    await assert.rejects(
+      seed({
+        databasePath: invalidDatabasePath,
+        admin: { ...testAdmin, email: 'weak@example.test', password },
+      }),
+      /La password deve avere 8-64 caratteri/,
+    );
+  }
+  assert.equal(fs.existsSync(invalidDatabasePath), false);
 });
 
 test('il seed non promuove un utente normale', async () => {

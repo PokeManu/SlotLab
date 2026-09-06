@@ -17,6 +17,7 @@ test('la configurazione rispetta le scadenze e i cookie concordati', () => {
   assert.equal(config.host, '127.0.0.1');
   assert.equal(config.auth.accessTokenSeconds, 1800);
   assert.equal(config.auth.refreshTokenSeconds, 604800);
+  assert.equal(config.auth.refreshCookieName, 'slotlab_refresh');
   assert.deepEqual(config.auth.refreshCookie, {
     httpOnly: true, secure: true, sameSite: 'lax',
     path: '/api/v1/auth', maxAge: 604800000,

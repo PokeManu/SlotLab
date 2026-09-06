@@ -248,6 +248,8 @@ La risposta imposta il cookie del refresh token e invalida l'eventuale sessione 
 
 Accesso: cookie del refresh token richiesto. Il token non compare nel JSON.
 
+Il client invia l'header `X-SlotLab-Request: 1`; le richieste prive dell'header o dichiarate cross-site sono rifiutate con `403 FORBIDDEN`. Non abilitare CORS verso origini arbitrarie per questo endpoint. Il cookie e `slotlab_refresh`, con le opzioni del paragrafo 3.3.
+
 ```json
 {
   "data": {
@@ -260,11 +262,15 @@ Accesso: cookie del refresh token richiesto. Il token non compare nel JSON.
 
 La risposta ruota il refresh token. Errori: `REFRESH_TOKEN_MISSING`, `REFRESH_TOKEN_INVALID`, `REFRESH_TOKEN_EXPIRED`, `SESSION_REPLACED`.
 
+Ogni nuovo refresh dura 7 giorni dalla rotazione; `created_at` della sessione conserva il momento del login. Il vecchio access token viene invalidato sostituendo il suo jti insieme all'hash del refresh. I quattro errori sopra hanno stato 401. Un hash non piu presente e indistinguibile da uno sconosciuto e restituisce `REFRESH_TOKEN_INVALID`; `SESSION_REPLACED` indica una sostituzione rilevata tra lettura e aggiornamento della sessione. Una richiesta rifiutata non cancella il cookie, per non sovrascrivere quello di un rinnovo concorrente riuscito.
+
 ### 3.7 Logout
 
 #### `POST /auth/logout`
 
 Elimina la sessione corrente, invalidando sia access token sia refresh token, elimina il cookie e restituisce `204 No Content`.
+
+La sessione e identificata dal cookie `slotlab_refresh`; non e necessario un access token ancora valido. Come il refresh, richiede `X-SlotLab-Request: 1` e rifiuta richieste cross-site (`403 FORBIDDEN`). Il DELETE usa soltanto l'hash del cookie ricevuto, mai un ID account fornito dal client. Il logout e idempotente: cookie assente, malformato o non piu corrente restituisce comunque 204, senza modificare altre sessioni. Il cookie viene fatto scadere soltanto quando e stata eliminata la sessione corrispondente, evitando che una richiesta vecchia cancelli il cookie di un login/rinnovo successivo. Un errore DB restituisce 500 e non cancella il cookie.
 
 ### 3.8 Password dimenticata
 
