@@ -32,6 +32,9 @@ log.txt
 # Node
 /node_modules
 /backend/node_modules/sqlite3/build/
+.env
+.env.*
+!.env.example
 npm-debug.log
 yarn-error.log
 

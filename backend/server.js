@@ -1,27 +1,24 @@
 const app = require('./app');
 const { closeDatabase, connectDatabase } = require('./db/db');
+const { readConfig } = require('./config');
 
-const PORT = process.env.PORT === undefined ? 3000 : Number(process.env.PORT);
 let httpServer = null;
-
-if (!Number.isInteger(PORT) || PORT < 0 || PORT > 65535) {
-  throw new Error('La porta del server non e valida.');
-}
 
 async function startServer() {
   if (httpServer) {
     return httpServer;
   }
 
+  const config = readConfig();
   await connectDatabase();
 
   return new Promise((resolve, reject) => {
-    const server = app.listen(PORT);
+    const server = app.listen(config.port, config.host);
 
     server.once('listening', () => {
       httpServer = server;
       const address = server.address();
-      console.log(`Server in ascolto su http://localhost:${address.port}`);
+      console.log(`Server in ascolto su ${config.host}, porta ${address.port}`);
       resolve(server);
     });
 

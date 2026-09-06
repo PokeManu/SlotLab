@@ -115,7 +115,7 @@ Gli elenchi di spazi, prenotazioni, notifiche, segnalazioni e utenti sono pagina
 | `403 Forbidden` | Autorizzazione insufficiente |
 | `404 Not Found` | Risorsa inesistente |
 | `409 Conflict` | Violazione di una regola applicativa |
-| `413 Payload Too Large` | Fotografia superiore a 5 MB |
+| `413 Payload Too Large` | Fotografia superiore a 5 MB oppure corpo JSON oltre il limite tecnico |
 | `415 Unsupported Media Type` | Formato del file non ammesso |
 | `429 Too Many Requests` | Troppe richieste |
 | `500 Internal Server Error` | Errore inatteso del server |
@@ -861,6 +861,9 @@ NOTIFICATION_NOT_FOUND
 
 ```text
 VALIDATION_ERROR
+INVALID_JSON
+PAYLOAD_TOO_LARGE
+ROUTE_NOT_FOUND
 UNAUTHORIZED
 FORBIDDEN
 RESOURCE_NOT_FOUND

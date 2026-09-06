@@ -1,6 +1,7 @@
 function errorHandler(error, request, response, next) {
-  let status = Number.isInteger(error.status) ? error.status : 500;
-  let code = error.code || 'INTERNAL_SERVER_ERROR';
+  let status = Number.isInteger(error.status) && error.status >= 400 && error.status <= 599
+    ? error.status : 500;
+  let code = error.code || 'INTERNAL_ERROR';
   let message = error.message || 'Si e verificato un errore inatteso.';
 
   if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
@@ -16,8 +17,9 @@ function errorHandler(error, request, response, next) {
   }
 
   if (status >= 500) {
-    console.error(error);
-    code = 'INTERNAL_SERVER_ERROR';
+    // Non stampare l'oggetto completo: potrebbe contenere dati della richiesta.
+    console.error('Errore interno durante la gestione di una richiesta.');
+    code = 'INTERNAL_ERROR';
     message = 'Si e verificato un errore inatteso.';
   }
 

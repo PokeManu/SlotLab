@@ -11,6 +11,9 @@ const databasePath = path.join(testDirectory, 'database.sqlite');
 
 process.env.SLOTLAB_DB_PATH = databasePath;
 process.env.PORT = '0';
+process.env.HOST = '127.0.0.1';
+process.env.NODE_ENV = 'test';
+process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString('hex');
 
 const { connectDatabase, getDatabase } = require('../db/db');
 const { migrate } = require('../db/migrate');
