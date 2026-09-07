@@ -7,23 +7,6 @@
     --color: #f4f7ff;
   }
 
-  button,
-  input,
-  select {
-    font: inherit;
-  }
-
-  button,
-  a,
-  select {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  button,
-  select {
-    cursor: pointer;
-  }
-
   .admin-layout {
     display: grid;
     grid-template-columns: 232px minmax(0, 1fr);
@@ -35,160 +18,6 @@
         transparent 40%
       ),
       #081526;
-  }
-
-  .sidebar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    width: 232px;
-    height: 100vh;
-    padding: 34px 11px 30px;
-    background:
-      linear-gradient(
-        180deg,
-        rgb(5 18 34 / 96%),
-        rgb(7 22 40 / 98%)
-      );
-    border-right: 1px solid rgb(49 71 100 / 16%);
-  }
-
-  .sidebar__brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 0 7px;
-    color: #f4f7ff;
-    font-size: 29px;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .sidebar__brand-icon {
-    display: grid;
-    flex: 0 0 48px;
-    width: 48px;
-    height: 48px;
-    place-items: center;
-    border-radius: 13px;
-    background:
-      linear-gradient(
-        145deg,
-        #6e9dff,
-        #3567f7
-      );
-    box-shadow: 0 10px 25px rgb(50 103 247 / 22%);
-  }
-
-  .sidebar__brand-icon ion-icon {
-    font-size: 25px;
-  }
-
-  .sidebar__navigation {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 36px;
-  }
-
-  .sidebar__link {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    min-height: 52px;
-    padding: 0 16px;
-    border-radius: 11px;
-    color: #d9e1f1;
-    font-size: 19px;
-    text-decoration: none;
-    transition:
-      background-color 160ms ease,
-      color 160ms ease;
-  }
-
-  .sidebar__link ion-icon {
-    flex: 0 0 23px;
-    font-size: 23px;
-  }
-
-  .sidebar__link:hover {
-    background: rgb(255 255 255 / 6%);
-    color: #ffffff;
-  }
-
-  .sidebar__link--active {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(71 85 107 / 75%),
-        rgb(61 75 96 / 78%)
-      );
-    color: #ffffff;
-  }
-
-  .sidebar__profile {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
-    padding: 30px 7px 0;
-    border-top: 1px solid #263a55;
-  }
-
-  .sidebar__avatar {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    place-items: center;
-    border-radius: 50%;
-    background: #edf3ff;
-    color: #294675;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .sidebar__user {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .sidebar__user strong {
-    overflow: hidden;
-    color: #f4f7ff;
-    font-size: 16px;
-    font-weight: 500;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .sidebar__user span {
-    overflow: hidden;
-    color: #d2daea;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .sidebar__logout {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    place-items: center;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: #94a5c2;
-  }
-
-  .sidebar__logout:hover {
-    background: rgb(255 255 255 / 7%);
-    color: #f4f7ff;
   }
 
   .admin-main {
@@ -231,17 +60,6 @@
     color: #ffffff;
     box-shadow: 0 10px 25px rgb(42 91 226 / 15%);
     font-size: 18px;
-    transition:
-      filter 160ms ease,
-      transform 160ms ease;
-  }
-
-  .primary-button:hover {
-    filter: brightness(1.08);
-  }
-
-  .primary-button:active {
-    transform: translateY(1px);
   }
 
   .primary-button ion-icon {
@@ -253,92 +71,6 @@
     min-width: 223px;
   }
 
-  .filters {
-    width: min(842px, calc(100% - 370px));
-    margin-bottom: 17px;
-  }
-
-  .search-field,
-  .select-field {
-    position: relative;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    border: 1px solid #2a405e;
-    background: rgb(19 35 58 / 78%);
-    color: #aebbd0;
-  }
-
-  .search-field {
-    height: 55px;
-    border-radius: 11px;
-  }
-
-  .search-field:focus-within,
-  .select-field:focus-within {
-    border-color: #5686ff;
-    box-shadow: 0 0 0 2px rgb(79 127 255 / 12%);
-  }
-
-  .search-field ion-icon {
-    flex: 0 0 22px;
-    margin-left: 19px;
-    font-size: 22px;
-  }
-
-  .search-field input {
-    width: 100%;
-    height: 100%;
-    padding: 0 18px;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: #f4f7ff;
-    font-size: 17px;
-  }
-
-  .search-field input::placeholder {
-    color: #aebbd0;
-    opacity: 1;
-  }
-
-  .search-field input::-webkit-search-cancel-button {
-    filter: invert(1);
-    opacity: 0.65;
-  }
-
-  .filters__selects {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 13px;
-    margin-top: 15px;
-  }
-
-  .select-field {
-    height: 53px;
-    border-radius: 11px;
-  }
-
-  .select-field select {
-    width: 100%;
-    height: 100%;
-    padding: 0 46px 0 16px;
-    border: 0;
-    outline: 0;
-    appearance: none;
-    background: transparent;
-    color: #d5ddeb;
-    font-size: 17px;
-  }
-
-  .select-field ion-icon {
-    position: absolute;
-    right: 16px;
-    pointer-events: none;
-    color: #f4f7ff;
-    font-size: 18px;
-  }
-
   .booking-workspace {
     display: grid;
     grid-template-columns: minmax(650px, 1fr) 357px;
@@ -346,8 +78,7 @@
     gap: 20px;
   }
 
-  .booking-panel,
-  .booking-details {
+  .booking-panel {
     border: 1px solid #2d4462;
     border-radius: 13px;
     background:
@@ -377,8 +108,7 @@
     border-bottom: 1px solid #2a405d;
   }
 
-  .booking-panel__heading h2,
-  .booking-details h2 {
+  .booking-panel__heading h2 {
     margin: 0;
     color: #f4f7ff;
     font-size: 20px;
@@ -520,7 +250,7 @@
   }
 
   .booking-status--confirmed,
-  .booking-status--check-in {
+.booking-status--check-in {
     background: rgb(48 139 104 / 34%);
     color: #6fdb9e;
   }
@@ -637,7 +367,7 @@
   }
 
   .pagination button:first-child,
-  .pagination button:last-child {
+.pagination button:last-child {
     border-color: #263c59;
   }
 
@@ -654,112 +384,6 @@
         #5686ff,
         #3d6df5
       );
-  }
-
-  .booking-details {
-    display: flex;
-    min-width: 0;
-    min-height: 645px;
-    flex-direction: column;
-    box-sizing: border-box;
-    padding: 0 20px 18px;
-  }
-
-  .booking-details h2 {
-    display: flex;
-    min-height: 76px;
-    align-items: center;
-    padding: 0 6px;
-  }
-
-  .booking-details__list {
-    margin: 0;
-  }
-
-  .booking-details__item {
-    display: grid;
-    grid-template-columns: 38px minmax(0, 1fr);
-    align-items: center;
-    min-height: 58px;
-    border-bottom: 1px solid #2a405d;
-  }
-
-  .booking-details__item dt,
-  .booking-details__item dd {
-    margin: 0;
-  }
-
-  .booking-details__item dt {
-    display: grid;
-    place-items: center;
-    color: #bac6d9;
-  }
-
-  .booking-details__item ion-icon {
-    font-size: 24px;
-  }
-
-  .booking-details__item dd {
-    color: #dce4f1;
-    font-size: 16px;
-    line-height: 1.35;
-  }
-
-  .booking-details__status-dot {
-    width: 19px;
-    height: 19px;
-    border-radius: 50%;
-    background: #61c091;
-  }
-
-  .booking-details__status-dot--cancelled {
-    background: #ff6269;
-  }
-
-  .booking-details__status-text {
-    margin-left: 5px;
-    color: #61c985;
-  }
-
-  .booking-details__status-text--cancelled {
-    color: #ff7378;
-  }
-
-  .booking-details__actions {
-    display: grid;
-    gap: 17px;
-    margin-top: auto;
-    padding-top: 24px;
-  }
-
-  .booking-details__actions .primary-button {
-    width: 100%;
-  }
-
-  .danger-button {
-    display: inline-flex;
-    min-height: 55px;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border: 1px solid #ff4d55;
-    border-radius: 10px;
-    background: transparent;
-    color: #ff6269;
-    font-size: 17px;
-  }
-
-  .danger-button:hover:not(:disabled) {
-    background: rgb(255 77 85 / 8%);
-  }
-
-  .danger-button:disabled {
-    cursor: default;
-    opacity: 0.55;
-  }
-
-  .danger-button ion-icon {
-    font-size: 22px;
   }
 
   .sr-only {
@@ -779,46 +403,6 @@
       grid-template-columns: 88px minmax(0, 1fr);
     }
 
-    .sidebar {
-      width: 88px;
-      padding-right: 10px;
-      padding-left: 10px;
-    }
-
-    .sidebar__brand {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .sidebar__brand > span:last-child,
-    .sidebar__link span,
-    .sidebar__user,
-    .sidebar__logout {
-      display: none;
-    }
-
-    .sidebar__navigation {
-      align-items: center;
-    }
-
-    .sidebar__link {
-      width: 52px;
-      justify-content: center;
-      box-sizing: border-box;
-      padding: 0;
-    }
-
-    .sidebar__profile {
-      display: flex;
-      justify-content: center;
-      padding-right: 0;
-      padding-left: 0;
-    }
-
-    .filters {
-      width: calc(100% - 340px);
-    }
-
     .booking-workspace {
       grid-template-columns: minmax(590px, 1fr) 320px;
     }
@@ -829,68 +413,15 @@
   }
 
   @media (max-width: 1020px) {
-    .filters {
-      width: 100%;
-    }
 
     .booking-workspace {
       grid-template-columns: 1fr;
-    }
-
-    .booking-details {
-      min-height: auto;
-    }
-
-    .booking-details__actions {
-      margin-top: 28px;
     }
   }
 
   @media (max-width: 760px) {
     .admin-layout {
       display: block;
-    }
-
-    .sidebar {
-      position: relative;
-      width: 100%;
-      height: auto;
-      padding: 16px;
-      border-right: 0;
-      border-bottom: 1px solid #263a55;
-    }
-
-    .sidebar__brand {
-      justify-content: flex-start;
-    }
-
-    .sidebar__brand > span:last-child {
-      display: inline;
-    }
-
-    .sidebar__brand-icon {
-      flex-basis: 42px;
-      width: 42px;
-      height: 42px;
-    }
-
-    .sidebar__navigation {
-      flex-direction: row;
-      align-items: stretch;
-      gap: 6px;
-      margin-top: 16px;
-      overflow-x: auto;
-    }
-
-    .sidebar__link {
-      width: auto;
-      min-width: 48px;
-      flex: 0 0 auto;
-      padding: 0 14px;
-    }
-
-    .sidebar__profile {
-      display: none;
     }
 
     .admin-main {
@@ -915,10 +446,6 @@
       display: none;
     }
 
-    .filters__selects {
-      grid-template-columns: 1fr;
-    }
-
     .booking-panel {
       min-height: auto;
     }
@@ -938,8 +465,7 @@
       font-size: 28px;
     }
 
-    .booking-panel,
-    .booking-details {
+    .booking-panel {
       padding-right: 13px;
       padding-left: 13px;
     }

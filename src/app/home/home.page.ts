@@ -1,3 +1,4 @@
+import { Auth } from '../auth/auth';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
@@ -23,6 +24,7 @@ import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigatio
   ],
 })
 export class HomePage {
+  readonly auth = inject(Auth);
   private readonly router = inject(Router);
   readonly nextBooking: BookingSummary = {
     id: 'booking-001',

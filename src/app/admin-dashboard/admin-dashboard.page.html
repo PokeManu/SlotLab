@@ -1,35 +1,11 @@
 <ion-content [fullscreen]="true" class="admin-content">
   <div class="admin-shell">
-    <aside class="sidebar" aria-label="Navigazione amministratore">
-      <div class="brand">
-        <span class="brand__icon">
-          <ion-icon name="checkbox-outline"></ion-icon>
-        </span>
-        <span class="brand__name">SlotLab</span>
-      </div>
-
-      <nav class="sidebar__navigation">
-        @for(item of navigationItems; track item.label){
-          <button type="button" class="nav-item" [class.nav-item--active]="item.active" [routerLink]="item.route">
-            <ion-icon [name]="item.icon"></ion-icon>
-            <span>{{item.label}}</span>
-          </button>
-        }
-      </nav>
-
-      <div class="administrator">
-        <span class="administrator__avatar">FG</span>
-        <span class="administrator__information">
-          <strong>Francesco</strong>
-          <small>Amministratore</small>
-        </span>
-      </div>
-    </aside>
+    <app-admin-sidebar></app-admin-sidebar>
 
     <main class="dashboard">
       <header class="dashboard__header">
         <div class="dashboard__greeting">
-          <h1>Buongiorno, Francesco</h1>
+          <h1>Buongiorno, {{ auth.user()?.firstName }}</h1>
           <p>
             Martedì, 18 agosto
             <span aria-hidden="true">·</span>

@@ -6,6 +6,7 @@ const sqlite3 = require('sqlite3').verbose();
 const DEFAULT_DATABASE_PATH = path.join(__dirname, 'database.sqlite');
 
 const migrations = [
+  // Non modificare le versioni gia applicate: ogni estensione ha un nuovo file.
   {
     version: 1,
     name: 'initial_schema',
@@ -15,6 +16,11 @@ const migrations = [
     version: 2,
     name: 'slot_occurrences_integrity',
     filePath: path.join(__dirname, 'migrations', '002-slot-occurrences-integrity.sql'),
+  },
+  {
+    version: 3,
+    name: 'file_deletions',
+    filePath: path.join(__dirname, 'migrations', '003-file-deletions.sql'),
   },
 ];
 

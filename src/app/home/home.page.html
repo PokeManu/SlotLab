@@ -4,7 +4,7 @@
   <main class="home">
     <section class="home__intro">
       <div class="home__heading">
-        <p class="home__greeting">Ciao Francesco</p>
+        <p class="home__greeting">Ciao {{ auth.user()?.firstName }}</p>
         <h1>Il tuo campus</h1>
       </div>
 

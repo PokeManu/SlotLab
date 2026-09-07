@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminDashboardPage } from './admin-dashboard.page';
 
@@ -6,6 +7,7 @@ describe('AdminDashboardPage', () => {
   let fixture: ComponentFixture<AdminDashboardPage>;
 
   beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
     fixture = TestBed.createComponent(AdminDashboardPage);
     component = fixture.componentInstance;
     fixture.detectChanges();

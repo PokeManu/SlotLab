@@ -13,6 +13,12 @@
     class="topbar__navigation"
     aria-label="Navigazione principale"
   >
+    @if (auth.isAdmin()) {
+      @for (item of adminNavigation; track item.route) {
+        <a class="topbar__link" [routerLink]="item.route" routerLinkActive="topbar__link--active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/admin' }">{{ item.label }}</a>
+      }
+    } @else {
     <a
       class="topbar__link"
       routerLink="/home"
@@ -45,9 +51,11 @@
     >
       Preferiti
     </a>
+    }
   </nav>
 
   <div class="topbar__user">
+  @if (!auth.isAdmin()) {
   <a
     class="topbar__notification"
     routerLink="/notifications"
@@ -56,19 +64,20 @@
   >
     <ion-icon name="notifications-outline"></ion-icon>
   </a>
+  }
 
     <a
       class="topbar__profile"
       routerLink="/profile"
       routerLinkActive="topbar__profile--active"
-      aria-label="Apri il profilo di Francesco"
+      [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
     >
       <span class="topbar__avatar">
-        FG
+        {{ auth.initials }}
       </span>
 
       <span class="topbar__username">
-        Francesco
+        {{ auth.user()?.firstName }}
       </span>
     </a>
   </div>

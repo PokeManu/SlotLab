@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { SpaceSearchComponent } from '../admin-parts/space-search.component';
+import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
+import { Auth } from '../auth/auth';
+import { Component, inject } from '@angular/core';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 
@@ -21,13 +23,6 @@ import { addIcons } from 'ionicons';
     searchOutline
   } from 'ionicons/icons';
 
-  interface NavigationItem{
-    label:string;
-    icon:string;
-    active:boolean;
-    route: string;
-  }
-
   interface AdminSpace{
     name: string;
     icon: string;
@@ -42,41 +37,10 @@ import { addIcons } from 'ionicons';
   selector: 'app-admin-spaces',
   templateUrl: './admin-spaces.page.html',
   styleUrls: ['./admin-spaces.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink]
+  imports: [SpaceSearchComponent, AdminSidebarComponent, IonContent, IonIcon]
 })
 export class AdminSpacesPage{
-  readonly navigationItems: NavigationItem[] = [
-    {
-      label: 'Panoramica',
-      icon: 'grid-outline',
-      active: false,
-      route: '/admin'
-    },
-    {
-      label: 'Prenotazioni',
-      icon: 'calendar-outline',
-      active: false,
-      route: '/admin/bookings'
-    },
-    {
-      label: 'Spazi',
-      icon: 'business-outline',
-      active: true,
-      route: '/admin/spaces'
-    },
-    {
-      label: 'Segnalazioni',
-      icon: 'construct-outline',
-      active: false,
-      route: '/admin/reports'
-    },
-    {
-      label: 'Statistiche',
-      icon: 'bar-chart-outline',
-      active: false,
-      route: '/admin/statistics'
-    }
-  ];
+  readonly auth = inject(Auth);
 
   readonly spaces: AdminSpace[] = [
     {

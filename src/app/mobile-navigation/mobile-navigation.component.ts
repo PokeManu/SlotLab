@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Auth } from '../auth/auth';
+import { adminNavigation } from '../auth/navigation-items';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -8,6 +10,8 @@ import {
   homeOutline,
   personOutline,
   searchOutline,
+  flagOutline,
+  barChartOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -21,6 +25,8 @@ import {
   ],
 })
 export class MobileNavigationComponent {
+  readonly auth = inject(Auth);
+  readonly adminNavigation = adminNavigation;
   constructor() {
     addIcons({
       calendarOutline,
@@ -28,6 +34,8 @@ export class MobileNavigationComponent {
       homeOutline,
       personOutline,
       searchOutline,
+      flagOutline,
+      barChartOutline,
     });
   }
 }

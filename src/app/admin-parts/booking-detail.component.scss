@@ -1,0 +1,222 @@
+:host { display: contents; }
+
+
+  button,
+input,
+select {
+    font: inherit;
+  }
+
+  button,
+a,
+select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+select {
+    cursor: pointer;
+  }
+
+  .primary-button {
+    display: inline-flex;
+    min-height: 55px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 10px;
+    background:
+      linear-gradient(
+        135deg,
+        #5686ff,
+        #3d6df5
+      );
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgb(42 91 226 / 15%);
+    font-size: 18px;
+    transition:
+      filter 160ms ease,
+      transform 160ms ease;
+  }
+
+  .primary-button:hover {
+    filter: brightness(1.08);
+  }
+
+  .primary-button:active {
+    transform: translateY(1px);
+  }
+
+  .primary-button ion-icon {
+    display: none;
+    font-size: 20px;
+  }
+
+  .booking-details {
+    border: 1px solid #2d4462;
+    border-radius: 13px;
+    background:
+      linear-gradient(
+        145deg,
+        rgb(20 35 59 / 82%),
+        rgb(14 29 51 / 88%)
+      );
+    box-shadow: 0 18px 50px rgb(0 0 0 / 8%);
+  }
+
+  .booking-details h2 {
+    margin: 0;
+    color: #f4f7ff;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .booking-details {
+    display: flex;
+    min-width: 0;
+    min-height: 645px;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 0 20px 18px;
+  }
+
+  .booking-details h2 {
+    display: flex;
+    min-height: 76px;
+    align-items: center;
+    padding: 0 6px;
+  }
+
+  .booking-details__list {
+    margin: 0;
+  }
+
+  .booking-details__item {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    min-height: 58px;
+    border-bottom: 1px solid #2a405d;
+  }
+
+  .booking-details__item dt,
+.booking-details__item dd {
+    margin: 0;
+  }
+
+  .booking-details__item dt {
+    display: grid;
+    place-items: center;
+    color: #bac6d9;
+  }
+
+  .booking-details__item ion-icon {
+    font-size: 24px;
+  }
+
+  .booking-details__item dd {
+    color: #dce4f1;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .booking-details__status-dot {
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #61c091;
+  }
+
+  .booking-details__status-dot--cancelled {
+    background: #ff6269;
+  }
+
+  .booking-details__status-text {
+    margin-left: 5px;
+    color: #61c985;
+  }
+
+  .booking-details__status-text--cancelled {
+    color: #ff7378;
+  }
+
+  .booking-details__actions {
+    display: grid;
+    gap: 17px;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .booking-details__actions .primary-button {
+    width: 100%;
+  }
+
+  .danger-button {
+    display: inline-flex;
+    min-height: 55px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #ff4d55;
+    border-radius: 10px;
+    background: transparent;
+    color: #ff6269;
+    font-size: 17px;
+  }
+
+  .danger-button:hover:not(:disabled) {
+    background: rgb(255 77 85 / 8%);
+  }
+
+  .danger-button:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .danger-button ion-icon {
+    font-size: 22px;
+  }
+
+  .sr-only {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1020px) {
+
+    .booking-details {
+      min-height: auto;
+    }
+
+    .booking-details__actions {
+      margin-top: 28px;
+    }
+  }
+
+  @media (max-width: 760px) {
+
+    .primary-button.page-header__button ion-icon {
+      display: block;
+    }
+
+    .primary-button.page-header__button span {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+
+    .booking-details {
+      padding-right: 13px;
+      padding-left: 13px;
+    }
+  }

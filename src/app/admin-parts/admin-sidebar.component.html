@@ -1,0 +1,27 @@
+<aside class="sidebar" aria-label="Navigazione amministratore">
+      <div class="brand">
+        <span class="brand__icon">
+          <ion-icon name="checkbox-outline"></ion-icon>
+        </span>
+        <span class="brand__name">SlotLab</span>
+      </div>
+
+      <nav class="sidebar__navigation">
+        @for(item of navigationItems; track item.label){
+          <button type="button" class="nav-item" routerLinkActive="nav-item--active" [routerLinkActiveOptions]="{ exact: item.route === '/admin' }" [routerLink]="item.route" [attr.aria-label]="item.label">
+            <ion-icon [name]="item.icon"></ion-icon>
+            <span>{{item.label}}</span>
+          </button>
+        }
+      </nav>
+      <a class="account-link" routerLink="/profile">Profilo</a>
+
+      <div class="administrator">
+        <span class="administrator__avatar">{{ auth.initials }}</span>
+        <span class="administrator__information">
+          <strong>{{ auth.user()?.firstName }}</strong>
+          <small>Amministratore</small>
+          <button type="button" (click)="logout()" [disabled]="auth.signingOut()">Esci</button>
+        </span>
+      </div>
+    </aside>

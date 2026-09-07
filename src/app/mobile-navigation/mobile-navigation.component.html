@@ -1,7 +1,16 @@
 <nav
   class="mobile-navigation"
   aria-label="Navigazione mobile"
+  [style.grid-template-columns]="auth.isAdmin() ? 'repeat(6, minmax(0, 1fr))' : null"
 >
+  @if (auth.isAdmin()) {
+    @for (item of adminNavigation; track item.route) {
+      <a class="mobile-navigation__link" [routerLink]="item.route" routerLinkActive="mobile-navigation__link--active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }">
+        <ion-icon [name]="item.icon"></ion-icon><span>{{ item.label }}</span>
+      </a>
+    }
+  } @else {
   <a
     class="mobile-navigation__link"
     routerLink="/home"
@@ -39,6 +48,7 @@
     <span>Preferiti</span>
   </a>
 
+  }
   <a
     class="mobile-navigation__link"
     routerLink="/profile"

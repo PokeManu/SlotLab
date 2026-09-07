@@ -1,19 +1,4 @@
-import { CanActivateFn, Router } from '@angular/router';
-import { inject } from '@angular/core';
-import { Auth } from './auth';
+import { CanActivateFn } from '@angular/router';
+import { requirePage } from './session-guard';
 
-export const adminGuard: CanActivateFn = () => {
-  const authService = inject(Auth);
-  const router = inject(Router);
-
-
-      console.log('Ruolo corrente:', authService.role);
-    console.log('È amministratore:', authService.isAdmin());
-
-
-  if(authService.isAdmin()){
-    return true;
-  }
-
-  return router.createUrlTree(['/home']);
-};
+export const adminGuard: CanActivateFn = (_route, state) => requirePage('admin', state.url);

@@ -1,0 +1,118 @@
+<aside class="booking-details">
+            <h2>Dettaglio prenotazione</h2>
+
+            <dl class="booking-details__list">
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="tag-outline"></ion-icon>
+                  <span class="sr-only">Codice</span>
+                </dt>
+                <dd>Codice: {{ selectedBooking.code }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="book-outline"></ion-icon>
+                  <span class="sr-only">Spazio</span>
+                </dt>
+                <dd>{{ selectedBooking.space }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span class="sr-only">Utente</span>
+                </dt>
+                <dd>{{ selectedBooking.bookedBy }}</dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span class="sr-only">Orario</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.dateLabel }},
+                  {{ selectedBooking.startTime }}–{{
+                    selectedBooking.endTime
+                  }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="business-outline"></ion-icon>
+                  <span class="sr-only">Edificio</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.building }}, piano
+                  {{ selectedBooking.floor }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <ion-icon name="people-outline"></ion-icon>
+                  <span class="sr-only">Partecipanti</span>
+                </dt>
+                <dd>
+                  {{ selectedBooking.participants }}
+                  {{
+                    selectedBooking.participants === 1
+                      ? 'partecipante'
+                      : 'partecipanti'
+                  }}
+                </dd>
+              </div>
+
+              <div class="booking-details__item">
+                <dt>
+                  <span
+                    class="booking-details__status-dot"
+                    [class.booking-details__status-dot--cancelled]="
+                      selectedBooking.status === 'Annullata'
+                    "
+                  ></span>
+                  <span class="sr-only">Stato</span>
+                </dt>
+                <dd>
+                  Stato:
+                  <span
+                    class="booking-details__status-text"
+                    [class.booking-details__status-text--cancelled]="
+                      selectedBooking.status === 'Annullata'
+                    "
+                  >
+                    {{ selectedBooking.status }}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="booking-details__actions">
+              <button
+                class="primary-button"
+                type="button"
+                (click)="edit.emit()"
+              >
+                <ion-icon name="create-outline"></ion-icon>
+                <span>Modifica prenotazione</span>
+              </button>
+
+              <button
+                class="danger-button"
+                type="button"
+                [disabled]="selectedBooking.status === 'Annullata'"
+                (click)="cancel.emit()"
+              >
+                <ion-icon name="trash-outline"></ion-icon>
+                <span>
+                  {{
+                    selectedBooking.status === 'Annullata'
+                      ? 'Prenotazione annullata'
+                      : 'Annulla prenotazione'
+                  }}
+                </span>
+              </button>
+            </div>
+          </aside>

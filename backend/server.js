@@ -1,6 +1,8 @@
 const app = require('./app');
 const { closeDatabase, connectDatabase } = require('./db/db');
 const { readConfig } = require('./config');
+const { smtpConfig, waitForRecovery } = require('./security/recovery');
+const { cleanDeletedFiles } = require('./security/report-files');
 
 let httpServer = null;
 
@@ -10,7 +12,9 @@ async function startServer() {
   }
 
   const config = readConfig();
+  smtpConfig();
   await connectDatabase();
+  await cleanDeletedFiles();
 
   return new Promise((resolve, reject) => {
     const server = app.listen(config.port, config.host);
@@ -51,6 +55,7 @@ async function stopServer() {
     });
   }
 
+  await waitForRecovery();
   await closeDatabase();
 }
 

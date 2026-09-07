@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Auth } from '../auth/auth';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -29,6 +30,7 @@ import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigatio
   ],
 })
 export class SpacesPage {
+  readonly auth = inject(Auth);
   readonly spaces = SPACES;
 
   readonly favoriteSpaceIds = new Set<string>();

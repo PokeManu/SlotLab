@@ -21,116 +21,7 @@
 
   /* Sidebar */
 
-  .sidebar {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 16px);
-    padding: 46px 36px;
-    background: #081321;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    color: var(--slot-text);
-  }
-
-  .brand__icon {
-    display: grid;
-    place-items: center;
-    width: 68px;
-    height: 68px;
-    border-radius: 20px;
-    background: var(--slot-primary);
-  }
-
-  .brand__icon ion-icon {
-    font-size: 32px;
-  }
-
-  .brand__name {
-    font-size: 38px;
-    font-weight: 500;
-  }
-
-  .sidebar__navigation {
-    display: grid;
-    gap: 18px;
-    margin-top: 50px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    width: 100%;
-    min-height: 80px;
-    padding: 0 24px;
-    border: 0;
-    border-radius: 18px;
-    background: transparent;
-    color: var(--slot-text-muted);
-    font: inherit;
-    font-size: 25px;
-    text-align: left;
-    text-decoration: none;
-    cursor: pointer;
-    transition:
-      background-color 160ms ease,
-      color 160ms ease;
-  }
-
-  .nav-item ion-icon {
-    flex: 0 0 auto;
-    font-size: 30px;
-  }
-
-  .nav-item:hover,
-  .nav-item--active {
-    background: #293345;
-    color: var(--slot-text);
-  }
-
   /* Profilo amministratore */
-
-  .administrator {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-top: auto;
-    padding-top: 42px;
-    border-top: 2px solid #26344a;
-  }
-
-  .administrator__avatar {
-    display: grid;
-    flex: 0 0 auto;
-    place-items: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: #c7d8ff;
-    color: #17365f;
-    font-size: 22px;
-    font-weight: 500;
-  }
-
-  .administrator__information strong,
-  .administrator__information small {
-    display: block;
-    line-height: 1.6;
-  }
-
-  .administrator__information strong {
-    color: var(--slot-text);
-    font-size: 22px;
-  }
-
-  .administrator__information small {
-    color: var(--slot-text);
-    font-size: 20px;
-  }
 
   /* Contenuto principale */
 
@@ -195,46 +86,6 @@
   }
 
   /* Ricerca */
-
-  .space-search {
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 72px;
-    margin-top: 38px;
-    padding: 0 24px;
-    border: 2px solid var(--slot-border);
-    border-radius: 18px;
-    background: #172237;
-    color: var(--slot-text-muted);
-  }
-
-  .space-search:focus-within {
-    border-color: var(--slot-primary);
-  }
-
-  .space-search ion-icon {
-    flex: 0 0 auto;
-    font-size: 26px;
-  }
-
-  .space-search input {
-    width: 100%;
-    min-width: 0;
-    padding-left: 18px;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--slot-text);
-    font: inherit;
-    font-size: 20px;
-  }
-
-  .space-search input::placeholder {
-    color: var(--slot-text-muted);
-    opacity: 1;
-  }
 
   .sr-only {
     position: absolute;
@@ -364,7 +215,7 @@
   }
 
   .space-row__building,
-  .space-row__capacity {
+.space-row__capacity {
     color: var(--slot-text-muted);
     font-size: 18px;
   }
@@ -484,29 +335,6 @@
       grid-template-columns: 100px minmax(0, 1fr);
     }
 
-    .sidebar {
-      padding-inline: 18px;
-    }
-
-    .brand {
-      justify-content: center;
-    }
-
-    .brand__name,
-    .nav-item span,
-    .administrator__information {
-      display: none;
-    }
-
-    .nav-item {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .administrator {
-      justify-content: center;
-    }
-
     .spaces-management {
       padding: 40px 32px;
     }
@@ -516,7 +344,7 @@
     }
 
     .spaces-table__header,
-    .space-row {
+.space-row {
       min-width: 900px;
     }
   }
@@ -531,46 +359,6 @@
       margin: 0;
       border: 0;
       border-radius: 0;
-    }
-
-    .sidebar {
-      min-height: auto;
-      padding: 18px 20px;
-    }
-
-    .brand {
-      justify-content: flex-start;
-    }
-
-    .brand__icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 15px;
-    }
-
-    .brand__icon ion-icon {
-      font-size: 26px;
-    }
-
-    .brand__name {
-      display: inline;
-      font-size: 28px;
-    }
-
-    .sidebar__navigation {
-      display: flex;
-      gap: 8px;
-      margin-top: 18px;
-      overflow-x: auto;
-    }
-
-    .nav-item {
-      flex: 0 0 58px;
-      min-height: 58px;
-    }
-
-    .administrator {
-      display: none;
     }
 
     .spaces-management {
@@ -589,15 +377,6 @@
 
     .add-space-button {
       width: 100%;
-    }
-
-    .space-search {
-      height: 64px;
-      margin-top: 28px;
-    }
-
-    .space-search input {
-      font-size: 17px;
     }
 
     .space-filters {
@@ -640,7 +419,7 @@
     }
 
     .space-row__building::before,
-    .space-row__capacity::before {
+.space-row__capacity::before {
       display: block;
       margin-bottom: 6px;
       color: var(--slot-text-muted);
@@ -668,4 +447,3 @@
       padding: 18px 4px;
     }
   }
- 

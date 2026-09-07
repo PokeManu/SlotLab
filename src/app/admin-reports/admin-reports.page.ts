@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ReportDetailComponent } from '../admin-parts/report-detail.component';
+import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
+import { Auth } from '../auth/auth';
+import { Component, inject, OnInit } from '@angular/core';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -19,18 +21,11 @@ import {
     wifiOutline
   } from 'ionicons/icons';
 
-interface NavigationItem {
-  label: string;
-  icon: string;
-  active: boolean;
-  route: string;
-}
-
 type ReportPriority = 'high' | 'medium' | 'low';
 type ReportStatus = 'open' | 'in-progress' | 'resolved';
 type ReportFilter = 'all' | ReportStatus;
 
-interface AdminReport{
+export interface AdminReport{
   id: number;
   title: string;
   space: string;
@@ -53,41 +48,10 @@ interface AdminReport{
   selector: 'app-admin-reports',
   templateUrl: './admin-reports.page.html',
   styleUrls: ['./admin-reports.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink]
+  imports: [ReportDetailComponent, AdminSidebarComponent, IonContent, IonIcon]
 })
 export class AdminReportsPage{
-  readonly navigationItem: NavigationItem[] = [
-    {
-      label: 'Panoramica',
-      icon: 'grid-outline',
-      active: false,
-      route: '/admin'
-    },
-    {
-      label: 'Prenotazioni',
-      icon: 'calendar-outline',
-      active: false,
-      route: '/admin/bookings'
-    },
-    {
-      label: 'Spazi',
-      icon: 'business-outline',
-      active: false,
-      route: '/admin/spaces'
-    },
-    {
-      label: 'Segnalazioni',
-      icon: 'construct-outline',
-      active: true,
-      route: '/admin/reports'
-    },
-    {
-      label: 'Statistiche',
-      icon: 'bar-chart-outline',
-      active: false,
-      route: '/admin/statistics'
-    }
-  ];
+  readonly auth = inject(Auth);
 
   readonly reports: AdminReport[] = [
     {

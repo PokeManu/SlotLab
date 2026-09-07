@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IonContent, IonIcon} from '@ionic/angular';
 import { addIcons } from 'ionicons';
  import {
@@ -12,6 +12,7 @@ import { addIcons } from 'ionicons';
   } from 'ionicons/icons';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
+import { Auth } from '../auth/auth';
 interface ProfileMenuItem{
   label: string;
   icon:string;
@@ -23,19 +24,23 @@ interface ProfileMenuItem{
   styleUrls: ['./profile.page.scss'],
   imports: [
     IonContent,
-    IonIcon,
     TopbarComponent,
     MobileNavigationComponent,
+    RouterLink,
   ],
 })
 export class ProfilePage {
 
-  readonly user= {
-    initials: 'FG',
-    fullName: 'Francesco Genova',
-    role: 'Studente',
-    email: 'francesco.genova@community.unipa.it',
-  };
+  readonly auth = inject(Auth);
+  get user() {
+    const account = this.auth.user();
+    return {
+      initials: this.auth.initials,
+      fullName: account ? `${account.firstName} ${account.lastName}` : '',
+      role: this.auth.isAdmin() ? 'Amministratore' : 'Utente',
+      email: account?.email ?? '',
+    };
+  }
 
   readonly menuItems: ProfileMenuItem[] = [
     {
@@ -64,6 +69,6 @@ export class ProfilePage {
   }
 
   logout(): void{
-    void this.router.navigate(['/home']);
+    this.auth.logout().subscribe({ error: () => {} });
   }
 }

@@ -1,7 +1,11 @@
+import { BookingFiltersComponent } from '../admin-parts/booking-filters.component';
+import { BookingDetailComponent } from '../admin-parts/booking-detail.component';
+import { BookingsSidebarComponent } from '../admin-parts/bookings-sidebar.component';
+import { Auth } from '../auth/auth';
  import { CommonModule } from '@angular/common';
-  import { Component } from '@angular/core';
+  import { Component, inject } from '@angular/core';
   import { FormsModule } from '@angular/forms';
-  import { Router, RouterLink } from '@angular/router';
+  import { Router } from '@angular/router';
   import {
     IonContent,
     IonIcon,
@@ -32,7 +36,7 @@
 
   type BookingStatus = 'Confermata' | 'Check-in' | 'Annullata';
 
-  interface AdminBooking {
+  export interface AdminBooking {
     code: string;
     startTime: string;
     endTime: string;
@@ -46,26 +50,20 @@
     floor: number;
   }
 
-  interface SidebarItem {
-    label: string;
-    icon: string;
-    route: string;
-  }
-
   @Component({
     selector: 'app-admin-bookings',
     templateUrl: './admin-bookings.page.html',
     styleUrls: ['./admin-bookings.page.scss'],
     standalone: true,
-    imports: [
+    imports: [BookingFiltersComponent, BookingDetailComponent, BookingsSidebarComponent,
       CommonModule,
       FormsModule,
-      RouterLink,
       IonContent,
       IonIcon,
     ],
   })
   export class AdminBookingsPage {
+  readonly auth = inject(Auth);
     readonly pageSize = 4;
 
     currentPage = 1;
@@ -74,34 +72,6 @@
     selectedSpace = '';
     selectedStatus = '';
     openedMenuCode: string | null = null;
-
-    readonly sidebarItems: SidebarItem[] = [
-      {
-        label: 'Panoramica',
-        icon: 'grid-outline',
-        route: '/admin',
-      },
-      {
-        label: 'Prenotazioni',
-        icon: 'calendar-clear-outline',
-        route: '/admin/bookings',
-      },
-      {
-        label: 'Spazi',
-        icon: 'business-outline',
-        route: '/admin/spaces',
-      },
-      {
-        label: 'Segnalazioni',
-        icon: 'warning-outline',
-        route: '/admin/reports',
-      },
-      {
-        label: 'Statistiche',
-        icon: 'stats-chart-outline',
-        route: '/admin/statistics',
-      },
-    ];
 
     readonly bookings: AdminBooking[] = [
       {

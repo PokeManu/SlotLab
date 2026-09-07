@@ -6,8 +6,24 @@ const { normalizeAndValidateAccount, validateEmail } = require('../security/vali
 const { createSessionTokens, hashRefreshToken } = require('../security/tokens');
 const { requireCookieRequest } = require('../middleware/cookie-request');
 const { readConfig } = require('../config');
+const { requestRecovery } = require('../security/recovery');
+const { rateLimit } = require('../middleware/rate-limit');
 
 const router = express.Router();
+router.use((request, response, next) => { response.set('Cache-Control', 'no-store'); next(); });
+router.use('/login', rateLimit({ limit: 30, windowMs: 15 * 60000 }));
+router.use('/register', rateLimit({ limit: 20, windowMs: 15 * 60000 }));
+router.use('/refresh', rateLimit({ limit: 120, windowMs: 15 * 60000 }));
+router.use('/forgot-password', rateLimit({ limit: 5, windowMs: 15 * 60000 }));
+router.use('/forgot-password', rateLimit({ limit: 3, windowMs: 60 * 60000,
+  key: request => typeof request.body?.email === 'string' ? request.body.email.trim().toLowerCase() : 'invalid' }));
+
+router.post('/forgot-password', (request, response) => {
+  let email;
+  try { email = validateEmail(request.body?.email); } catch (e) { e.status = 400; throw e; }
+  if (!requestRecovery(email)) return response.status(429).json({ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Riprova più tardi.' } });
+  response.status(204).end();
+});
 
 // Hash fittizio nel formato previsto: esegue scrypt anche per email inesistenti.
 // Non rappresenta un account e non puo consentire l'accesso.

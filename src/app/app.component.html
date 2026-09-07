@@ -1,3 +1,4 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  @if (auth.user() && auth.notice()) { <div class="session-notice" role="alert">{{ auth.notice() }}</div> }
 </ion-app>

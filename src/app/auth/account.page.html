@@ -1,0 +1,36 @@
+<ion-content>
+  <main class="access">
+    <div class="access__brand">SlotLab</div>
+    <section class="access__card">
+      <h1>{{ title }}</h1>
+      @if (mode === 'forgot') {
+        <p class="access__intro">Se l’account esiste, riceverai una nuova password via email. Se non arriva, controlla lo spam e riprova più tardi.</p>
+      } @else if (mode === 'delete') {
+        <p class="access__intro">La cancellazione è definitiva: perderai account, prenotazioni organizzate, partecipazioni, segnalazioni e dati collegati. Gli altri partecipanti saranno avvisati delle prenotazioni future cancellate.</p>
+      } @else {
+        <p class="access__intro">Dopo la modifica dovrai accedere nuovamente.</p>
+      }
+      @if (sent() && mode === 'forgot') { <p role="status">Richiesta ricevuta. Controlla la tua email.</p> }
+      <form (ngSubmit)="submit()" novalidate>
+        <fieldset [disabled]="busy()">
+          @if (mode === 'forgot') {
+            <label>Email<input type="email" name="email" autocomplete="email" [(ngModel)]="email" required></label>
+          } @else {
+            <label>Password corrente<input type="password" name="currentPassword" autocomplete="current-password" [(ngModel)]="currentPassword" required></label>
+          }
+          @if (mode === 'password') {
+            <label>Nuova password<input type="password" name="newPassword" autocomplete="new-password" [(ngModel)]="newPassword" required></label>
+            <p class="access__help">8–64 caratteri, maiuscola, minuscola, numero e carattere speciale, senza spazi.</p>
+            <label>Conferma nuova password<input type="password" name="confirmation" autocomplete="new-password" [(ngModel)]="confirmation" required></label>
+          }
+          @if (mode === 'delete') {
+            <label><input style="width: 24px; height: 24px" type="checkbox" name="confirmed" [(ngModel)]="confirmed">Confermo di voler eliminare definitivamente il mio account.</label>
+          }
+          @if (error()) { <p class="access__error" role="alert">{{ error() }}</p> }
+          <button type="submit">{{ busy() ? 'Attendi…' : mode === 'forgot' ? 'Invia richiesta' : mode === 'delete' ? 'Elimina definitivamente' : 'Modifica password' }}</button>
+        </fieldset>
+      </form>
+      <p class="access__switch"><a [routerLink]="mode === 'forgot' ? '/login' : '/profile'">{{ mode === 'forgot' ? 'Torna al login' : 'Torna al profilo' }}</a></p>
+    </section>
+  </main>
+</ion-content>

@@ -81,7 +81,7 @@
 
   .profile-menu__item {
     display: grid;
-    grid-template-columns: 28px minmax(0, 1fr) 22px;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 16px;
     width: 100%;
@@ -197,7 +197,7 @@
     }
 
     .profile-menu__item {
-      grid-template-columns: 26px minmax(0, 1fr) 20px;
+      grid-template-columns: minmax(0, 1fr);
       gap: 13px;
       min-height: 64px;
       padding: 0 18px;

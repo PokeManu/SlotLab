@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Auth } from '../auth/auth';
+import { adminNavigation } from '../auth/navigation-items';
+import { Component, inject } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -19,6 +21,8 @@ import {
   ],
 })
 export class TopbarComponent {
+  readonly auth = inject(Auth);
+  readonly adminNavigation = adminNavigation;
   constructor() {
     addIcons({
       calendarClearOutline,

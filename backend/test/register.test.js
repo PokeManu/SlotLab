@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+require('node:test').beforeEach(() => require('../middleware/rate-limit').resetRateLimits());
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');

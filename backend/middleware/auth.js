@@ -54,6 +54,7 @@ async function requireAuth(request, response, next) {
   if (!user) throw unauthorized();
 
   request.user = user;
+  request.authJti = claims.jti;
   next();
 }
 

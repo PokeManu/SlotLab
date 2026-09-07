@@ -1,0 +1,51 @@
+<aside class="sidebar">
+        <a
+          class="sidebar__brand"
+          routerLink="/admin"
+          aria-label="Vai alla panoramica di SlotLab"
+        >
+          <span class="sidebar__brand-icon">
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </span>
+
+          <span>SlotLab</span>
+        </a>
+
+        <nav
+          class="sidebar__navigation"
+          aria-label="Navigazione amministratore"
+        >
+          @for (item of sidebarItems; track item.route) {
+            <a
+              class="sidebar__link"
+              [class.sidebar__link--active]="
+                item.route === '/admin/bookings'
+              "
+              [routerLink]="item.route" [attr.aria-label]="item.label"
+            >
+              <ion-icon [name]="item.icon"></ion-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      <a class="account-link" routerLink="/profile">Profilo</a>
+
+        <div class="sidebar__profile">
+          <div class="sidebar__avatar" aria-hidden="true">
+            {{ auth.initials }}
+          </div>
+
+          <div class="sidebar__user">
+            <strong>{{ auth.user()?.firstName }}</strong>
+            <span>Amministratore</span>
+          </div>
+
+          <button
+            class="sidebar__logout"
+            type="button"
+            aria-label="Esci" (click)="logout()" [disabled]="auth.signingOut()"
+          >
+            <ion-icon name="log-out-outline"></ion-icon>
+          </button>
+        </div>
+      </aside>
