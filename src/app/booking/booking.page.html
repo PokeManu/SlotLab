@@ -23,26 +23,31 @@
     </div>
   </section>
 
-  <section class="booking-card field-row">
-    <ion-icon name="field-icon" name="calendar-outline"></ion-icon>
+  <section class="booking-card field-row date-field" (click)="openDatePicker()">
+    <ion-icon name="calendar-outline"></ion-icon>
     <div class="field-content">
       <span class="field-label">Data</span>
-      <strong>Oggi, 22 Agosto</strong>
+      <input #datePicker class="booking-date-input" type="date" [(ngModel)]="selectedDate" (change)="changeDate()" aria-label="Data della prenotazione">
     </div>
 
     <ion-icon class="field-arrow" name="chevron-down-outline"></ion-icon>
   </section>
 
+  <section class="booking-card participant-emails">
+    <label for="participant-emails">Email partecipanti (opzionale)</label>
+    <textarea id="participant-emails" rows="3" [(ngModel)]="participantEmailsText" placeholder="Una email per partecipante"></textarea>
+  </section>
+
   <section class="booking-card time-section">
     <h2>Fascia oraria</h2>
     <div class="time-slots">
-      @for (time of timeSlots; track time){
+      @for (time of timeSlots; track time.id){
         <button
         type="button"
         class="time-slot"
-        [class.time-slot--selected]="selectedTime === time"
-        [attr.aria-pressed]="selectedTime === time"
-        (click)="selectTime(time)">{{time}}</button>
+        [class.time-slot--selected]="selectedTime === time.label"
+        [attr.aria-pressed]="selectedTime === time.label"
+        (click)="selectTime(time)">{{time.label}}</button>
       }
     </div>
   </section>
@@ -87,6 +92,7 @@
     <strong>2 ore</strong>
   </section>
 
-  <button class="primary-button" type="button" (click)="confirmBooking()">Conferma prenotazione</button>
+  @if (errorMessage) { <p class="booking-error" role="alert">{{ errorMessage }}</p> }
+  <button class="primary-button" type="button" [disabled]="submitting" (click)="confirmBooking()">{{ submitting ? 'Invio in corso…' : 'Conferma prenotazione' }}</button>
  </main>
 </ion-content>

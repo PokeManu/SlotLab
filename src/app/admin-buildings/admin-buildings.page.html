@@ -1,0 +1,6 @@
+<ion-content [fullscreen]="true"><div class="admin-shell"><app-admin-sidebar></app-admin-sidebar><main class="buildings-page">
+  <h1>Gestione edifici</h1><p class="intro">Elenco degli edifici del campus di Viale delle Scienze.</p>
+  @if (error) { <p class="error" role="alert">{{ error }}</p> }
+  <form class="form" (submit)="$event.preventDefault(); create()"><label>Numero<input name="number" type="number" min="1" [(ngModel)]="form.number" required></label><label>Nome<input name="name" [(ngModel)]="form.name" required></label><label>Indirizzo<input name="address" [(ngModel)]="form.address" required></label><button type="submit">Aggiungi edificio</button></form>
+  <section class="table" aria-label="Elenco edifici"><div class="row row--head"><span>Numero</span><span>Nome</span><span>Indirizzo</span><span>Azioni</span></div>@for (building of buildings; track building.id) { <div class="row"><span>{{ building.number }}</span><strong>{{ building.name }}</strong><span>{{ building.address }}</span><button type="button" (click)="remove(building)">Elimina</button></div> } @empty { <p class="empty">Nessun edificio presente.</p> }</section>
+</main></div></ion-content>

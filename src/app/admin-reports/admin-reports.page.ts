@@ -1,7 +1,9 @@
 import { ReportDetailComponent } from '../admin-parts/report-detail.component';
 import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -50,88 +52,19 @@ export interface AdminReport{
   styleUrls: ['./admin-reports.page.scss'],
   imports: [ReportDetailComponent, AdminSidebarComponent, IonContent, IonIcon]
 })
-export class AdminReportsPage{
+export class AdminReportsPage implements OnInit{
   readonly auth = inject(Auth);
+  private readonly http = inject(HttpClient);
 
-  readonly reports: AdminReport[] = [
-    {
-      id: 1,
-      title: 'Proiettore non funzionante',
-      space: 'Aula Studio A1',
-      date: '22 Agosto 2026',
-      reporter: 'Mario Rossi',
-      description: 'Il proiettore non si accende e la spia di alimentazione lampeggia in rosso. Necessario intervento tecnico.',
-      priority: 'high',
-      priorityLabel: 'Alta',
-      status: 'in-progress',
-      statusLabel: 'In lavorazione',
-      assignee: 'Ufficio tecnico',
-      icon: 'warning-outline',
-      attachment:{
-        name: 'IMG_8921.jpg',
-        size: '1.2 MB'
-      }
-    },
-    {
-      id: 2,
-      title: 'Connessione Wi-Fi instabile',
-      space: 'Laboratorio Web',
-      date: '21 agosto 2026',
-      reporter: 'Giulia Bianchi',
-      description: 'La connessione Wi-Fi si interrompe frequentemente durante le attività del laboratorio.',
-      priority: 'medium',
-      priorityLabel: 'Media',
-      status: 'open',
-      statusLabel: 'Aperta',
-      assignee: 'Ufficio tecnico',
-      icon: 'wifi-outline'
-    },
-    {
-      id: 3,
-      title: 'Sedia rotta',
-      space: 'Sala Riunioni B',
-      date: '20 agosto 2026',
-      reporter: 'Luca Romano',
-      description: 'Una delle sedie vicine alla finestra presenta una gamba danneggiata.',
-      priority: 'low',
-      priorityLabel: 'Bassa',
-      status: 'open',
-      statusLabel: 'Aperta',
-      assignee: 'Servizi generali',
-      icon: 'construct-outline'
-    },
-    {
-      id: 4,
-      title: 'Luce lampeggiante',
-      space: 'Aula Studio A3',
-      date: '19 agosto 2026',
-      reporter: 'Sara Conti',
-      description: 'La plafoniera sopra la seconda fila di tavoli lampeggia continuamente.',
-      priority: 'medium',
-      priorityLabel: 'Media',
-      status: 'in-progress',
-      statusLabel: 'In lavorazione',
-      assignee: 'Ufficio tecnico',
-      icon: 'bulb-outline'
-    },
-    {
-      id: 5,
-      title: 'Rumore eccessivo',
-      space: 'Laboratorio Web',
-      date: '19 agosto 2026',
-      reporter: 'Paolo Verdi',
-      description: 'La ventola di una postazione produce un rumore molto forte durante l’utilizzo.',
-      priority: 'low',
-      priorityLabel: 'Bassa',
-      status: 'open',
-      statusLabel: 'Aperta',
-      assignee: 'Ufficio tecnico',
-      icon: 'volume-high-outline'
-    }
-  ];
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  readonly reports: AdminReport[] = [];
+  errorMessage = '';
+  statusMessage = '';
+  statusError = '';
+  savingStatus = false;
 
   activeFilter: ReportFilter = 'all';
-  selectedReport: AdminReport = this.reports[0];
+  selectedReport: AdminReport | undefined;
 
   get filteredReports(): AdminReport[]{
     if(this.activeFilter === 'all'){
@@ -147,6 +80,31 @@ export class AdminReportsPage{
 
   selectReport(report: AdminReport): void {
     this.selectedReport = report;
+  }
+
+  updateStatus(status: string): void {
+    if (!this.selectedReport || !['in-progress', 'resolved'].includes(status) || this.savingStatus) return;
+    const apiStatus = status === 'in-progress' ? 'in_progress' : 'resolved';
+    this.savingStatus = true;
+    this.statusMessage = '';
+    this.statusError = '';
+    this.http.patch<{ data: { status: string } }>(`${environment.apiUrl}/admin/reports/${this.selectedReport.id}/status`, { status: apiStatus }).subscribe({
+      next: () => {
+        if (this.selectedReport) {
+          this.selectedReport.status = status as ReportStatus;
+          this.selectedReport.statusLabel = status === 'in-progress' ? 'In lavorazione' : 'Risolta';
+        }
+        this.savingStatus = false;
+        this.statusMessage = 'Aggiornamento salvato.';
+        this.changeDetector.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.savingStatus = false;
+        const message = error.error?.error?.message;
+        this.statusError = typeof message === 'string' ? message : `Salvataggio non riuscito (HTTP ${error.status}).`;
+        this.changeDetector.markForCheck();
+      },
+    });
   }
   constructor() {
 
@@ -166,6 +124,22 @@ export class AdminReportsPage{
         warningOutline,
         wifiOutline
       });
-   }
+  }
+
+  ngOnInit(): void {
+    this.http.get<{ data: Array<{ id: number; spaceName: string; category: string; description: string; priority: ReportPriority; status: string; authorEmail: string; createdAt: string }> }>(`${environment.apiUrl}/admin/reports`).subscribe({ next: response => {
+      const reports = response.data.map(report => ({ id: report.id, title: report.category, space: report.spaceName,
+        date: new Date(report.createdAt).toLocaleDateString('it-IT'), reporter: report.authorEmail, description: report.description,
+        priority: report.priority, priorityLabel: report.priority === 'high' ? 'Alta' : report.priority === 'medium' ? 'Media' : 'Bassa',
+        status: report.status === 'in_progress' ? 'in-progress' : report.status as ReportStatus, statusLabel: report.status === 'in_progress' ? 'In lavorazione' : report.status === 'open' ? 'Aperta' : 'Risolta',
+        assignee: '—', icon: 'warning-outline' }));
+      this.reports.splice(0, this.reports.length, ...reports);
+      this.selectedReport = this.reports[0];
+      this.changeDetector.markForCheck();
+    }, error: () => {
+      this.errorMessage = 'Non è stato possibile caricare le segnalazioni.';
+      this.changeDetector.markForCheck();
+    } });
+  }
 
 }

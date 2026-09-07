@@ -114,6 +114,12 @@
           }
         </div>
 
+        <div class="report-create-page__field">
+          <label for="report-photo">Foto (opzionale)</label>
+          <input id="report-photo" name="reportPhoto" type="file" accept="image/jpeg,image/png,image/webp" (change)="selectPhoto($event)">
+          <small>JPEG, PNG o WebP, massimo 5 MB.</small>
+        </div>
+
         <button
           class="report-create-page__submit"
           type="submit"

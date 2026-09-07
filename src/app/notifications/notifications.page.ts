@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { environment } from '../../environments/environment';
+import { finalize } from 'rxjs';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -36,71 +39,23 @@ interface NotificationGroup{
   styleUrls: ['./notifications.page.scss'],
   imports: [IonContent, IonIcon, TopbarComponent, MobileNavigationComponent],
 })
-export class NotificationsPage{
-readonly notificationGroups: NotificationGroup[] = [
-  {
-    label: 'Oggi',
-    notifications: [
-      {
-        id: 1,
-        title: 'Check-in disponibile',
-        context: 'Aula Studio A3',
-        message: 'E possibile effettuare il check-in fino alle 12:30.',
-        time: '09:12',
-        icon: 'book-outline',
-        variant: 'primary',
-        read: false,
-      },
-      {
-        id: 2,
-        title: 'Posto disponibile',
-        context: 'Laboratorio web',
-        message: 'Si è liberato un posto per oggi alle 11:00.',
-        time: '08:47',
-        icon: 'easel-outline',
-        variant: 'success',
-        read: false,
-      },
-      {
-        id: 3,
-        title: 'Prenotazione annullata',
-        context: 'Sala Riunioni B',
-        message: 'La tua prenotazione di ieri è stata annullata.',
-        time: '08:15',
-        icon: 'warning-outline',
-        variant: 'warning',
-        read: false,
-      },
-    ],
-  },
-  {
-    label: 'Questa settimana',
-    notifications: [
-      {
-        id: 4,
-        title: 'Segnalazione aggiornata',
-        context: 'Attrezzature',
-        message: 'La tua segnalazione è stata presa in carico dal team.',
-        time: 'Ieri',
-        icon: 'desktop-outline',
-        variant: 'neutral',
-        read: false,
-      },
-      {
-        id: 5,
-        title: 'Prenotazione confermata',
-        context: 'Aula Studio A2',
-        message: 'La tua prenotazione di domani è stata confermata.',
-        time: 'Lun',
-        icon: 'checkmark-circle-outline',
-        variant: 'success',
-        read: true,
-      },
-    ],
-  },
-];
+export class NotificationsPage implements OnInit{
+  private readonly http = inject(HttpClient);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  loading = false;
+  notificationGroups: NotificationGroup[] = [];
+  private hasEntered = false;
 
-  constructor() {
+   ngOnInit(): void {
+     this.loadNotifications();
+   }
+
+   ionViewDidEnter(): void {
+     if (this.hasEntered) this.loadNotifications();
+     this.hasEntered = true;
+   }
+
+   constructor() {
       addIcons({
         bookOutline,
         checkmarkCircleOutline,
@@ -110,15 +65,55 @@ readonly notificationGroups: NotificationGroup[] = [
       });
    }
 
+   private loadNotifications(): void {
+    this.loading = true;
+    this.http.get<{ data: Array<{ id: number; type: string; title: string; message: string; createdAt: string; read: boolean }> }>(
+      `${environment.apiUrl}/notifications`,
+    ).pipe(finalize(() => { this.loading = false; })).subscribe({
+      next: response => {
+        const notifications = response.data.map(notification => ({
+          id: notification.id,
+          title: notification.title,
+          context: notification.type,
+          message: notification.message,
+          time: new Date(notification.createdAt).toLocaleString('it-IT'),
+          icon: this.iconFor(notification.type),
+          variant: this.variantFor(notification.type),
+          read: notification.read,
+        }));
+        this.notificationGroups = notifications.length ? [{ label: 'Notifiche', notifications }] : [];
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.notificationGroups = [];
+        this.changeDetector.markForCheck();
+      },
+    });
+   }
+
+   private iconFor(type: string): NotificationIcon {
+    if (type.includes('booking')) return 'book-outline';
+    if (type.includes('report')) return 'warning-outline';
+    if (type.includes('check_in')) return 'checkmark-circle-outline';
+    return 'desktop-outline';
+   }
+
+   private variantFor(type: string): NotificationVariant {
+    if (type.includes('cancelled') || type.includes('expired')) return 'warning';
+    if (type.includes('created') || type.includes('updated')) return 'success';
+    return 'neutral';
+   }
+
    markAllAsRead(): void{
-    for(const group of this.notificationGroups){
-      for(const notification of group.notifications){
-        notification.read = true;
-      }
-    }
+    this.http.patch<void>(`${environment.apiUrl}/notifications/read-all`, {}).subscribe({
+      next: () => this.notificationGroups.forEach(group => group.notifications.forEach(notification => { notification.read = true; })),
+    });
    }
 
    markAsRead(notification: SlotNotification): void{
-    notification.read = true;
+    if (notification.read) return;
+    this.http.patch<{ data: { read: boolean } }>(`${environment.apiUrl}/notifications/${notification.id}/read`, {}).subscribe({
+      next: () => { notification.read = true; },
+    });
    }
 }

@@ -102,6 +102,9 @@ const adminRoutes: Routes = [
         (m) => m.AdminStatisticsPage
       ),
   },
+  { path: 'admin/users', loadComponent: () => import('./admin-users/admin-users.page').then((m) => m.AdminUsersPage) },
+  { path: 'admin/buildings', loadComponent: () => import('./admin-buildings/admin-buildings.page').then((m) => m.AdminBuildingsPage) },
+  { path: 'admin/availability', loadComponent: () => import('./admin-availability/admin-availability.page').then((m) => m.AdminAvailabilityPage) },
   {
     path: 'admin',
     loadComponent: () => import('./admin-dashboard/admin-dashboard.page').then((m) => m.AdminDashboardPage),

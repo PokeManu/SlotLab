@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -20,6 +20,12 @@ export class BookingListItemComponent {
   @Input({ required: true })
   booking!: BookingListItem;
 
+  @Output()
+  checkIn = new EventEmitter<string>();
+
+  @Output()
+  cancel = new EventEmitter<string>();
+
   constructor() {
     addIcons({
       bookOutline,
@@ -33,6 +39,14 @@ export class BookingListItemComponent {
     return this.booking.spaceType === 'laboratory'
       ? 'desktop-outline'
       : 'book-outline';
+  }
+
+  openCheckIn(): void {
+    if (this.booking.spaceId) this.checkIn.emit(this.booking.spaceId);
+  }
+
+  cancelBooking(): void {
+    this.cancel.emit(this.booking.id);
   }
 
   get statusLabel(): string {

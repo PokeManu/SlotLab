@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import {ActivatedRoute,RouterLink,} from '@angular/router';
 import {IonContent, IonIcon,} from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -18,12 +20,14 @@ import {findSpace, Space,} from '../data/spaces.data';
   styleUrls: ['./confirmation.page.scss'],
   imports: [IonContent, IonIcon, RouterLink,]
 })
-export class ConfirmationPage{
+export class ConfirmationPage implements OnInit{
   space: Space;
   selectedTime = '10:00-12:00';
   participants = 4;
   selectedResource = 'Nessuna';
-  bookingCode = 'SL-4821'
+  bookingCode = ''
+  private readonly http = inject(HttpClient);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   showQrCode = false;
 
   constructor(
@@ -44,6 +48,21 @@ export class ConfirmationPage{
         qrCodeOutline,
         timeOutline,
       });
+   }
+
+   ngOnInit(): void {
+    const bookingId = this.activatedRoute.snapshot.queryParamMap.get('bookingId');
+    if (!bookingId) return;
+    this.bookingCode = bookingId;
+    this.changeDetector.markForCheck();
+    this.http.get<{ data: { id: number; spaceName: string; date: string; startTime: string; endTime: string; participants: unknown[] } }>(`${environment.apiUrl}/bookings/${bookingId}`)
+      .subscribe({ next: response => {
+        const booking = response.data;
+        this.bookingCode = String(booking.id);
+        this.selectedTime = `${booking.startTime}-${booking.endTime}`;
+        this.participants = booking.participants.length;
+        this.changeDetector.markForCheck();
+      }, error: () => this.changeDetector.markForCheck() });
    }
 
    toggleQrCode():void{

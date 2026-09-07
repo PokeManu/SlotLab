@@ -69,7 +69,7 @@
                         [class.status-dot--resolved]="selectedReport.status === 'resolved'">
                   </span>
 
-                  <select [value]="selectedReport.status">
+                    <select [value]="selectedReport.status" #status>
                     <option value="open">Aperta</option>
                     <option value="in-progress">In lavorazione</option>
                     <option value="resolved">Risolta</option>
@@ -93,7 +93,7 @@
                 </span>
               </label>  
 
-              <button type="button" class="save-report-button">
+              <button type="button" class="save-report-button" (click)="saveStatus(status.value)">
                 Salva aggiornamento
               </button>
             </section>

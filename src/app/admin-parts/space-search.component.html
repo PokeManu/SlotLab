@@ -1,5 +1,5 @@
 <label class="space-search">
         <ion-icon name="search-outline"></ion-icon>
         <span class="sr-only">Cerca uno spazio</span>
-        <input type="search" placeholder="Cerca uno spazio">
+        <input type="search" placeholder="Cerca uno spazio" (input)="searchChange.emit($any($event.target).value)">
       </label>

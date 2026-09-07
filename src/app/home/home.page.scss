@@ -81,10 +81,15 @@ ion-content {
 }
 
 .recommended-spaces__all {
+  border: 0;
+  padding: 0;
+  background: transparent;
   flex-shrink: 0;
+  font: inherit;
   color: var(--slot-primary-soft);
   font-size: 16px;
   font-weight: 500;
+  cursor: pointer;
 }
 
 .recommended-spaces__grid {

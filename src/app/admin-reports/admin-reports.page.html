@@ -2,7 +2,7 @@
   <div class="admin-shell">
     <app-admin-sidebar></app-admin-sidebar>
 
-    <main class="report-management">
+    <main class="reports-management">
       <header class="reports-header">
         <h1>Segnalazioni</h1>
       </header>
@@ -30,7 +30,7 @@
           @for (report of filteredReports; track report.id){
             <button type="button"
                     class="report-item"
-                    [class.report-item--selected]="selectedReport.id === report.id"
+                    [class.report-item--selected]="selectedReport?.id === report.id"
                     (click)="selectReport(report)">
               <span class="report-item__icon"
                     [class.report-item__icon--high]="report.priority === 'high'"
@@ -54,12 +54,19 @@
             </button>
           } @empty{
             <p class="empty-reports">
-              Non sono presenti segnalazioni per questo filtro
+              {{ errorMessage || 'Non sono presenti segnalazioni per questo filtro' }}
             </p>
           }
         </div>
 
-        <app-report-detail [selectedReport]="selectedReport"></app-report-detail>
+        @if (selectedReport; as report) {
+          <app-report-detail [selectedReport]="report" (statusChange)="updateStatus($event)"></app-report-detail>
+          @if (statusMessage || statusError) {
+            <p class="empty-reports" role="status">{{ statusMessage || statusError }}</p>
+          }
+        } @else {
+          <p class="empty-reports">Seleziona una segnalazione per visualizzarne i dettagli.</p>
+        }
       </section>
     </main>
   </div>

@@ -10,15 +10,14 @@
       class="bookings__controls"
       aria-label="Filtri delle prenotazioni"
     >
-      <button
-        class="bookings__month"
-        type="button"
-        aria-label="Mese visualizzato: Agosto 2026"
-      >
+      <button class="bookings__month" type="button" (click)="openMonthPicker()"
+              [attr.aria-label]="'Seleziona mese: ' + selectedMonthLabel">
         <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
-        <span>Agosto 2026</span>
+        <span>{{ selectedMonthLabel }}</span>
         <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
       </button>
+      <input #monthPicker class="bookings__month-picker" type="month" [value]="selectedMonth"
+             [attr.aria-label]="'Seleziona mese: ' + selectedMonthLabel" (change)="selectMonth($event)">
 
       <div
         class="bookings__tabs"
@@ -45,27 +44,40 @@
       </div>
     </section>
 
-    @if (selectedView === 'upcoming') {
-      <div class="bookings__groups">
-        @for (group of upcomingBookingGroups; track group.dateLabel) {
-          <section
-            class="bookings__group"
-            [attr.aria-labelledby]="'booking-group-' + $index"
-          >
-            <h2 [id]="'booking-group-' + $index">
-              {{ group.dateLabel }}
-            </h2>
+    @if (cancelError) {
+      <p class="bookings__empty" role="alert">{{ cancelError }}</p>
+    }
 
-            <div class="bookings__list">
-              @for (booking of group.bookings; track booking.id) {
-                <app-booking-list-item
-                  [booking]="booking"
-                ></app-booking-list-item>
-              }
-            </div>
-          </section>
-        }
-      </div>
+    @if (selectedView === 'upcoming') {
+      @if (upcomingBookingGroups.length) {
+        <div class="bookings__groups">
+          @for (group of upcomingBookingGroups; track group.dateLabel) {
+            <section
+              class="bookings__group"
+              [attr.aria-labelledby]="'booking-group-' + $index"
+            >
+              <h2 [id]="'booking-group-' + $index">
+                {{ group.dateLabel }}
+              </h2>
+
+              <div class="bookings__list">
+                @for (booking of group.bookings; track booking.id) {
+                  <app-booking-list-item
+                    [booking]="booking"
+                    (checkIn)="openCheckIn($event)"
+                    (cancel)="cancelBooking($event)"
+                  ></app-booking-list-item>
+                }
+              </div>
+            </section>
+          }
+        </div>
+      } @else {
+        <section class="bookings__empty" aria-live="polite">
+          <h2>Nessuna prenotazione presente</h2>
+          <p>Non ci sono prenotazioni per il mese selezionato.</p>
+        </section>
+      }
     } @else {
       <section class="bookings__empty" aria-live="polite">
         <h2>Nessuna prenotazione passata</h2>

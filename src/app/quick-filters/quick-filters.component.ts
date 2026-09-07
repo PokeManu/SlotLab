@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 interface QuickFilter {
   id: string;
@@ -16,12 +16,13 @@ interface QuickFilter {
   imports: [],
 })
 export class QuickFiltersComponent {
+  @Output() filtersChange = new EventEmitter<string[]>();
   filters: QuickFilter[] = [
     {
       id: 'available-now',
       label: 'Disponibili ora',
       mobileLabel: 'Ora',
-      active: true,
+      active: false,
     },
     {
       id: 'study-rooms',
@@ -50,5 +51,6 @@ export class QuickFiltersComponent {
 
   toggleFilter(filter: QuickFilter): void {
     filter.active = !filter.active;
+    this.filtersChange.emit(this.filters.filter(item => item.active).map(item => item.id));
   }
 }

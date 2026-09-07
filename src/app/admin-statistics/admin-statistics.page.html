@@ -11,7 +11,7 @@
 
             <span class="sr-only">Seleziona il periodo</span>
 
-            <select aria-label="Seleziona il periodo">
+            <select aria-label="Seleziona il periodo" [value]="selectedPeriod" (change)="changePeriod($any($event.target).value)">
               <option value="august-2026">1–31 agosto 2026</option>
               <option value="july-2026">1–31 luglio 2026</option>
               <option value="june-2026">1–30 giugno 2026</option>
@@ -121,7 +121,7 @@
               20%"
             >
               <div class="donut-chart__center">
-                <strong>72%</strong>
+                <strong>{{ metrics[1].value }}</strong>
                 <span>Utilizzo medio</span>
               </div>
             </div>

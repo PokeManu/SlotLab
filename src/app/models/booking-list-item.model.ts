@@ -5,8 +5,10 @@ export type BookingSpaceType =
   | 'laboratory';
 
 export interface BookingListItem extends BookingSummary {
+  spaceId?: string;
   spaceType: BookingSpaceType;
   canCheckIn: boolean;
+  dateValue?: string;
 }
 
 export interface BookingGroup {

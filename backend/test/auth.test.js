@@ -37,7 +37,13 @@ async function post(endpoint, input) {
 
 function run(sql, parameters = []) {
   return new Promise((resolve, reject) => {
-    getDatabase().run(sql, parameters, error => error ? reject(error) : resolve());
+    getDatabase().run(sql, parameters, function onRun(error) { error ? reject(error) : resolve(this.lastID); });
+  });
+}
+
+function get(sql, parameters = []) {
+  return new Promise((resolve, reject) => {
+    getDatabase().get(sql, parameters, (error, row) => error ? reject(error) : resolve(row));
   });
 }
 
@@ -195,4 +201,55 @@ test('errore DB nelle API protette resta un 500 generico', async (t) => {
     code: 'INTERNAL_ERROR', message: 'Si e verificato un errore inatteso.',
   } });
   assert.deepEqual(log.mock.calls[0].arguments, ['Errore interno durante la gestione di una richiesta.']);
+});
+
+
+test('router reali: admin accede a spazi/edifici, user e anonimo sono rifiutati', async () => {
+  const admin = await post('login', { ...account, email: 'auth-admin@example.test' });
+  const user = await post('login', account);
+  for (const endpoint of ['/admin/summary', '/admin/spaces', '/admin/buildings']) {
+    for (const [token, expected] of [[admin.accessToken, 200], [user.accessToken, 403], [null, 401]]) {
+      const response = await fetch(`${baseUrl}/api/v1${endpoint}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      assert.equal(response.status, expected, endpoint);
+    }
+  }
+  const catalog = await fetch(`${baseUrl}/api/v1/spaces`, { headers: { Authorization: `Bearer ${admin.accessToken}` } });
+  assert.equal(catalog.status, 403);
+});
+
+test('catalogo spazi senza edificio restituisce gli spazi seedati', async () => {
+  const login = await post('login', account);
+  const response = await fetch(`${baseUrl}/api/v1/spaces`, {
+    headers: { Authorization: `Bearer ${login.accessToken}` },
+  });
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(body.pagination.totalElements, 3);
+  assert.deepEqual(body.data.map(space => space.name), ['Aula Studio A1', 'Laboratorio Reti', 'Sala Riunioni B']);
+});
+
+test('admin puo risolvere direttamente una segnalazione aperta', async () => {
+  const buildingId = await run(
+    'INSERT INTO buildings (number, name, address, latitude, longitude) VALUES (?, ?, ?, ?, ?);',
+    [901, 'Edificio test segnalazioni', 'Via test 1', 38.1, 13.3],
+  );
+  const spaceId = await run(
+    `INSERT INTO spaces (building_id, name, floor, type, capacity, accessible, status)
+     VALUES (?, 'Spazio test segnalazioni', 1, 'study_room', 10, 1, 'active');`, [buildingId],
+  );
+  const user = await post('login', account);
+  const reportId = await run(
+    `INSERT INTO reports (user_id, space_id, category, description, priority, status, created_at, updated_at)
+     VALUES (?, ?, 'technical', 'Segnalazione di test', 'high', 'open', ?, ?);`,
+    [user.user.id, spaceId, new Date().toISOString(), new Date().toISOString()],
+  );
+  const admin = await post('login', { ...account, email: 'auth-admin@example.test' });
+  const response = await fetch(`${baseUrl}/api/v1/admin/reports/${reportId}/status`, {
+    method: 'PATCH', headers: { Authorization: `Bearer ${admin.accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'resolved' }),
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).data, { id: reportId, status: 'resolved' });
+  assert.equal((await get('SELECT status FROM reports WHERE id = ?;', [reportId])).status, 'resolved');
 });

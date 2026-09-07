@@ -40,7 +40,7 @@
 
       <span class="availability">
         <ion-icon name="checkmark-circle-outline"></ion-icon>
-        Disponibile oggi
+        {{ availableToday ? 'Disponibile oggi' : 'Non disponibile oggi' }}
       </span>
     </section>
 
@@ -48,20 +48,12 @@
       <h3>Servizi inclusi</h3>
 
       <div class="services__grid">
-        <article class="service-card">
-          <ion-icon name="wifi-outline"></ion-icon>
-          <span>Wi-Fi</span>
-        </article>
-
-        <article class="service-card">
-          <ion-icon name="flash-outline"></ion-icon>
-          <span>Prese elettriche</span>
-        </article>
-
-        <article class="service-card">
-          <ion-icon name="easel-outline"></ion-icon>
-          <span>Lavagna</span>
-        </article>
+        @for (service of space.services; track service) {
+          <article class="service-card">
+            <ion-icon name="wifi-outline"></ion-icon>
+            <span>{{ service }}</span>
+          </article>
+        }
       </div>
     </section>
 

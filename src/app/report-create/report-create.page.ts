@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import {
   ActivatedRoute,
@@ -33,20 +35,24 @@ import { ReportCategory } from '../models/space-report.model';
     RouterLink,
   ],
 })
-export class ReportCreatePage {
+export class ReportCreatePage implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly spaceId: string | null;
   space: Space;
 
   category: ReportCategory | '' = '';
 
   description = '';
+  photo?: File;
 
   submitted = false;
 
   constructor(
     private readonly activatedRoute: ActivatedRoute,
   ) {
-    const spaceId =
-      this.activatedRoute.snapshot.paramMap.get('spaceId');
+    const spaceId = this.activatedRoute.snapshot.paramMap.get('spaceId');
+    this.spaceId = spaceId;
 
     this.space = findSpace(spaceId);
 
@@ -55,6 +61,19 @@ export class ReportCreatePage {
       checkmarkCircleOutline,
       locationOutline,
     });
+   }
+
+  ngOnInit(): void {
+    if (!this.spaceId || !/^\d+$/.test(this.spaceId)) return;
+    this.http.get<{ data: { id: number; name: string; building: { name: string }; floor: number; type: string; capacity: number; accessible: boolean; services: string[] } }>(`${environment.apiUrl}/spaces/${this.spaceId}`)
+      .subscribe({ next: response => {
+        const value = response.data;
+        this.space = { id: String(value.id), name: value.name,
+          type: value.type === 'study_room' ? 'Aula studio' : value.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
+          building: value.building.name, floor: value.floor, seats: value.capacity,
+          accessible: value.accessible, image: '', services: value.services };
+        this.changeDetector.markForCheck();
+      }, error: () => this.changeDetector.markForCheck() });
   }
 
   submitReport(): void {
@@ -65,6 +84,18 @@ export class ReportCreatePage {
       return;
     }
 
-    this.submitted = true;
+    if (!this.spaceId || !/^\d+$/.test(this.spaceId)) { this.submitted = true; return; }
+    const form = new FormData();
+    form.append('category', this.category === 'equipment' ? 'technical' : this.category);
+    form.append('description', this.description.trim());
+    if (this.photo) form.append('photo', this.photo, this.photo.name);
+    this.http.post(`${environment.apiUrl}/spaces/${this.spaceId}/reports`, form).subscribe({ next: () => { this.submitted = true; this.changeDetector.markForCheck(); } });
+  }
+
+  selectPhoto(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return;
+    this.photo = file;
   }
 }

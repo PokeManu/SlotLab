@@ -16,7 +16,7 @@
         <label class="admin-search">
           <ion-icon name="search-outline"></ion-icon>
           <span class="sr-only">Cerca</span>
-          <input type="search" placeholder="Cerca spazi, risorse o utenti"/>
+          <input type="search" placeholder="Cerca spazi" aria-label="Cerca spazi" [(ngModel)]="searchTerm" (keydown.enter)="searchAdmin()"/>
         </label>
       </header>
 
@@ -26,8 +26,8 @@
             <span>Prenotazioni oggi</span>
             <ion-icon name="calendar-clear-outline"></ion-icon>
           </div>
-          <strong class="metric-card__value">48</strong>
-          <small class="metric-card__trend metric-card__trend--positive">+12% rispetto a ieri</small>
+          <strong class="metric-card__value">{{ bookingCount }}</strong>
+          <small class="metric-card__trend metric-card__trend--positive">dati aggiornati dal server</small>
         </article>
 
         <article class="metric-card">
@@ -36,8 +36,8 @@
             <ion-icon name="business-outline"></ion-icon>
           </div>
 
-          <strong class="metric-card__value">17</strong>
-          <small class="metric-card__trend metric-card__trend--positive">su 24 totali</small>
+          <strong class="metric-card__value">{{ availableSpaceCount }}</strong>
+          <small class="metric-card__trend metric-card__trend--positive">su {{ spaceCount }} totali</small>
         </article>  
         
         <article class="metric-card">
@@ -46,8 +46,8 @@
             <ion-icon name="warning-outline"></ion-icon>
           </div>
 
-          <strong class="metric-card__value">3</strong>
-          <small class="metric-card__trend metric-card__trend--warning">1 ad alta priorità</small>
+          <strong class="metric-card__value">{{ openReportCount }}</strong>
+          <small class="metric-card__trend metric-card__trend--warning">non risolte</small>
         </article>
       </section>
 
@@ -55,7 +55,7 @@
         <article class="panel bookings-panel">
           <header class="panel-header">
             <h2>Prossime prenotazioni</h2>
-            <button type="button">Vedi calendario</button>
+            <button type="button" (click)="openBookings()">Vedi calendario</button>
           </header>
 
           <div class="booking-list">
@@ -78,9 +78,9 @@
         </article>
 
         <article class="panel spaces-panel">
-          <header class="panel__header">
+          <header class="panel-header">
             <h2>Stato degli spazi</h2>
-            <button type="button">Gestisci</button>
+            <button type="button" (click)="openSpaces()">Gestisci</button>
           </header>
 
           <div class="space-status-list">

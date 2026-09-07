@@ -9,14 +9,14 @@
 
   .admin-shell {
     display: grid;
-    grid-template-columns: 370px minmax(0, 1fr);
+    grid-template-columns: 232px minmax(0, 1fr);
     width: min(1460px, calc(100% - 16px));
-    min-height: calc(100vh - 16px);
-    margin: 8px auto;
+    min-height: 100%;
+    margin: 0;
     overflow: hidden;
     border: 2px solid var(--slot-border);
     border-radius: 38px;
-    background: #0d1829;
+    background: #081526;
   }
 
   /* Menu laterale */
@@ -27,7 +27,7 @@
 
   .dashboard {
     min-width: 0;
-    padding: 50px 48px;
+    padding: 32px 28px 72px 39px;
   }
 
   .dashboard__header {
@@ -40,7 +40,7 @@
   .dashboard__greeting h1 {
     margin: 0;
     color: var(--slot-text);
-    font-size: clamp(36px, 3vw, 48px);
+    font-size: clamp(30px, 2.1vw, 38px);
     font-weight: 500;
     line-height: 1.2;
   }
@@ -165,9 +165,14 @@
   .panel {
     overflow: hidden;
     border-radius: 28px;
+    border: 1px solid var(--slot-border);
+    background: linear-gradient(145deg, rgb(20 35 59 / 82%), rgb(14 29 51 / 88%));
+    box-shadow: 0 18px 50px rgb(0 0 0 / 8%);
   }
 
-  .panel__header {
+  .booking-list { min-height: 0; }
+
+  .panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -177,14 +182,14 @@
     border-bottom: 2px solid var(--slot-border);
   }
 
-  .panel__header h2 {
+  .panel-header h2 {
     margin: 0;
     color: var(--slot-text);
     font-size: 28px;
     font-weight: 500;
   }
 
-  .panel__header button {
+  .panel-header button {
     padding: 10px;
     border: 0;
     background: transparent;
@@ -194,7 +199,7 @@
     cursor: pointer;
   }
 
-  .panel__header button:hover {
+  .panel-header button:hover {
     color: var(--slot-text);
   }
 
@@ -376,15 +381,15 @@
       grid-template-columns: 1fr;
     }
 
-    .panel__header {
+    .panel-header {
       padding-inline: 20px;
     }
 
-    .panel__header h2 {
+    .panel-header h2 {
       font-size: 23px;
     }
 
-    .panel__header button {
+    .panel-header button {
       font-size: 17px;
     }
 

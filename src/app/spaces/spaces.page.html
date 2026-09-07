@@ -22,7 +22,7 @@
       <p class="spaces__context">
         Campus di Viale delle Scienze
         <span aria-hidden="true">·</span>
-        24 spazi
+        {{ spaces.length }} spazi
       </p>
 
       <button
@@ -34,9 +34,9 @@
       </button>
     </section>
 
-    <app-space-search></app-space-search>
+    <app-space-search (searchChange)="searchSpaces($event)"></app-space-search>
 
-    <app-quick-filters></app-quick-filters>
+    <app-quick-filters (filtersChange)="applyFilters($event)"></app-quick-filters>
 
     <section class="spaces__workspace" aria-label="Mappa ed elenco degli spazi">
       <app-campus-map eyebrow="" heading="Mappa del campus" hint="Seleziona un edificio o uno spazio"></app-campus-map>

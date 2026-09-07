@@ -11,14 +11,14 @@
 
   .admin-shell {
     display: grid;
-    grid-template-columns: 370px minmax(0, 1fr);
+    grid-template-columns: 232px minmax(0, 1fr);
     width: min(1460px, calc(100% - 16px));
-    min-height: calc(100vh - 16px);
-    margin: 8px auto;
+    min-height: 100%;
+    margin: 0;
     overflow: hidden;
     border: 2px solid var(--slot-border);
     border-radius: 38px;
-    background: #0d1829;
+    background: #081526;
   }
 
   /* Sidebar */
@@ -35,13 +35,13 @@
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
-    padding: 50px 48px;
+    padding: 32px 28px 72px 39px;
   }
 
   .reports-header h1 {
     margin: 0;
     color: var(--slot-text);
-    font-size: clamp(36px, 3vw, 48px);
+    font-size: clamp(30px, 2.1vw, 38px);
     font-weight: 500;
     line-height: 1.2;
   }

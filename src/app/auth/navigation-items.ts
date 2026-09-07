@@ -5,4 +5,7 @@ export const adminNavigation = [
   { label: 'Prenotazioni', route: '/admin/bookings', icon: 'calendar-outline' },
   { label: 'Segnalazioni', route: '/admin/reports', icon: 'flag-outline' },
   { label: 'Statistiche', route: '/admin/statistics', icon: 'bar-chart-outline' },
+  { label: 'Utenti', route: '/admin/users', icon: 'search-outline' },
+  { label: 'Edifici', route: '/admin/buildings', icon: 'business-outline' },
+  { label: 'Disponibilità', route: '/admin/availability', icon: 'calendar-outline' },
 ];

@@ -21,7 +21,7 @@
         <span class="administrator__information">
           <strong>{{ auth.user()?.firstName }}</strong>
           <small>Amministratore</small>
-          <button type="button" (click)="logout()" [disabled]="auth.signingOut()">Esci</button>
+          <button class="logout-button" type="button" (click)="logout()" [disabled]="auth.signingOut()">Esci</button>
         </span>
       </div>
     </aside>

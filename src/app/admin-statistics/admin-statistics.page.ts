@@ -1,6 +1,8 @@
 import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
- import { Component, inject } from '@angular/core';
+ import { Component, OnInit, inject } from '@angular/core';
+ import { HttpClient } from '@angular/common/http';
+ import { environment } from '../../environments/environment';
     import { IonContent, IonIcon } from '@ionic/angular';
   import { addIcons } from 'ionicons';
 
@@ -38,78 +40,32 @@ import { Auth } from '../auth/auth';
     styleUrls: ['./admin-statistics.page.scss'],
     imports: [AdminSidebarComponent, IonContent, IonIcon]
   })
-  export class AdminStatisticsPage {
+  export class AdminStatisticsPage implements OnInit {
   readonly auth = inject(Auth);
+  private readonly http = inject(HttpClient);
 
-    readonly metrics: StatisticMetric[] = [
+    metrics: StatisticMetric[] = [
       {
         label: 'Prenotazioni',
-        value: '1.248',
-        trend: '+15% rispetto a lug 2026'
+        value: '0',
+        trend: 'periodo selezionato'
       },
       {
         label: 'Tasso di utilizzo',
-        value: '72%',
-        trend: '+6% rispetto a lug 2026'
+        value: '0%',
+        trend: 'periodo selezionato'
       },
       {
         label: 'Check-in completati',
-        value: '89%',
-        trend: '+8% rispetto a lug 2026'
+        value: '0%',
+        trend: 'periodo selezionato'
       }
     ];
 
-    readonly dailyBookings: DailyBooking[] = [
-      { day: 1, value: 72 },
-      { day: 2, value: 50 },
-      { day: 3, value: 38 },
-      { day: 4, value: 44 },
-      { day: 5, value: 36 },
-      { day: 6, value: 48 },
-      { day: 7, value: 53 },
-      { day: 8, value: 49 },
-      { day: 9, value: 37 },
-      { day: 10, value: 43 },
-      { day: 11, value: 78 },
-      { day: 12, value: 44 },
-      { day: 13, value: 72 },
-      { day: 14, value: 52 },
-      { day: 15, value: 71 },
-      { day: 16, value: 58 },
-      { day: 17, value: 45 },
-      { day: 18, value: 50 },
-      { day: 19, value: 50 },
-      { day: 20, value: 34 },
-      { day: 21, value: 50 },
-      { day: 22, value: 75 },
-      { day: 23, value: 63 },
-      { day: 24, value: 53 },
-      { day: 25, value: 60 },
-      { day: 26, value: 80 },
-      { day: 27, value: 48 },
-      { day: 28, value: 33 },
-      { day: 29, value: 45 },
-      { day: 30, value: 75 },
-      { day: 31, value: 48 }
-    ];
+    dailyBookings: DailyBooking[] = [];
 
-    readonly usageCategories: UsageCategory[] = [
-      {
-        label: 'Aule studio',
-        percentage: 48,
-        color: 'blue'
-      },
-      {
-        label: 'Laboratori',
-        percentage: 32,
-        color: 'green'
-      },
-      {
-        label: 'Sale riunioni',
-        percentage: 20,
-        color: 'orange'
-      }
-    ];
+  usageCategories: UsageCategory[] = [];
+  selectedPeriod = '2026-08';
 
     constructor() {
       addIcons({
@@ -122,5 +78,27 @@ import { Auth } from '../auth/auth';
         ellipsisVerticalOutline,
         gridOutline
       });
+    }
+
+    ngOnInit(): void { this.loadStatistics(); }
+
+    changePeriod(value: string): void { this.selectedPeriod = value; this.loadStatistics(); }
+
+    loadStatistics(): void {
+      const [year, month] = this.selectedPeriod.split('-').map(Number);
+      const from = `${this.selectedPeriod}-01`;
+      const until = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+      this.http.get<{ data: { bookings: number; utilizationRate: number; checkInRate: number; daily: Array<{ date: string; bookings: number }>; usage: Array<{ type: string; percentage: number }> } }>(`${environment.apiUrl}/admin/statistics?from=${from}&until=${until}`)
+        .subscribe({ next: response => {
+          const data = response.data;
+          this.metrics = [
+            { label: 'Prenotazioni', value: String(data.bookings), trend: 'periodo selezionato' },
+            { label: 'Tasso di utilizzo', value: `${data.utilizationRate}%`, trend: 'presenze / posti offerti' },
+            { label: 'Check-in completati', value: `${data.checkInRate}%`, trend: 'presenze / partecipanti' },
+          ];
+          this.dailyBookings = data.daily.map(item => ({ day: Number(item.date.slice(-2)), value: item.bookings }));
+          const labels: Record<string, { label: string; color: UsageCategory['color'] }> = { study_room: { label: 'Aule studio', color: 'blue' }, laboratory: { label: 'Laboratori', color: 'green' }, meeting_room: { label: 'Sale riunioni', color: 'orange' } };
+          this.usageCategories = data.usage.flatMap(item => labels[item.type] ? [{ label: labels[item.type].label, color: labels[item.type].color, percentage: item.percentage }] : []);
+        }, error: () => { this.dailyBookings = []; } });
     }
   }

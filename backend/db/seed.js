@@ -10,6 +10,16 @@ const services = [
   { code: 'air_conditioning', name: 'Aria condizionata' },
 ];
 
+const catalog = [
+  { number: 6, name: 'Edificio 6', address: 'Viale delle Scienze, Edificio 6, Palermo', latitude: 38.1059492, longitude: 13.3504286, spaces: [
+    { name: 'Aula Studio A1', floor: 2, type: 'study_room', capacity: 24, accessible: 1, services: ['wifi', 'power_outlets'] },
+    { name: 'Sala Riunioni B', floor: 1, type: 'meeting_room', capacity: 12, accessible: 1, services: ['wifi', 'projector'] },
+  ] },
+  { number: 9, name: 'Edificio 9', address: 'Viale delle Scienze, Edificio 9, Palermo', latitude: 38.1036268, longitude: 13.3457991, spaces: [
+    { name: 'Laboratorio Reti', floor: 1, type: 'laboratory', capacity: 18, accessible: 1, services: ['wifi', 'computer', 'projector'] },
+  ] },
+];
+
 function execute(database, sql) {
   return new Promise((resolve, reject) => {
     database.exec(sql, (error) => {
@@ -88,6 +98,25 @@ async function insertServices(database) {
   }
 }
 
+async function insertCatalog(database) {
+  for (const buildingData of catalog) {
+    await run(database, `INSERT INTO buildings (number, name, address, latitude, longitude) VALUES (?, ?, ?, ?, ?) ON CONFLICT(number) DO UPDATE SET name = excluded.name, address = excluded.address, latitude = excluded.latitude, longitude = excluded.longitude;`, [buildingData.number, buildingData.name, buildingData.address, buildingData.latitude, buildingData.longitude]);
+    const building = await get(database, 'SELECT id FROM buildings WHERE number = ?;', [buildingData.number]);
+    for (const spaceData of buildingData.spaces) {
+      const existingSpace = await get(database, 'SELECT id FROM spaces WHERE building_id = ? AND name = ?;', [building.id, spaceData.name]);
+      if (!existingSpace) await run(database, `INSERT INTO spaces (building_id, name, floor, type, capacity, accessible, status) VALUES (?, ?, ?, ?, ?, ?, 'active');`, [building.id, spaceData.name, spaceData.floor, spaceData.type, spaceData.capacity, spaceData.accessible]);
+      const space = await get(database, 'SELECT id FROM spaces WHERE building_id = ? AND name = ?;', [building.id, spaceData.name]);
+      for (const code of spaceData.services) {
+        const service = await get(database, 'SELECT id FROM services WHERE code = ?;', [code]);
+        await run(database, 'INSERT OR IGNORE INTO space_services (space_id, service_id) VALUES (?, ?);', [space.id, service.id]);
+      }
+      for (let weekday = 1; weekday <= 5; weekday += 1) {
+        await run(database, `INSERT OR IGNORE INTO availabilities (space_id, valid_from, valid_until, weekday, start_time, end_time, is_retired) VALUES (?, '2026-01-01', '2099-12-31', ?, '08:00', '20:00', 0);`, [space.id, weekday]);
+      }
+    }
+  }
+}
+
 async function insertAdminIfMissing(database, admin) {
   const existingUser = await get(
     database,
@@ -141,6 +170,7 @@ async function seed(options = {}) {
 
   try {
     await insertServices(database);
+    await insertCatalog(database);
     const adminResult = await insertAdminIfMissing(database, admin);
     await execute(database, 'COMMIT;');
 

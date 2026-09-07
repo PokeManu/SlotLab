@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { locationOutline, personOutline, calendarOutline, imageOutline, chevronDownOutline } from 'ionicons/icons';
@@ -8,5 +8,8 @@ import type { AdminReport } from '../admin-reports/admin-reports.page';
   templateUrl: './report-detail.component.html', styleUrls: ['./report-detail.component.scss'] })
 export class ReportDetailComponent {
   @Input({ required: true }) selectedReport!: AdminReport;
+  @Output() statusChange = new EventEmitter<string>();
   constructor() { addIcons({ locationOutline, personOutline, calendarOutline, imageOutline, chevronDownOutline }); }
+
+  saveStatus(value: string): void { this.statusChange.emit(value); }
 }

@@ -3,7 +3,9 @@ import { BookingDetailComponent } from '../admin-parts/booking-detail.component'
 import { BookingsSidebarComponent } from '../admin-parts/bookings-sidebar.component';
 import { Auth } from '../auth/auth';
  import { CommonModule } from '@angular/common';
-  import { Component, inject } from '@angular/core';
+ import { Component, OnInit, inject } from '@angular/core';
+  import { HttpClient } from '@angular/common/http';
+  import { environment } from '../../environments/environment';
   import { FormsModule } from '@angular/forms';
   import { Router } from '@angular/router';
   import {
@@ -62,8 +64,9 @@ import { Auth } from '../auth/auth';
       IonIcon,
     ],
   })
-  export class AdminBookingsPage {
+  export class AdminBookingsPage implements OnInit {
   readonly auth = inject(Auth);
+    private readonly http = inject(HttpClient);
     readonly pageSize = 4;
 
     currentPage = 1;
@@ -205,6 +208,19 @@ import { Auth } from '../auth/auth';
         trashOutline,
         warningOutline,
       });
+    }
+
+    ngOnInit(): void {
+      this.http.get<{ data: Array<{ id: number; date: string; startTime: string; endTime: string; spaceName: string; building: string; floor: number; participantCount: number; status: string }> }>(`${environment.apiUrl}/admin/bookings`)
+        .subscribe({ next: response => {
+          const rows: AdminBooking[] = response.data.map(booking => ({
+            code: String(booking.id), startTime: booking.startTime, endTime: booking.endTime, space: booking.spaceName,
+            bookedBy: '—', participants: booking.participantCount, status: booking.status === 'completed' ? 'Annullata' : 'Confermata',
+            dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT'), dateValue: booking.date,
+            building: booking.building, floor: booking.floor,
+          }));
+          this.bookings.splice(0, this.bookings.length, ...rows);
+        } });
     }
 
     get availableSpaces(): string[] {

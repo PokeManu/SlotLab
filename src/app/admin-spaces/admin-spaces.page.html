@@ -2,16 +2,29 @@
   <div class="admin-shell">
     <app-admin-sidebar></app-admin-sidebar>
 
-    <main class="space-management">
+    <main class="spaces-management">
       <header class="spaces-header">
         <h1>Gestione spazi</h1>
-        <button type="button" class="add-space-button">
+        <button type="button" class="add-space-button" (click)="showCreate = !showCreate">
           <ion-icon name="add-outline"></ion-icon>
           <span>Aggiungi spazio</span>
         </button>
       </header>
 
-      <app-space-search></app-space-search>
+      @if (showCreate) {
+        <form class="space-create-form" (submit)="$event.preventDefault(); saveSpace()">
+          <label>Edificio<select name="building" [(ngModel)]="form.buildingId" required><option [ngValue]="0">Seleziona</option>@for (building of buildings; track building.id) { <option [ngValue]="building.id">{{ building.name }}</option> }</select></label>
+          <label>Nome<input name="name" [(ngModel)]="form.name" required></label>
+          <label>Piano<input name="floor" type="number" [(ngModel)]="form.floor" required></label>
+          <label>Tipologia<select name="type" [(ngModel)]="form.type"><option value="study_room">Aula studio</option><option value="laboratory">Laboratorio</option><option value="meeting_room">Sala riunioni</option></select></label>
+          <label>Posti<input name="capacity" type="number" min="1" [(ngModel)]="form.capacity" required></label>
+          <label class="checkbox"><input name="accessible" type="checkbox" [(ngModel)]="form.accessible"> Accessibile</label>
+          <button type="submit">{{ editingId === null ? 'Aggiungi spazio' : 'Salva modifiche' }}</button>
+          @if (createError) { <p class="create-error" role="alert">{{ createError }}</p> }
+        </form>
+      }
+
+      <app-space-search (searchChange)="searchSpaces($event)"></app-space-search>
 
       <section class="space-filters" aria-label="Filtri degli spazi">
         <button type="button" class="filter-button">
@@ -30,6 +43,7 @@
         </button>
       </section>
 
+      @if (loadError) { <p class="create-error" role="alert">{{ loadError }}</p> }
       <section class="spaces-table" aria-label="Elenco degli spazi">
         <div class="spaces-table__header">
           <span>Spazio</span>
@@ -40,7 +54,7 @@
         </div>
 
         <div class="spaces-table__body">
-          @for (space of spaces; track space.name){
+          @for (space of spaces; track space.id){
             <article class="space-row">
               <div class="space-row__iname">
                 <span class="space-row__icon">
@@ -60,11 +74,11 @@
               </span>
               
               <div class="space-row__actions">
-                <button type="button" class="icon-button" [attr.aria-label]="'Modifica ' + space.name">
+                <button type="button" class="icon-button" [attr.aria-label]="'Modifica ' + space.name" (click)="editSpace(space)">
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
 
-                <button type="button" class="icon-button" [attr.aria-label]="'Altre azioni per '+ space.name">
+                <button type="button" class="icon-button" [attr.aria-label]="'Elimina '+ space.name" (click)="removeSpace(space)">
                   <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                 </button>
               </div>
@@ -73,7 +87,7 @@
         </div>
 
       <footer class="spaces-table__footer">
-        <span>1-3 di 3 spazi</span>
+        <span>{{ spaces.length }} spazi visualizzati</span>
 
         <nav class="pagination" aria-label="Paginazione degli spazi">
           <button type="button" class="pagination__button" aria-label="Pagina precedente" disabled>

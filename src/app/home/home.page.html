@@ -24,9 +24,9 @@
           Spazi consigliati
         </h2>
 
-        <span class="recommended-spaces__all">
+        <button class="recommended-spaces__all" type="button" (click)="openAllSpaces()">
           Vedi tutti
-        </span>
+        </button>
       </header>
 
       <div class="recommended-spaces__grid">
@@ -45,9 +45,11 @@
     >
       <app-campus-map></app-campus-map>
 
-      <app-next-booking
-        [booking]="nextBooking"
-      ></app-next-booking>
+      @if (nextBooking) {
+        <app-next-booking [booking]="nextBooking" (bookingOpened)="openBooking($event)"></app-next-booking>
+      } @else {
+        <p>Nessuna prenotazione imminente.</p>
+      }
     </section>
   </main>
 </ion-content>

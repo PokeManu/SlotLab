@@ -134,6 +134,48 @@
     font-weight: 500;
   }
 
+  .field-content input[type='date'],
+  .field-content select,
+  .participant-emails textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 1px solid var(--slot-border);
+    border-radius: 9px;
+    outline: 0;
+    background: #111f33;
+    color: var(--slot-text);
+    font: inherit;
+  }
+
+  .field-content input[type='date'] {
+    color-scheme: dark;
+  }
+
+  .date-field {
+    cursor: pointer;
+  }
+
+  .booking-date-input {
+    pointer-events: none;
+  }
+
+  .participant-emails {
+    display: grid;
+    gap: 8px;
+  }
+
+  .participant-emails label {
+    color: var(--slot-text-muted);
+    font-size: 14px;
+  }
+
+  .participant-emails textarea {
+    min-height: 82px;
+    resize: vertical;
+  }
+
   .field-arrow {
     flex: 0 0 auto;
     color: var(--slot-text-muted);
@@ -235,14 +277,7 @@
   }
 
   select {
-    width: 100%;
-    padding: 0;
-    border: 0;
-    outline: 0;
     appearance: none;
-    background: transparent;
-    color: var(--slot-text);
-    font: inherit;
     cursor: pointer;
   }
 
@@ -306,7 +341,9 @@
   .back-button:focus-visible,
   .time-slot:focus-visible,
   .counter button:focus-visible,
+  .field-content input:focus-visible,
   select:focus-visible,
+  .participant-emails textarea:focus-visible,
   .primary-button:focus-visible {
     outline: 3px solid #8da8ff;
     outline-offset: 3px;

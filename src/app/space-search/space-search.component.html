@@ -16,6 +16,7 @@
       [placeholder]="placeholder"
       [attr.aria-label]="placeholder"
       autocomplete="off"
+      (input)="searchChange.emit($any($event.target).value)"
     />
   </div>
 
