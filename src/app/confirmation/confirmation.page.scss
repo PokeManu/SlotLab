@@ -137,79 +137,13 @@
     letter-spacing: 0.5px;
   }
 
-  .qr-button {
-    display: flex;
-    width: 100%;
-    min-height: 66px;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 42px;
-    padding: 14px 20px;
-    border: 0;
-    border-radius: 14px;
-    background:
-      linear-gradient(
-        135deg,
-        #4f7fff,
-        #5b68f5
-      );
-    color: white;
-    font: inherit;
-    font-size: 18px;
-    cursor: pointer;
-    transition:
-      filter 160ms ease,
-      transform 160ms ease;
-  }
-
-  .qr-button ion-icon {
-    font-size: 23px;
-  }
-
-  .qr-button:hover {
-    filter: brightness(1.08);
-  }
-
-  .qr-button:active {
-    transform: scale(0.99);
-  }
-
-  .qr-panel {
-    margin-top: 18px;
-    padding: 22px;
+  .check-in-note {
+    margin: 24px 0 0;
+    padding: 18px;
     border: 1px solid var(--slot-border);
     border-radius: 15px;
-    background: rgba(255, 255, 255, 0.95);
-    color: #081526;
-    text-align: center;
-  }
-
-  .qr-panel p {
-    margin: 16px 0 0;
-  }
-
-  .fake-qr {
-    display: grid;
-    width: 180px;
-    height: 180px;
-    box-sizing: border-box;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 0 auto;
-    padding: 14px;
-    background: white;
-  }
-
-  .fake-qr span {
-    background: #081526;
-  }
-
-  .fake-qr span:nth-child(2),
-  .fake-qr span:nth-child(4),
-  .fake-qr span:nth-child(6),
-  .fake-qr span:nth-child(8) {
-    transform: scale(0.6);
+    color: var(--slot-text-muted);
+    line-height: 1.5;
   }
 
   .home-link {
@@ -226,7 +160,6 @@
     text-decoration: underline;
   }
 
-  .qr-button:focus-visible,
   .home-link:focus-visible {
     outline: 3px solid #8da8ff;
     outline-offset: 3px;

@@ -1,7 +1,7 @@
 import { EMPTY, Subscription, expand, reduce } from 'rxjs';
 import { BookingFiltersComponent } from '../admin-parts/booking-filters.component';
 import { BookingDetailComponent } from '../admin-parts/booking-detail.component';
-import { BookingsSidebarComponent } from '../admin-parts/bookings-sidebar.component';
+import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
  import { CommonModule } from '@angular/common';
  import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -66,7 +66,7 @@ import { Auth } from '../auth/auth';
     templateUrl: './admin-bookings.page.html',
     styleUrls: ['./admin-bookings.page.scss'],
     standalone: true,
-    imports: [BookingFiltersComponent, BookingDetailComponent, BookingsSidebarComponent,
+    imports: [BookingFiltersComponent, BookingDetailComponent, AdminSidebarComponent,
       CommonModule,
       FormsModule,
       IonContent,

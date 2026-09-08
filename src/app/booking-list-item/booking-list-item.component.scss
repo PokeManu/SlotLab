@@ -107,6 +107,7 @@
 }
 
 .booking-item__check-in {
+  text-decoration: none;
   display: flex;
   min-width: 220px;
   min-height: 54px;
@@ -131,7 +132,8 @@
   font-size: 17px;
 }
 
-.booking-item__actions button:focus-visible {
+.booking-item__actions button:focus-visible,
+.booking-item__actions a:focus-visible {
   outline: 3px solid var(--slot-text);
   outline-offset: 3px;
 }

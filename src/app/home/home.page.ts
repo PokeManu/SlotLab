@@ -1,3 +1,4 @@
+import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
 import { Auth } from '../auth/auth';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -49,7 +50,7 @@ export class HomePage {
         this.recommendedSpaces = response.data.map(space => ({
           id: String(space.id), name: space.name,
           type: space.type === 'study_room' ? 'Aula studio' : space.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
-          building: space.building.name, floor: space.floor, seats: space.capacity,
+          building: space.building.name, floor: space.floor, seats: space.capacity, image: SPACE_PREVIEW_IMAGE,
         }));
         this.changeDetector.markForCheck();
       }, error: () => { this.recommendedSpaces = []; this.changeDetector.markForCheck(); } });

@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import {
@@ -20,6 +22,8 @@ import {
   arrowBackOutline,
   checkmarkCircleOutline,
   easelOutline,
+  desktopOutline,
+  snowOutline,
   flashOutline,
   locationOutline,
   peopleOutline,
@@ -40,9 +44,24 @@ import {
     RouterLink,
   ],
 })
-export class SpaceDetailPage implements OnInit {
+export class SpaceDetailPage implements OnInit, OnDestroy {
   space: Space;
+  readonly serviceDetails: Record<string, { label: string; icon: string }> = {
+    wifi: { label: 'Wi-Fi', icon: 'wifi-outline' },
+    power_outlets: { label: 'Prese elettriche', icon: 'flash-outline' },
+    projector: { label: 'Proiettore', icon: 'easel-outline' },
+    computer: { label: 'Computer', icon: 'desktop-outline' },
+    air_conditioning: { label: 'Aria condizionata', icon: 'snow-outline' },
+  };
   availableToday = false;
+  availableSeats: number | null = null;
+  availableTime = '';
+  loadingAvailability = false;
+  availabilityError = '';
+  private requests = new Subscription();
+
+  ngOnDestroy(): void { this.requests.unsubscribe(); }
+
   private readonly changeDetector = inject(ChangeDetectorRef);
   private hasEntered = false;
   error = '';
@@ -64,6 +83,8 @@ export class SpaceDetailPage implements OnInit {
       arrowBackOutline,
       checkmarkCircleOutline,
       easelOutline,
+      desktopOutline,
+      snowOutline,
       flashOutline,
       locationOutline,
       peopleOutline,
@@ -72,21 +93,42 @@ export class SpaceDetailPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.requests.unsubscribe();
+    this.requests = new Subscription();
+    this.availableSeats = null;
+    this.availableTime = '';
+    this.availableToday = false;
+    this.availabilityError = '';
+    this.error = '';
+    this.loadingAvailability = true;
     const id = this.activatedRoute.snapshot.paramMap.get('id');
     if (!id || !/^\d+$/.test(id)) return;
-    this.http.get<{ data: { id: number; name: string; building: { name: string }; floor: number; type: string; capacity: number; accessible: boolean; status: string; services: string[] } }>(
+    this.requests.add(this.http.get<{ data: { id: number; name: string; building: { name: string }; floor: number; type: string; capacity: number; accessible: boolean; status: string; services: string[] } }>(
       `${environment.apiUrl}/spaces/${id}`,
     ).subscribe({ next: response => {
       const value = response.data;
       this.space = { id: String(value.id), name: value.name,
         type: value.type === 'study_room' ? 'Aula studio' : value.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
         building: value.building.name, floor: value.floor, seats: value.capacity,
-        accessible: value.accessible, image: '', services: value.services };
-      const today = new Date().toISOString().slice(0, 10);
-      this.http.get<{ data: Array<{ bookable: boolean }> }>(`${environment.apiUrl}/spaces/${id}/availability?date=${today}`)
-        .subscribe({ next: availability => { this.availableToday = availability.data.some(slot => slot.bookable); this.changeDetector.markForCheck(); } });
+        accessible: value.accessible, image: SPACE_PREVIEW_IMAGE, services: value.services };
+      const today = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
+      }).format(new Date());
+      this.requests.add(this.http.get<{ data: Array<{ bookable: boolean; availableSeats: number; startTime: string; endTime: string }> }>(`${environment.apiUrl}/spaces/${id}/availability?date=${today}`)
+        .subscribe({ next: availability => {
+          const firstSlot = availability.data.find(slot => slot.bookable);
+          this.availableToday = Boolean(firstSlot);
+          this.availableSeats = firstSlot?.availableSeats ?? 0;
+          this.availableTime = firstSlot ? `${firstSlot.startTime}–${firstSlot.endTime}` : '';
+          this.loadingAvailability = false;
+          this.changeDetector.markForCheck();
+        }, error: () => {
+          this.loadingAvailability = false;
+          this.availabilityError = 'Impossibile verificare i posti disponibili. Riapri il dettaglio per riprovare.';
+          this.changeDetector.markForCheck();
+        } }));
       this.changeDetector.markForCheck();
-    }, error: () => { this.error = 'Impossibile caricare lo spazio.'; this.changeDetector.markForCheck(); }});
+    }, error: () => { this.error = 'Impossibile caricare lo spazio.'; this.loadingAvailability = false; this.changeDetector.markForCheck(); }}));
   }
 
   openBooking(): void {

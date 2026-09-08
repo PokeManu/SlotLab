@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
@@ -69,6 +69,63 @@ describe('BookingPage', () => {
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Impossibile caricare le fasce');
     expect(fixture.nativeElement.textContent).not.toContain('Nessuna fascia prenotabile');
+  });
+
+  function prepareGroup() {
+    component.space.id = '1';
+    component.space.seats = 10;
+    component.timeSlots = [{ id: 4, label: '10:00-12:00', availableSeats: 3 }];
+    component.selectedAvailabilityId = 4;
+  }
+
+  it('aggiunge un input per ogni ospite, conserva gli altri e rispetta i posti liberi', () => {
+    prepareGroup();
+    component.increaseParticipants();
+    component.participantEmails[0] = 'primo@example.com';
+    component.increaseParticipants();
+    component.increaseParticipants();
+    fixture.detectChanges();
+    expect(component.participants).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('input[type=email]').length).toBe(2);
+    component.decreaseParticipants();
+    expect(component.participantEmails).toEqual(['primo@example.com']);
+    component.decreaseParticipants();
+    component.decreaseParticipants();
+    expect(component.participants).toBe(1);
+  });
+
+  it('blocca email vuote, non valide e duplicate prima di inviare la prenotazione', () => {
+    prepareGroup();
+    for (const emails of [[''], ['non-valida'], ['a@example.com,b@example.com'], [' A@example.com ', 'a@example.com']]) {
+      component.participantEmails = emails;
+      component.confirmBooking();
+      expect(component.errorMessage).toContain('email');
+      http.expectNone('/api/v1/bookings');
+    }
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[aria-invalid="true"]')).not.toBeNull();
+  });
+
+  it('normalizza le email e invia solo gli ospiti mantenendo la chiave di idempotenza', async () => {
+    prepareGroup();
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    component.participantEmails = [' Primo@example.com ', 'secondo@example.com'];
+    component.confirmBooking();
+    const request = http.expectOne('/api/v1/bookings');
+    expect(request.request.body.participantEmails).toEqual(['primo@example.com', 'secondo@example.com']);
+    expect(request.request.headers.has('Idempotency-Key')).toBe(true);
+    request.flush({ data: { id: 1 } });
+    await fixture.whenStable();
+  });
+
+  it('non elimina email quando si sceglie una fascia con meno posti ma blocca l’invio', () => {
+    prepareGroup();
+    component.participantEmails = ['primo@example.com', 'secondo@example.com'];
+    component.timeSlots[0].availableSeats = 1;
+    component.confirmBooking();
+    expect(component.participantEmails.length).toBe(2);
+    expect(component.errorMessage).toContain('posti disponibili');
+    http.expectNone('/api/v1/bookings');
   });
 
 });

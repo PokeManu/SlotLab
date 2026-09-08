@@ -136,7 +136,7 @@
 
   .field-content input[type='date'],
   .field-content select,
-  .participant-emails textarea {
+  .participant-emails input {
     box-sizing: border-box;
     width: 100%;
     min-height: 42px;
@@ -171,9 +171,8 @@
     font-size: 14px;
   }
 
-  .participant-emails textarea {
-    min-height: 82px;
-    resize: vertical;
+  .participant-emails input {
+    min-width: 0;
   }
 
   .field-arrow {
@@ -222,6 +221,7 @@
   }
 
   .participants {
+    flex-wrap: wrap;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -343,7 +343,7 @@
   .counter button:focus-visible,
   .field-content input:focus-visible,
   select:focus-visible,
-  .participant-emails textarea:focus-visible,
+  .participant-emails input:focus-visible,
   .primary-button:focus-visible {
     outline: 3px solid #8da8ff;
     outline-offset: 3px;
@@ -373,3 +373,7 @@
       gap: 12px;
     }
   }
+
+.participant-emails p { margin: 0 0 8px; color: var(--slot-text-muted); }
+.email-error { color: #ffb8c2; }
+.participant-emails input[aria-invalid="true"] { border-color: #ffb8c2; }

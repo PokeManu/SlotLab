@@ -13,11 +13,13 @@
       <h1>Dettaglio spazio</h1>
     </header>
 
+    @if (space.image) {
     <img
       class="room-image"
       [src]="space.image"
-      [alt]="'Fotografia di ' + space.name"
+      [alt]="'Immagine rappresentativa dello spazio ' + space.name"
     />
+    }
 
     <section class="space-information">
       <h2>{{ space.name }}</h2>
@@ -29,7 +31,7 @@
 
       <p>
         <ion-icon name="people-outline"></ion-icon>
-        <span>{{ space.seats }} posti</span>
+        <span>Capienza totale: {{ space.seats }} posti</span>
       </p>
 
       @if (space.accessible) {
@@ -39,10 +41,21 @@
         </p>
       }
 
-      <span class="availability">
-        <ion-icon name="checkmark-circle-outline"></ion-icon>
-        {{ availableToday ? 'Disponibile oggi' : 'Non disponibile oggi' }}
-      </span>
+      @if (loadingAvailability) {
+        <p role="status">Verifica dei posti disponibili…</p>
+      } @else if (availabilityError) {
+        <p role="alert">{{ availabilityError }}</p>
+      } @else if (!error) {
+        <p class="availability" role="status">
+          @if (availableToday) {
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            {{ availableSeats }} {{ availableSeats === 1 ? 'posto disponibile' : 'posti disponibili' }}
+            · oggi {{ availableTime }} (prima fascia prenotabile)
+          } @else {
+            Nessuna fascia prenotabile oggi. Verifica le altre date.
+          }
+        </p>
+      }
     </section>
 
     <section class="services">
@@ -50,10 +63,12 @@
 
       <div class="services__grid">
         @for (service of space.services; track service) {
-          <article class="service-card">
-            <ion-icon name="wifi-outline"></ion-icon>
-            <span>{{ service }}</span>
-          </article>
+          @if (serviceDetails[service]; as detail) {
+            <article class="service-card">
+              <ion-icon [name]="detail.icon" aria-hidden="true"></ion-icon>
+              <span>{{ detail.label }}</span>
+            </article>
+          }
         }
       </div>
     </section>

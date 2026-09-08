@@ -40,12 +40,14 @@ describe('AdminStatisticsPage', () => {
     const request = http.expectOne(`/api/v1/admin/statistics?dateFrom=${component.dateFrom}&dateTo=${component.dateTo}`);
     request.flush({ data: statistics() });
     fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.donut-chart__center strong').textContent).toBe('2');
+    expect(component.chartScale).toEqual([4, 3, 2, 1, 0]);
 
     expect(component.statistics?.bookings).toBe(2);
     expect(component.metrics[0].value).toBe('2');
     expect(component.metrics[1].value).toBe('10%');
     expect(component.metrics[2].value).toBe('67%');
-    expect(component.dailyBookings[0].heightPercent).toBe(100);
+    expect(component.dailyBookings[0].heightPercent).toBe(50);
     expect(component.mostBookedSpaces[0].spaceName).toBe('Aula A1');
     expect(component.reportsByCategory[0].count).toBe(1);
   });
@@ -116,4 +118,31 @@ describe('AdminStatisticsPage', () => {
     expect(component.dailyBookings).toEqual([]);
     expect(component.error).toContain('Impossibile');
   });
+  it('non sovrascrive le date modificate durante il caricamento e aggiorna il DOM', async () => {
+    const request = http.expectOne(() => true);
+    component.changeDate('from', '2026-08-01');
+    request.flush({ data: statistics() });
+    await fixture.whenStable();
+    expect(component.dateFrom).toBe('2026-08-01');
+    expect(fixture.nativeElement.textContent).toContain('Aula A1');
+    expect(fixture.nativeElement.textContent).not.toContain('Caricamento statistiche');
+  });
+
+  it('rifiuta date inesistenti e annulla la richiesta alla distruzione', () => {
+    const request = http.expectOne(() => true);
+    component.changeDate('from', '2026-02-30');
+    component.applyPeriod();
+    expect(component.rangeIsValid).toBe(false);
+    http.expectNone(req => req.url.includes('2026-02-30'));
+    fixture.destroy();
+    expect(request.cancelled).toBe(true);
+  });
+
+  it('mostra lo stato vuoto delle presenze senza percentuali nulle', () => {
+    http.expectOne(() => true).flush({ data: statistics({ presences: 0, usage: [{ type: 'study_room', presences: 0, percentage: null }] }) });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.donut-chart')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Nessun check-in registrato');
+  });
+
 });

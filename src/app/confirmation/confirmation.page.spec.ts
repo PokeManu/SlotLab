@@ -34,8 +34,9 @@ describe('ConfirmationPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Aula reale');
     expect(fixture.nativeElement.textContent).toContain('14/09/2026');
     expect(fixture.nativeElement.textContent).toContain('2 partecipanti');
-    fixture.nativeElement.querySelector('.qr-button').click(); await fixture.whenStable();
-    expect(fixture.nativeElement.querySelector('app-space-qr a').getAttribute('href')).toBe('/check-in/12');
+    expect(fixture.nativeElement.querySelector('.qr-button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-space-qr')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('codice QR affisso nell’aula');
     TestBed.inject(HttpTestingController).verify();
   });
 

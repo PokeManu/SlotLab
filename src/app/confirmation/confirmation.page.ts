@@ -4,13 +4,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
-import { bookOutline, checkmarkOutline, locationOutline, peopleOutline, qrCodeOutline, timeOutline } from 'ionicons/icons';
+import { bookOutline, checkmarkOutline, locationOutline, peopleOutline, timeOutline } from 'ionicons/icons';
 import { environment } from '../../environments/environment';
-import { SpaceQrComponent } from '../space-qr/space-qr.component';
 
 @Component({
   selector: 'app-confirmation', templateUrl: './confirmation.page.html', styleUrls: ['./confirmation.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink, SpaceQrComponent],
+  imports: [IonContent, IonIcon, RouterLink],
 })
 export class ConfirmationPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
@@ -21,15 +20,13 @@ export class ConfirmationPage implements OnInit, OnDestroy {
   booking: { id: number; spaceId: number; spaceName: string; building: string; floor: number; date: string; startTime: string; endTime: string; participants: unknown[] } | null = null;
   loading = false;
   error = '';
-  showQrCode = false;
-  constructor() { addIcons({ bookOutline, checkmarkOutline, locationOutline, peopleOutline, qrCodeOutline, timeOutline }); }
+  constructor() { addIcons({ bookOutline, checkmarkOutline, locationOutline, peopleOutline, timeOutline }); }
   ngOnInit(): void { this.load(); }
   ionViewWillEnter(): void { if (this.hasEntered) this.load(); this.hasEntered = true; }
   ngOnDestroy(): void { this.request?.unsubscribe(); }
   load(): void {
     this.request?.unsubscribe();
     this.booking = null;
-    this.showQrCode = false;
     const id = this.route.snapshot.queryParamMap.get('bookingId');
     this.error = '';
     if (!id || !/^[1-9]\d*$/.test(id)) { this.error = 'Prenotazione non specificata.'; return; }
@@ -40,5 +37,4 @@ export class ConfirmationPage implements OnInit, OnDestroy {
     });
   }
   get dateLabel(): string { return this.booking ? new Date(`${this.booking.date}T12:00:00Z`).toLocaleDateString('it-IT') : ''; }
-  toggleQrCode(): void { this.showQrCode = !this.showQrCode; }
 }

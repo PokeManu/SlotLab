@@ -12,11 +12,11 @@
         <div class="date-controls" aria-label="Seleziona il periodo">
           <label class="date-field">
             <span>Dal</span>
-            <input type="date" [value]="dateFrom" (change)="changeDate('from', $any($event.target).value)" />
+            <input type="date" (click)="$any($event.target).showPicker?.()" [value]="dateFrom" (change)="changeDate('from', $any($event.target).value)" />
           </label>
           <label class="date-field">
             <span>Al</span>
-            <input type="date" [value]="dateTo" (change)="changeDate('to', $any($event.target).value)" />
+            <input type="date" (click)="$any($event.target).showPicker?.()" [value]="dateTo" (change)="changeDate('to', $any($event.target).value)" />
           </label>
           <button type="button" class="apply-button" [disabled]="loading || !rangeIsValid" (click)="applyPeriod()">
             Applica
@@ -41,6 +41,8 @@
         @if (historyMessage) {
           <p class="history-warning" role="status">{{ historyMessage }}</p>
         }
+
+        <p class="period-label">Prenotazioni e presenze: solo fasce terminate e offerte. Segnalazioni: create nel periodo, con lo stato attuale.</p>
 
         <section class="statistics-metrics" aria-label="Riepilogo statistiche">
           @for (metric of metrics; track metric.label) {
@@ -69,13 +71,15 @@
             <header class="panel-header">
               <h2 id="bookings-chart-title">Prenotazioni per giorno</h2>
             </header>
+            @if (dailyBookings.length) {
+            <div class="chart-scroll"><div [style.min-width.px]="dailyBookings.length * 18">
             <div class="chart-area">
               <div class="chart-y-axis" aria-hidden="true">
                 @for (tick of chartScale; track $index) { <span>{{ tick }}</span> }
               </div>
               <div class="bar-chart" role="img" [attr.aria-label]="chartDescription">
                 @for (booking of dailyBookings; track booking.date) {
-                  <span class="bar-chart__bar" [style.height.%]="booking.heightPercent">
+                  <span class="bar-chart__bar" [attr.title]="booking.date + ': ' + booking.value + ' prenotazioni'" [style.height.%]="booking.heightPercent">
                     <span class="sr-only">{{ booking.date }}: {{ booking.value }} prenotazioni</span>
                   </span>
                 }
@@ -84,14 +88,17 @@
             <div class="chart-x-axis" aria-hidden="true">
               @for (booking of chartTicks; track booking.date) { <span>{{ booking.day }}</span> }
             </div>
+            </div></div>
+            } @else { <p class="panel-empty">Nessuna fascia terminata documentata nel periodo.</p> }
           </section>
 
           <section class="statistics-panel usage-panel" aria-labelledby="usage-title">
-            <header class="panel-header"><h2 id="usage-title">Utilizzo per tipologia</h2></header>
+            <header class="panel-header"><h2 id="usage-title">Presenze per tipologia</h2></header>
+            @if (statistics.presences > 0) {
             <div class="usage-content">
               <div class="donut-chart" role="img" [attr.aria-label]="usageAriaLabel" [style.background]="usageGradient">
                 <div class="donut-chart__center">
-                  <strong>{{ metrics[1].value }}</strong><span>Utilizzo medio</span>
+                  <strong>{{ statistics.presences }}</strong><span>Presenze totali</span>
                 </div>
               </div>
               <ul class="usage-legend">
@@ -103,6 +110,7 @@
                 }
               </ul>
             </div>
+            } @else { <p class="panel-empty">Nessun check-in registrato nelle fasce terminate del periodo.</p> }
           </section>
 
           <section class="indicator-grid" aria-label="Altri indicatori">
@@ -114,7 +122,7 @@
                     <li><span>{{ space.spaceName }}</span><strong>{{ space.bookings }} prenotazioni</strong><small>{{ space.presences }} presenze / {{ space.participants }} partecipanti</small></li>
                   }
                 </ul>
-              } @else { <p class="panel-empty">Nessun spazio con prenotazioni.</p> }
+              } @else { <p class="panel-empty">Nessuno spazio con prenotazioni.</p> }
             </article>
 
             <article class="statistics-panel indicator-panel">

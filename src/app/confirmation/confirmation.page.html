@@ -15,10 +15,7 @@
       </div>
     </section>
     <section class="confirmation-card booking-code"><span>Codice prenotazione</span><strong>{{ item.id }}</strong></section>
-    <button class="qr-button" type="button" [attr.aria-expanded]="showQrCode" (click)="toggleQrCode()">
-      <ion-icon name="qr-code-outline"></ion-icon>{{ showQrCode ? 'Nascondi QR' : 'Mostra QR dello spazio' }}
-    </button>
-    @if (showQrCode) { <section class="qr-panel"><app-space-qr [spaceId]="item.spaceId"></app-space-qr></section> }
+    <p class="check-in-note">Per fare il check-in, scansiona con la fotocamera del telefono il codice QR affisso nell’aula.</p>
   }
   <a class="home-link" routerLink="/bookings">Vai alle prenotazioni</a>
   <a class="home-link" routerLink="/home">Torna alla home</a>

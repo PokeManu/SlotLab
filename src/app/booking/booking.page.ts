@@ -1,3 +1,5 @@
+import { Auth } from '../auth/auth';
+import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -40,10 +42,13 @@ import{
 })
 export class BookingPage implements OnInit, OnDestroy{
   space: Space;
-  get participants(): number { return 1 + this.participantEmailsText.split(/[\s,;]+/).filter(Boolean).length; }
+  get participants(): number { return 1 + this.participantEmails.length; }
   selectedTime = '';
   selectedDate = new Date().toISOString().slice(0, 10);
-  participantEmailsText = '';
+  participantEmails: string[] = [];
+  emailTouched: boolean[] = [];
+  attemptedSubmit = false;
+  private readonly auth = inject(Auth);
   errorMessage = '';
   submitting = false;
   private lastRequest = '';
@@ -59,7 +64,7 @@ export class BookingPage implements OnInit, OnDestroy{
   loadingAvailability = false;
   availabilityError = '';
 
-  timeSlots: Array<{ id: number; label: string }> = [];
+  timeSlots: Array<{ id: number; label: string; availableSeats: number }> = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -108,7 +113,7 @@ export class BookingPage implements OnInit, OnDestroy{
       .subscribe({ next: response => {
         const value = response.data;
         this.space = { id: String(value.id), name: value.name, type: value.type, building: value.building.name,
-          floor: value.floor, seats: value.capacity, accessible: value.accessible, image: '', services: value.services };
+          floor: value.floor, seats: value.capacity, accessible: value.accessible, image: SPACE_PREVIEW_IMAGE, services: value.services };
         this.loadAvailability(id);
         this.changeDetector.markForCheck();
       }, error: () => {
@@ -140,7 +145,7 @@ export class BookingPage implements OnInit, OnDestroy{
     this.availabilityRequest = this.http.get<{ data: Array<{ availabilityId: number; startTime: string; endTime: string; availableSeats: number; bookable: boolean }> }>(`${environment.apiUrl}/spaces/${spaceId}/availability?date=${this.selectedDate}`)
       .subscribe({ next: availability => {
         this.loadingAvailability = false;
-        this.timeSlots = availability.data.filter(slot => slot.bookable).map(slot => ({ id: slot.availabilityId, label: `${slot.startTime}-${slot.endTime}` }));
+        this.timeSlots = availability.data.filter(slot => slot.bookable).map(slot => ({ id: slot.availabilityId, label: `${slot.startTime}-${slot.endTime}`, availableSeats: slot.availableSeats }));
         this.selectedAvailabilityId = this.timeSlots[0]?.id ?? null;
         this.selectedTime = this.timeSlots[0]?.label ?? '';
         this.changeDetector.markForCheck();
@@ -156,6 +161,33 @@ export class BookingPage implements OnInit, OnDestroy{
     this.selectedAvailabilityId = time.id;
   }
 
+  get participantLimit(): number {
+    return this.timeSlots.find(slot => slot.id === this.selectedAvailabilityId)?.availableSeats ?? this.space.seats;
+  }
+
+  increaseParticipants(): void {
+    if (this.submitting || this.participants >= this.participantLimit) return;
+    this.participantEmails.push('');
+    this.emailTouched.push(false);
+  }
+
+  decreaseParticipants(): void {
+    if (this.submitting || this.participants <= 1) return;
+    this.participantEmails.pop();
+    this.emailTouched.pop();
+  }
+
+  emailError(index: number): string {
+    const email = this.participantEmails[index].trim().toLowerCase();
+    if (!email) return 'Inserisci l’email del partecipante.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || /[,;]/.test(email)) return 'Inserisci una sola email valida.';
+    if (email === this.auth.user()?.email.trim().toLowerCase()) return 'Sei già incluso come organizzatore.';
+    if (this.participantEmails.some((value, other) => other !== index && value.trim().toLowerCase() === email)) {
+      return 'Questa email è già presente nel gruppo.';
+    }
+    return '';
+  }
+
   get durationLabel(): string {
     if (!this.selectedTime) return 'Seleziona una fascia';
     const [start, end] = this.selectedTime.split('-').map(time => {
@@ -167,8 +199,17 @@ export class BookingPage implements OnInit, OnDestroy{
   confirmBooking(): void{
     if (!this.selectedAvailabilityId || !/^\d+$/.test(this.space.id) || this.submitting) return;
     this.errorMessage = '';
+    this.attemptedSubmit = true;
+    if (this.participantEmails.some((_, index) => this.emailError(index))) {
+      this.errorMessage = 'Controlla le email dei partecipanti.';
+      return;
+    }
+    if (this.participants > this.participantLimit) {
+      this.errorMessage = 'I partecipanti superano i posti disponibili nella fascia selezionata. Riduci il numero o scegli un’altra fascia.';
+      return;
+    }
     this.submitting = true;
-    const participantEmails = this.participantEmailsText.split(/[\s,;]+/).map(email => email.trim().toLowerCase()).filter(Boolean);
+    const participantEmails = this.participantEmails.map(email => email.trim().toLowerCase());
     const body = {
       spaceId: Number(this.space.id), date: this.selectedDate, availabilityId: this.selectedAvailabilityId, participantEmails,
     };

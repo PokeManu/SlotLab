@@ -1,3 +1,4 @@
+import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
 import { allPages } from '../api/all-pages';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -48,7 +49,7 @@ export class FavoritesPage implements OnInit {
       this.favoriteSpaces = response.data.map(space => ({
         id: String(space.id), name: space.name, building: space.building.name, floor: space.floor,
         type: space.type === 'study_room' ? 'Aula studio' : space.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
-        seats: space.capacity, availability: space.status === 'active' ? 'Disponibilità da verificare' : 'Non disponibile',
+        seats: space.capacity, image: SPACE_PREVIEW_IMAGE, availability: space.status === 'active' ? 'Disponibilità da verificare' : 'Non disponibile',
         availabilityTone: space.status === 'active' ? 'available' : 'warning',
       } as FavoriteSpace));
       this.changeDetector.markForCheck();

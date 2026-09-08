@@ -398,11 +398,8 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 1250px) {
-    .admin-layout {
-      grid-template-columns: 88px minmax(0, 1fr);
-    }
-
+  @media (max-width: 1180px) {
+    .admin-layout { grid-template-columns: 100px minmax(0, 1fr); }
     .booking-workspace {
       grid-template-columns: minmax(590px, 1fr) 320px;
     }
@@ -419,7 +416,7 @@
     }
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 900px) {
     .admin-layout {
       display: block;
     }
@@ -475,3 +472,4 @@
       overflow-x: auto;
     }
   }
+

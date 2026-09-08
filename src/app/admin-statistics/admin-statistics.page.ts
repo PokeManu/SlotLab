@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subscription, finalize } from 'rxjs';
 import { IonContent } from '@ionic/angular';
@@ -61,7 +61,7 @@ interface StatisticsResponse {
   styleUrls: ['./admin-statistics.page.scss'],
   imports: [AdminSidebarComponent, IonContent],
 })
-export class AdminStatisticsPage implements OnInit {
+export class AdminStatisticsPage implements OnInit, OnDestroy {
   readonly auth = inject(Auth);
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -88,6 +88,11 @@ export class AdminStatisticsPage implements OnInit {
 
   ngOnInit(): void {
     this.loadStatistics();
+  }
+
+  ngOnDestroy(): void {
+    ++this.loadSequence;
+    this.request?.unsubscribe();
   }
 
   ionViewDidEnter(): void {
@@ -132,7 +137,8 @@ export class AdminStatisticsPage implements OnInit {
 
   get chartScale(): number[] {
     const max = Math.max(1, ...this.dailyBookings.map(item => item.value));
-    return [max, Math.round(max * 0.75), Math.round(max * 0.5), Math.round(max * 0.25), 0];
+    const ceiling = Math.ceil(max / 4) * 4;
+    return [ceiling, ceiling * 0.75, ceiling * 0.5, ceiling * 0.25, 0];
   }
 
   get usageAriaLabel(): string {
@@ -142,7 +148,7 @@ export class AdminStatisticsPage implements OnInit {
   }
 
   reportCategoryLabel(category: string): string {
-    return { technical: 'Tecniche', accessibility: 'Accessibilità', cleanliness: 'Pulizia', other: 'Altro' }[category] ?? category;
+    return { technical: 'Tecniche', accessibility: 'Accessibilità', cleaning: 'Pulizia', cleanliness: 'Pulizia', other: 'Altro' }[category] ?? category;
   }
 
   reportStatusLabel(status: string): string {
@@ -181,8 +187,6 @@ export class AdminStatisticsPage implements OnInit {
       next: response => {
         if (sequence !== this.loadSequence) return;
         this.statistics = this.normalise(response.data);
-        this.dateFrom = this.statistics.dateFrom;
-        this.dateTo = this.statistics.dateTo;
         this.updateView(this.statistics);
         this.changeDetector.markForCheck();
       },
@@ -203,10 +207,10 @@ export class AdminStatisticsPage implements OnInit {
       { label: 'Tasso di utilizzo', value: this.rate(historyHasIssues ? null : data.utilizationRate), trend: historyHasIssues ? 'posti storici non determinabili' : 'presenze / posti offerti' },
       { label: 'Check-in completati', value: this.rate(data.checkInRate), trend: 'presenze / partecipanti' },
     ];
-    const max = Math.max(0, ...data.daily.map(item => item.bookings));
+    const max = Math.ceil(Math.max(1, ...data.daily.map(item => item.bookings)) / 4) * 4;
     this.dailyBookings = data.daily.map(item => ({
       date: item.date,
-      day: item.date.slice(-2),
+      day: `${item.date.slice(8, 10)}/${item.date.slice(5, 7)}`,
       value: item.bookings,
       heightPercent: max ? (item.bookings / max) * 100 : 0,
     }));
@@ -219,7 +223,7 @@ export class AdminStatisticsPage implements OnInit {
       meeting_room: { label: 'Sale riunioni', color: 'orange' },
     };
     this.usageCategories = data.usage.flatMap(item => labels[item.type]
-      ? [{ ...labels[item.type], percentage: item.percentage }]
+      ? [{ ...labels[item.type], percentage: item.percentage ?? 0 }]
       : []);
     this.usageGradient = this.makeUsageGradient(this.usageCategories);
     this.mostBookedSpaces = data.mostBookedSpaces;
@@ -265,7 +269,12 @@ export class AdminStatisticsPage implements OnInit {
   }
 
   private validateRange(): string {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(this.dateFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(this.dateTo)) {
+    const isDate = (value: string) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+      const date = new Date(`${value}T00:00:00Z`);
+      return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    };
+    if (!isDate(this.dateFrom) || !isDate(this.dateTo)) {
       return 'Inserisci due date valide.';
     }
     return this.dateFrom > this.dateTo ? 'La data iniziale deve precedere quella finale.' : '';

@@ -94,7 +94,7 @@
         </nav>
       </footer>
      </section>
-    @if (qrSpaceId) { <section aria-label="QR dello spazio"><app-space-qr [spaceId]="qrSpaceId"></app-space-qr><button type="button" (click)="qrSpaceId = null">Chiudi QR</button></section> }
+    @if (qrSpaceId) { <section class="qr-panel" aria-label="QR dello spazio"><app-space-qr [spaceId]="qrSpaceId"></app-space-qr><button class="qr-close" type="button" (click)="qrSpaceId = null">Chiudi QR</button></section> }
 </main>
   </div>
 </ion-content>
