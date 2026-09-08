@@ -52,33 +52,6 @@
   opacity: 1;
 }
 
-.space-search__filter-button {
-  box-sizing: border-box;
-  flex: 0 0 128px;
-  min-height: 72px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 18px;
-  background: var(--slot-primary);
-  color: var(--slot-text);
-  font: inherit;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.space-search__filter-button:hover {
-  filter: brightness(1.08);
-}
-
-.space-search__filter-button:active {
-  transform: translateY(1px);
-}
-
-.space-search__filter-button:focus-visible {
-  outline: 3px solid var(--slot-text);
-  outline-offset: 3px;
-}
-
 @media (max-width: 700px) {
   .space-search {
     display: block;
@@ -100,7 +73,4 @@
     font-size: 16px;
   }
 
-  .space-search__filter-button {
-    display: none;
-  }
 }

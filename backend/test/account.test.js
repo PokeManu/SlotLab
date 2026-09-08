@@ -99,7 +99,10 @@ test('recupero SMTP TLS: 204 uniforme, password casuale conforme, hash e revoca'
   const user = await account();
   const count = messages.length;
   assert.equal((await request('POST', '/auth/forgot-password', { email: 'unknown@example.test' })).status, 204);
-  assert.equal((await request('POST', '/auth/forgot-password', { email: user.email })).status, 204);
+  const recovery = await request('POST', '/auth/forgot-password', { email: user.email });
+  assert.equal(recovery.status, 204);
+  assert.match(recovery.cookie, /slotlab_refresh=/);
+  assert.match(recovery.cookie, /Expires=Thu, 01 Jan 1970 00:00:00 GMT/);
   await waitForRecovery();
   assert.equal(messages.length, count + 1);
   // Il server SMTP e locale e il messaggio resta soltanto in memoria nel test.

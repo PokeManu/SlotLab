@@ -2,6 +2,11 @@
     display: block;
   }
 
+  ion-content {
+    --background: #091525;
+    --color: var(--slot-text);
+  }
+
   .admin-content {
     --background: #091525;
     --color: var(--slot-text);
@@ -10,12 +15,10 @@
   .admin-shell {
     display: grid;
     grid-template-columns: 232px minmax(0, 1fr);
-    width: min(1460px, calc(100% - 16px));
+    width: 100%;
     min-height: 100%;
     margin: 0;
-    overflow: hidden;
-    border: 2px solid var(--slot-border);
-    border-radius: 38px;
+    box-sizing: border-box;
     background: #081526;
   }
 
@@ -328,7 +331,7 @@
 
   /* Smartphone */
 
-  @media (max-width: 820px) {
+  @media (max-width: 900px) {
     .admin-shell {
       display: block;
       width: 100%;

@@ -60,8 +60,21 @@ export class AdminDashboardPage implements OnInit {
   availableSpaceCount = 0;
   openReportCount = 0;
   readonly todayLabel = this.formatRomeToday(new Date());
+  private hasEntered = false;
 
   ngOnInit(): void {
+    this.loadSummary();
+    this.loadBookings();
+    this.loadSpaceStatuses();
+    this.loadReportsRefresh();
+  }
+
+  ionViewWillEnter(): void {
+    if (this.hasEntered) this.loadSummary();
+    this.hasEntered = true;
+  }
+
+  private loadSummary(): void {
     this.http.get<{ data: { bookingCount: number; spaceCount: number; availableSpaceCount: number; openReportCount: number } }>(`${environment.apiUrl}/admin/summary`).subscribe({
       next: response => {
         this.bookingCount = response.data.bookingCount;
@@ -72,6 +85,9 @@ export class AdminDashboardPage implements OnInit {
       },
       error: () => this.changeDetector.markForCheck(),
     });
+  }
+
+  private loadBookings(): void {
     allPages<{ date: string; startTime: string; spaceName: string; building: string; participantCount: number; status: string }>(this.http, `${environment.apiUrl}/admin/bookings?size=5`).subscribe({
       next: response => {
         const current = new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
@@ -82,10 +98,16 @@ export class AdminDashboardPage implements OnInit {
       },
       error: () => { this.bookings = []; this.changeDetector.markForCheck(); },
     });
+  }
+
+  private loadSpaceStatuses(): void {
     this.http.get<{ data: Array<{ status: string; type: string; name: string }> }>(`${environment.apiUrl}/admin/spaces`).subscribe({
       next: response => { this.spaceStatuses = response.data.slice(0, 4).map(item => ({ icon: item.type === 'study_room' ? 'book-outline' : 'desktop-outline', name: item.name, details: item.status === 'active' ? 'Disponibile' : item.status === 'maintenance' ? 'Manutenzione' : 'Disattivato', tone: item.status === 'active' ? 'available' : 'warning' })); this.changeDetector.markForCheck(); },
       error: () => { this.spaceStatuses = []; this.changeDetector.markForCheck(); },
     });
+  }
+
+  private loadReportsRefresh(): void {
     this.http.get<{ data: Array<{ status: string }> }>(`${environment.apiUrl}/admin/reports`).subscribe({ next: () => this.changeDetector.markForCheck(), error: () => this.changeDetector.markForCheck() });
   }
 

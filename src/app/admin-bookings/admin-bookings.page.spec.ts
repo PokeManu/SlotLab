@@ -33,6 +33,9 @@ describe('AdminBookingsPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Utente Test');
     expect(fixture.nativeElement.textContent).not.toContain('Mario Rossi');
     expect(fixture.nativeElement.querySelector('app-booking-detail').textContent).toContain('Codice: 81');
+    fixture.nativeElement.querySelector('button[aria-label="Mostra dettaglio prenotazione"]').click();
+    expect(component.selectedBooking?.code).toBe('81');
+    expect(fixture.nativeElement.querySelector('app-booking-detail').textContent).toContain('Dettaglio prenotazione');
     expect(component.bookings[1].status).toBe('Completata');
     expect(component.availableDates).toEqual(['2026-09-14']);
     component.selectedDate = '2026-09-15'; component.applyFilters();

@@ -7,7 +7,21 @@ const { hashPassword } = require('./password');
 const { validateEmail } = require('./validation');
 
 function smtpConfig(env = process.env) {
-  if (!env.SLOTLAB_SMTP_HOST) return null;
+  const smtpVariables = [
+    'SLOTLAB_SMTP_HOST',
+    'SLOTLAB_SMTP_PORT',
+    'SLOTLAB_SMTP_SECURE',
+    'SLOTLAB_SMTP_FROM',
+    'SLOTLAB_SMTP_USER',
+    'SLOTLAB_SMTP_PASSWORD',
+    'SLOTLAB_SMTP_CA_FILE',
+  ];
+  if (!env.SLOTLAB_SMTP_HOST) {
+    if (smtpVariables.some(name => env[name] !== undefined && env[name] !== '')) {
+      throw new Error('Configurazione SMTP incompleta.');
+    }
+    return null;
+  }
   const port = Number(env.SLOTLAB_SMTP_PORT || 465);
   if (!Number.isInteger(port) || port < 1 || port > 65535 ||
       !['true', 'false'].includes(env.SLOTLAB_SMTP_SECURE || 'true')) throw new Error('Configurazione SMTP non valida.');

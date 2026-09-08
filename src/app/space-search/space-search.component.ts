@@ -19,9 +19,6 @@ export class SpaceSearchComponent {
 @Input()
 placeholder = 'Cerca aula, laboratorio o attrezzatura';
 
-@Input()
-showFilterButton = true;
-
   constructor() {
     addIcons({
       searchOutline,

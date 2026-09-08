@@ -7,6 +7,7 @@ const { createSessionTokens, hashRefreshToken } = require('../security/tokens');
 const { requireCookieRequest } = require('../middleware/cookie-request');
 const { readConfig } = require('../config');
 const { requestRecovery } = require('../security/recovery');
+const { clearSessionCookie } = require('../security/account-password');
 const { rateLimit } = require('../middleware/rate-limit');
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.post('/forgot-password', (request, response) => {
   let email;
   try { email = validateEmail(request.body?.email); } catch (e) { e.status = 400; throw e; }
   if (!requestRecovery(email)) return response.status(429).json({ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Riprova più tardi.' } });
+  clearSessionCookie(response);
   response.status(204).end();
 });
 

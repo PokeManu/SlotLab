@@ -36,4 +36,22 @@ describe('AdminDashboardPage', () => {
     expect(counts).toEqual(['7', '3', '2']);
     http.verify();
   });
+
+  it('ricarica il riepilogo al rientro per riflettere una segnalazione appena risolta', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/v1/admin/summary').flush({ data: { bookingCount: 1, spaceCount: 4, availableSpaceCount: 3, openReportCount: 1 } });
+    http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [], pagination: { page: 1, totalPages: 1 } });
+    http.expectOne('/api/v1/admin/spaces').flush({ data: [] });
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
+
+    component.ionViewWillEnter();
+    http.expectNone('/api/v1/admin/summary');
+    component.ionViewWillEnter();
+    http.expectOne('/api/v1/admin/summary').flush({ data: { bookingCount: 1, spaceCount: 4, availableSpaceCount: 3, openReportCount: 0 } });
+    await fixture.whenStable();
+
+    expect(component.openReportCount).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('.metric-card__value')[2].textContent.trim()).toBe('0');
+    http.verify();
+  });
 });

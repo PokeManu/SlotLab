@@ -6,6 +6,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { test } = require('node:test');
 const { readConfig } = require('../config');
+const { smtpConfig } = require('../security/recovery');
 
 function testEnvironment(extra = {}) {
   return { SLOTLAB_JWT_SECRET: crypto.randomBytes(32).toString('hex'), ...extra };
@@ -64,4 +65,17 @@ test('una configurazione errata blocca il server prima di creare il database', (
 test('i comandi dei test non caricano il file .env operativo', () => {
   const backendPackage = require('../package.json');
   assert.equal(backendPackage.scripts.test.includes('--env-file'), false);
+});
+
+test('SMTP assente o completo: i campi parziali vengono rifiutati', () => {
+  assert.equal(smtpConfig({}), null);
+  assert.equal(smtpConfig({ SLOTLAB_SMTP_HOST: '' }), null);
+  for (const partial of [
+    { SLOTLAB_SMTP_FROM: 'slotlab@example.test' },
+    { SLOTLAB_SMTP_USER: 'relay-user' },
+    { SLOTLAB_SMTP_PASSWORD: 'relay-password' },
+    { SLOTLAB_SMTP_CA_FILE: '/tmp/missing-slotlab-ca.pem' },
+  ]) {
+    assert.throws(() => smtpConfig(partial), /Configurazione SMTP incompleta/);
+  }
 });

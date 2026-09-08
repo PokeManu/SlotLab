@@ -88,7 +88,7 @@ router.get('/', async (request, response) => {
   const rows = await db.all(
     `SELECT b.id FROM bookings b JOIN availabilities a ON a.id=b.availability_id JOIN booking_participants bp ON bp.booking_id = b.id
       WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.end_time > ?
-      ORDER BY b.date ASC, b.id ASC LIMIT ? OFFSET ?;`,
+      ORDER BY b.date ASC, a.start_time ASC, b.id ASC LIMIT ? OFFSET ?;`,
     [request.user.id, endAfter, size, (page - 1) * size],
   );
   const data = [];

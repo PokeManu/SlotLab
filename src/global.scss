@@ -173,3 +173,43 @@ app-admin-spaces {
   .space-create-form .checkbox { display: flex; align-items: center; gap: 8px; min-height: 40px; }
   .space-create-form button { min-height: 40px; border: 0; border-radius: 8px; background: var(--slot-primary); color: white; cursor: pointer; }
 }
+
+/* Layout condiviso delle aree amministrative, incluse le pagine legacy. */
+body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+}
+
+body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) > main {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 32px 28px 72px 39px;
+}
+
+@media (max-width: 1180px) {
+  body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+
+  body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) > main {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {
+    display: block;
+    min-height: 100dvh;
+  }
+
+  body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) > main {
+    padding: 28px 20px 55px;
+  }
+}

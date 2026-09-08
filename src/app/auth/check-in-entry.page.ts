@@ -10,10 +10,12 @@ import { environment } from '../../environments/environment';
   imports: [IonContent, RouterLink],
   template: `
     <ion-content>
-      <main>
-        <h1>Check-in</h1>
+      <main class="check-in">
+        <section class="check-in__card" aria-labelledby="check-in-title">
+        <p class="check-in__eyebrow">SlotLab · Presenze</p>
+        <h1 id="check-in-title">Check-in</h1>
         @if (validId) {
-          <p>Spazio {{ spaceId }}</p>
+          <p class="check-in__intro">Spazio {{ spaceId }} · Verifica la tua presenza per la prenotazione.</p>
           @if (result(); as outcome) { <p role="status">{{ outcome.message }}</p> }
           @if (errorMessage()) { <p role="alert">{{ errorMessage() }}</p> }
           <button type="button" (click)="verify()" [disabled]="loading()">{{ loading() ? 'Verifica in corso…' : 'Verifica check-in' }}</button>
@@ -21,9 +23,10 @@ import { environment } from '../../environments/environment';
           <p>L’indirizzo del QR non è valido.</p>
         }
         <a routerLink="/home">Torna alla Home</a>
+        </section>
       </main>
     </ion-content>`,
-  styles: ['main { max-width: 600px; margin: 40px auto; padding: 24px; } p { line-height: 1.5; } a { display: block; margin-top: 20px; color: var(--slot-primary-soft); } button { min-height: 44px; padding: 12px 20px; border: 0; border-radius: 10px; background: var(--slot-primary); color: white; font: inherit; cursor: pointer; } button:disabled { opacity: .6; cursor: wait; } button:focus-visible { outline: 2px solid var(--slot-primary-soft); outline-offset: 3px; }'],
+  styleUrl: './check-in-entry.page.scss',
 })
 export class CheckInEntryPage {
   private readonly route = inject(ActivatedRoute);

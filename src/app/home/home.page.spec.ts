@@ -30,6 +30,21 @@ describe('HomePage', () => {
     http.expectOne('/api/v1/bookings').flush({ data: [] });
     expect(component).toBeTruthy();
   });
+
+  it('ricarica la prossima prenotazione quando la finestra torna attiva', async () => {
+    await fixture.whenStable();
+    http.expectOne('/api/v1/spaces/recommended').flush({ data: [] });
+    http.expectOne('/api/v1/bookings').flush({ data: [] });
+
+    window.dispatchEvent(new Event('focus'));
+    http.expectOne('/api/v1/bookings').flush({ data: [{
+      id: 42, spaceName: 'Aula invitati', status: 'confirmed', date: '2099-09-08',
+      startTime: '10:00', endTime: '12:00', building: 'Edificio 6', floor: 2, participantCount: 3,
+    }] });
+    await fixture.whenStable();
+    expect(component.nextBooking?.id).toBe('42');
+  });
+
   it('mostra le card alla prima risposta HTTP senza interazioni', async () => {
     await fixture.whenStable();
     http.expectOne('/api/v1/spaces/recommended').flush({ data: [
@@ -47,7 +62,7 @@ describe('HomePage', () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     component.openBooking('42');
-    expect(navigate).toHaveBeenCalledWith(['/bookings'], { queryParams: { bookingId: '42' } });
+    expect(navigate).toHaveBeenCalledWith(['/bookings', '42']);
   });
 
   it('apre tutti gli spazi dalla Home', () => {

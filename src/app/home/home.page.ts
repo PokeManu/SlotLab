@@ -1,6 +1,6 @@
 import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
 import { Auth } from '../auth/auth';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { BookingSummary } from '../models/booking-summary.model';
 import { SpaceCardComponent } from '../space-card/space-card.component';
 import { SpaceSummary } from '../models/space-summary.model';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,7 @@ import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigatio
     MobileNavigationComponent,
   ],
 })
-export class HomePage {
+export class HomePage implements OnDestroy {
   readonly auth = inject(Auth);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
@@ -36,8 +37,25 @@ export class HomePage {
 
   recommendedSpaces: SpaceSummary[] = [];
   private firstEntry = true;
+  private recommendedRequest?: Subscription;
+  private bookingsRequest?: Subscription;
+  private readonly onWindowFocus = () => this.loadBookings();
+  private readonly onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') this.loadBookings();
+  };
 
-  ngOnInit(): void { this.loadHome(); }
+  ngOnInit(): void {
+    this.loadHome();
+    window.addEventListener('focus', this.onWindowFocus);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('focus', this.onWindowFocus);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.recommendedRequest?.unsubscribe();
+    this.bookingsRequest?.unsubscribe();
+  }
 
   ionViewDidEnter(): void {
     if (this.firstEntry) { this.firstEntry = false; return; }
@@ -45,7 +63,13 @@ export class HomePage {
   }
 
   private loadHome(): void {
-    this.http.get<{ data: Array<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number }> }>(`${environment.apiUrl}/spaces/recommended`)
+    this.loadRecommendedSpaces();
+    this.loadBookings();
+  }
+
+  private loadRecommendedSpaces(): void {
+    this.recommendedRequest?.unsubscribe();
+    this.recommendedRequest = this.http.get<{ data: Array<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number }> }>(`${environment.apiUrl}/spaces/recommended`)
       .subscribe({ next: response => {
         this.recommendedSpaces = response.data.map(space => ({
           id: String(space.id), name: space.name,
@@ -54,7 +78,11 @@ export class HomePage {
         }));
         this.changeDetector.markForCheck();
       }, error: () => { this.recommendedSpaces = []; this.changeDetector.markForCheck(); } });
-    this.http.get<{ data: Array<{ id: number; spaceName: string; status: 'confirmed'; date: string; startTime: string; endTime: string; building: string; floor: number; participantCount: number }> }>(`${environment.apiUrl}/bookings`)
+  }
+
+  private loadBookings(): void {
+    this.bookingsRequest?.unsubscribe();
+    this.bookingsRequest = this.http.get<{ data: Array<{ id: number; spaceName: string; status: 'confirmed'; date: string; startTime: string; endTime: string; building: string; floor: number; participantCount: number }> }>(`${environment.apiUrl}/bookings`)
       .subscribe({ next: response => {
         const booking = response.data[0];
         this.nextBooking = booking ? { id: String(booking.id), spaceName: booking.spaceName, status: booking.status,
@@ -73,7 +101,7 @@ export class HomePage {
   }
 
   openBooking(bookingId: string): void {
-    this.router.navigate(['/bookings'], { queryParams: { bookingId } });
+    this.router.navigate(['/bookings', bookingId]);
   }
 
   private formatRomeToday(date: Date): string {
