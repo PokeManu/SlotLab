@@ -1,157 +1,153 @@
 <ion-content [fullscreen]="true" class="admin-content">
-    <div class="admin-shell">
-      <app-admin-sidebar></app-admin-sidebar>
+  <div class="admin-shell">
+    <app-admin-sidebar></app-admin-sidebar>
 
-      <main class="statistics-management">
-        <header class="statistics-header">
+    <main class="statistics-management">
+      <header class="statistics-header">
+        <div>
           <h1>Statistiche</h1>
+          <p class="period-label">Periodo: {{ statistics?.dateFrom ?? dateFrom }} – {{ statistics?.dateTo ?? dateTo }}</p>
+        </div>
 
-          <label class="date-filter">
-            <ion-icon name="calendar-outline"></ion-icon>
-
-            <span class="sr-only">Seleziona il periodo</span>
-
-            <select aria-label="Seleziona il periodo" [value]="selectedPeriod" (change)="changePeriod($any($event.target).value)">
-              <option value="august-2026">1–31 agosto 2026</option>
-              <option value="july-2026">1–31 luglio 2026</option>
-              <option value="june-2026">1–30 giugno 2026</option>
-            </select>
-
-            <ion-icon name="chevron-down-outline"></ion-icon>
+        <div class="date-controls" aria-label="Seleziona il periodo">
+          <label class="date-field">
+            <span>Dal</span>
+            <input type="date" [value]="dateFrom" (change)="changeDate('from', $any($event.target).value)" />
           </label>
-        </header>
+          <label class="date-field">
+            <span>Al</span>
+            <input type="date" [value]="dateTo" (change)="changeDate('to', $any($event.target).value)" />
+          </label>
+          <button type="button" class="apply-button" [disabled]="loading || !rangeIsValid" (click)="applyPeriod()">
+            Applica
+          </button>
+        </div>
+      </header>
 
-        <section class="statistics-metrics" aria-label="Riepilogo
-        statistiche">
+      @if (rangeError) {
+        <p class="state-message state-message--error" role="alert">{{ rangeError }}</p>
+      }
+
+      @if (loading) {
+        <p class="state-message" role="status">Caricamento statistiche…</p>
+      } @else if (error) {
+        <div class="state-message state-message--error" role="alert">
+          <span>{{ error }}</span>
+          <button type="button" class="retry-button" (click)="retry()">Riprova</button>
+        </div>
+      } @else if (!statistics) {
+        <p class="state-message">Seleziona un periodo per visualizzare i dati.</p>
+      } @else {
+        @if (historyMessage) {
+          <p class="history-warning" role="status">{{ historyMessage }}</p>
+        }
+
+        <section class="statistics-metrics" aria-label="Riepilogo statistiche">
           @for (metric of metrics; track metric.label) {
             <article class="metric-card">
-              <span class="metric-card__label">
-                {{ metric.label }}
-              </span>
-
-              <strong class="metric-card__value">
-                {{ metric.value }}
-              </strong>
-
-              <small class="metric-card__trend">
-                {{ metric.trend }}
-              </small>
+              <span class="metric-card__label">{{ metric.label }}</span>
+              <strong class="metric-card__value">{{ metric.value }}</strong>
+              <small class="metric-card__trend">{{ metric.trend }}</small>
             </article>
           }
         </section>
 
-        <section
-          class="statistics-panel bookings-chart"
-          aria-labelledby="bookings-chart-title"
-        >
-          <header class="panel-header">
-            <h2 id="bookings-chart-title">Prenotazioni per giorno</h2>
-
-            <button
-              type="button"
-              class="panel-menu"
-              aria-label="Opzioni del grafico"
-            >
-              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-            </button>
-          </header>
-
-          <div class="chart-area">
-            <div class="chart-y-axis" aria-hidden="true">
-              <span>100</span>
-              <span>80</span>
-              <span>60</span>
-              <span>40</span>
-              <span>20</span>
-              <span>0</span>
-            </div>
-
-            <div
-              class="bar-chart"
-              role="img"
-              aria-label="Grafico delle prenotazioni giornaliere di
-              agosto 2026"
-            >
-              @for (booking of dailyBookings; track booking.day) {
-                <span
-                  class="bar-chart__bar"
-                  [style.height.%]="booking.value"
-                >
-                  <span class="sr-only">
-                    Giorno {{ booking.day }}:
-                    {{ booking.value }} prenotazioni
-                  </span>
-                </span>
-              }
-            </div>
-          </div>
-
-          <div class="chart-x-axis" aria-hidden="true">
-            <span>1 ago</span>
-            <span>6 ago</span>
-            <span>11 ago</span>
-            <span>16 ago</span>
-            <span>21 ago</span>
-            <span>26 ago</span>
-            <span>31 ago</span>
-          </div>
+        <section class="summary-strip" aria-label="Dettaglio del periodo">
+          <span><strong>{{ statistics.participants }}</strong> partecipanti</span>
+          <span><strong>{{ statistics.presences }}</strong> presenze</span>
+          <span><strong>{{ statistics.absences }}</strong> assenze</span>
+          <span><strong>{{ statistics.offeredCapacity }}</strong> posti offerti</span>
         </section>
 
-        <section
-          class="statistics-panel usage-panel"
-          aria-labelledby="usage-title"
-        >
-          <header class="panel-header">
-            <h2 id="usage-title">Utilizzo per tipologia</h2>
-
-            <button
-              type="button"
-              class="panel-menu"
-              aria-label="Opzioni di utilizzo"
-            >
-              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-            </button>
-          </header>
-
-          <div class="usage-content">
-            <div
-              class="donut-chart"
-              role="img"
-              aria-label="Aule studio 48%, laboratori 32%, sale riunioni
-              20%"
-            >
-              <div class="donut-chart__center">
-                <strong>{{ metrics[1].value }}</strong>
-                <span>Utilizzo medio</span>
+        @if (!hasData) {
+          <div class="empty-state" role="status">
+            <strong>Nessun dato nel periodo selezionato</strong>
+            <span>Le fasce future, in corso o non offerte non rientrano nelle statistiche.</span>
+          </div>
+        } @else {
+          <section class="statistics-panel bookings-chart" aria-labelledby="bookings-chart-title">
+            <header class="panel-header">
+              <h2 id="bookings-chart-title">Prenotazioni per giorno</h2>
+            </header>
+            <div class="chart-area">
+              <div class="chart-y-axis" aria-hidden="true">
+                @for (tick of chartScale; track $index) { <span>{{ tick }}</span> }
+              </div>
+              <div class="bar-chart" role="img" [attr.aria-label]="chartDescription">
+                @for (booking of dailyBookings; track booking.date) {
+                  <span class="bar-chart__bar" [style.height.%]="booking.heightPercent">
+                    <span class="sr-only">{{ booking.date }}: {{ booking.value }} prenotazioni</span>
+                  </span>
+                }
               </div>
             </div>
+            <div class="chart-x-axis" aria-hidden="true">
+              @for (booking of chartTicks; track booking.date) { <span>{{ booking.day }}</span> }
+            </div>
+          </section>
 
-            <ul class="usage-legend">
-              @for (category of usageCategories; track category.label) {
-                <li>
-                  <span
-                    class="usage-legend__dot"
-                    [class.usage-legend__dot--blue]="
-                      category.color === 'blue'
-                    "
-                    [class.usage-legend__dot--green]="
-                      category.color === 'green'
-                    "
-                    [class.usage-legend__dot--orange]="
-                      category.color === 'orange'
-                    "
-                  ></span>
+          <section class="statistics-panel usage-panel" aria-labelledby="usage-title">
+            <header class="panel-header"><h2 id="usage-title">Utilizzo per tipologia</h2></header>
+            <div class="usage-content">
+              <div class="donut-chart" role="img" [attr.aria-label]="usageAriaLabel" [style.background]="usageGradient">
+                <div class="donut-chart__center">
+                  <strong>{{ metrics[1].value }}</strong><span>Utilizzo medio</span>
+                </div>
+              </div>
+              <ul class="usage-legend">
+                @for (category of usageCategories; track category.label) {
+                  <li>
+                    <span class="usage-legend__dot" [class.usage-legend__dot--blue]="category.color === 'blue'" [class.usage-legend__dot--green]="category.color === 'green'" [class.usage-legend__dot--orange]="category.color === 'orange'"></span>
+                    <span>{{ category.label }}</span><strong>{{ category.percentage }}%</strong>
+                  </li>
+                }
+              </ul>
+            </div>
+          </section>
 
-                  <span class="usage-legend__label">
-                    {{ category.label }}
-                  </span>
+          <section class="indicator-grid" aria-label="Altri indicatori">
+            <article class="statistics-panel indicator-panel">
+              <header class="panel-header"><h2>Spazi più prenotati</h2></header>
+              @if (mostBookedSpaces.length) {
+                <ul class="data-list">
+                  @for (space of mostBookedSpaces; track space.spaceId) {
+                    <li><span>{{ space.spaceName }}</span><strong>{{ space.bookings }} prenotazioni</strong><small>{{ space.presences }} presenze / {{ space.participants }} partecipanti</small></li>
+                  }
+                </ul>
+              } @else { <p class="panel-empty">Nessun spazio con prenotazioni.</p> }
+            </article>
 
-                  <strong>{{ category.percentage }}%</strong>
-                </li>
-              }
-            </ul>
-          </div>
-        </section>
-      </main>
-    </div>
-  </ion-content>
+            <article class="statistics-panel indicator-panel">
+              <header class="panel-header"><h2>Fasce più usate</h2></header>
+              @if (mostUsedSlots.length) {
+                <ul class="data-list">
+                  @for (slot of mostUsedSlots; track slot.startTime + slot.endTime) {
+                    <li><span>{{ slot.startTime }}–{{ slot.endTime }}</span><strong>{{ slot.presences }} presenze</strong><small>{{ slot.bookings }} prenotazioni / {{ slot.participants }} partecipanti</small></li>
+                  }
+                </ul>
+              } @else { <p class="panel-empty">Nessuna fascia terminata.</p> }
+            </article>
+
+            <article class="statistics-panel indicator-panel">
+              <header class="panel-header"><h2>Segnalazioni per categoria</h2></header>
+              @if (reportsByCategory.length) {
+                <ul class="data-list compact-list">
+                  @for (item of reportsByCategory; track item.category) { <li><span>{{ reportCategoryLabel(item.category) }}</span><strong>{{ item.count }}</strong></li> }
+                </ul>
+              } @else { <p class="panel-empty">Nessuna segnalazione nel periodo.</p> }
+            </article>
+
+            <article class="statistics-panel indicator-panel">
+              <header class="panel-header"><h2>Segnalazioni per stato</h2></header>
+              @if (reportsByStatus.length) {
+                <ul class="data-list compact-list">
+                  @for (item of reportsByStatus; track item.status) { <li><span>{{ reportStatusLabel(item.status) }}</span><strong>{{ item.count }}</strong></li> }
+                </ul>
+              } @else { <p class="panel-empty">Nessuna segnalazione nel periodo.</p> }
+            </article>
+          </section>
+        }
+      }
+    </main>
+  </div>
+</ion-content>

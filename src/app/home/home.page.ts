@@ -31,6 +31,7 @@ export class HomePage {
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
   nextBooking: BookingSummary | null = null;
+  readonly todayLabel = this.formatRomeToday(new Date());
 
   recommendedSpaces: SpaceSummary[] = [];
   private firstEntry = true;
@@ -72,5 +73,12 @@ export class HomePage {
 
   openBooking(bookingId: string): void {
     this.router.navigate(['/bookings'], { queryParams: { bookingId } });
+  }
+
+  private formatRomeToday(date: Date): string {
+    const label = new Intl.DateTimeFormat('it-IT', {
+      timeZone: 'Europe/Rome', weekday: 'long', day: 'numeric', month: 'long',
+    }).format(date);
+    return label.charAt(0).toUpperCase() + label.slice(1);
   }
 }

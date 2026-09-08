@@ -1,4 +1,5 @@
 const { transaction } = require('../db/transaction');
+const { consolidateOccurrences } = require('../db/occurrences');
 const { checkPassword, assertCurrent, clearSessionCookie } = require('./account-password');
 const { photoName, cleanDeletedFiles } = require('./report-files');
 
@@ -13,6 +14,7 @@ async function deleteAccount(request, response) {
   const user = await checkPassword(request);
   await transaction(async query => {
     await assertCurrent(query, request, user);
+    await consolidateOccurrences(query);
     const now = new Date().toISOString();
     const notifications = await query.all(`SELECT b.id, b.date, a.start_time, s.name, p.user_id
       FROM bookings b JOIN availabilities a ON a.id = b.availability_id

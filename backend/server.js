@@ -3,8 +3,40 @@ const { closeDatabase, connectDatabase } = require('./db/db');
 const { readConfig } = require('./config');
 const { smtpConfig, waitForRecovery } = require('./security/recovery');
 const { cleanDeletedFiles } = require('./security/report-files');
+const { transaction } = require('./db/transaction');
+const { consolidateOccurrences } = require('./db/occurrences');
 
 let httpServer = null;
+let occurrenceTimer = null;
+let occurrenceRun = null;
+
+function runOccurrenceConsolidation(suppressErrors = true) {
+  if (occurrenceRun) return occurrenceRun;
+  occurrenceRun = transaction(db => consolidateOccurrences(db))
+    .catch(error => {
+      if (suppressErrors) {
+        console.error(`Consolidamento occorrenze non riuscito: ${error.message}`);
+        return null;
+      }
+      throw error;
+    })
+    .finally(() => { occurrenceRun = null; });
+  return occurrenceRun;
+}
+
+function startOccurrenceTimer() {
+  if (occurrenceTimer) return;
+  occurrenceTimer = setInterval(() => { void runOccurrenceConsolidation(); }, 60000);
+  occurrenceTimer.unref();
+}
+
+async function stopOccurrenceTimer() {
+  if (occurrenceTimer) {
+    clearInterval(occurrenceTimer);
+    occurrenceTimer = null;
+  }
+  if (occurrenceRun) await occurrenceRun;
+}
 
 async function startServer() {
   if (httpServer) {
@@ -12,8 +44,10 @@ async function startServer() {
   }
 
   const config = readConfig();
+  app.set('trust proxy', config.trustProxy);
   smtpConfig();
   await connectDatabase();
+  await runOccurrenceConsolidation(false);
   await cleanDeletedFiles();
 
   return new Promise((resolve, reject) => {
@@ -21,12 +55,14 @@ async function startServer() {
 
     server.once('listening', () => {
       httpServer = server;
+      startOccurrenceTimer();
       const address = server.address();
       console.log(`Server in ascolto su ${config.host}, porta ${address.port}`);
       resolve(server);
     });
 
     server.once('error', async (error) => {
+      await stopOccurrenceTimer();
       try {
         await closeDatabase();
       } catch (closeError) {
@@ -39,6 +75,7 @@ async function startServer() {
 }
 
 async function stopServer() {
+  await stopOccurrenceTimer();
   if (httpServer) {
     const serverToClose = httpServer;
     httpServer = null;

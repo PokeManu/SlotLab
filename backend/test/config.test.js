@@ -30,6 +30,14 @@ test('la configurazione rifiuta segreti mancanti o malformati', () => {
   }
 });
 
+test('il proxy attendibile richiede una scelta esplicita e limitata al loopback', () => {
+  assert.equal(readConfig(testEnvironment()).trustProxy, false);
+  assert.equal(readConfig(testEnvironment({ SLOTLAB_TRUST_PROXY: 'loopback' })).trustProxy, 'loopback');
+  for (const value of ['true', '*', '1']) {
+    assert.throws(() => readConfig(testEnvironment({ SLOTLAB_TRUST_PROXY: value })), /SLOTLAB_TRUST_PROXY/);
+  }
+});
+
 test('la configurazione valida ambiente e porta', () => {
   for (const port of ['', 'abc', '3.5', '-1', '65536', '0']) {
     assert.throws(() => readConfig(testEnvironment({ PORT: port })), /PORT/);

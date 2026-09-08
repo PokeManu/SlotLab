@@ -4,6 +4,11 @@ function readConfig(environment = process.env) {
   const port = Number(portText);
   const host = environment.HOST || '127.0.0.1';
   const jwtSecret = environment.SLOTLAB_JWT_SECRET;
+  const proxyMode = environment.SLOTLAB_TRUST_PROXY || 'none';
+
+  if (!['none', 'loopback'].includes(proxyMode)) {
+    throw new Error('SLOTLAB_TRUST_PROXY deve essere none oppure loopback.');
+  }
 
   if (!['development', 'test', 'production'].includes(nodeEnv)) {
     throw new Error('NODE_ENV deve essere development, test oppure production.');
@@ -22,6 +27,7 @@ function readConfig(environment = process.env) {
     nodeEnv,
     host,
     port,
+    trustProxy: proxyMode === 'loopback' ? 'loopback' : false,
     auth: {
       jwtSecret,
       accessTokenSeconds: 30 * 60,

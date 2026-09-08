@@ -20,6 +20,14 @@
     </p>
   </header>
 
+  @if (loading) {
+    <p class="campus-map__state" role="status">Caricamento edifici…</p>
+  } @else if (error) {
+    <p class="campus-map__state campus-map__state--error" role="alert">{{ error }}</p>
+  } @else if (!buildings.length) {
+    <p class="campus-map__state" role="status">Nessun edificio disponibile.</p>
+  }
+
   <div
     #mapContainer
     class="campus-map__canvas"

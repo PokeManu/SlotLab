@@ -1,6 +1,8 @@
 const { closeDatabase, connectDatabase } = require('./db');
 const { hashPassword } = require('../security/password');
 const { normalizeAndValidateAccount } = require('../security/validation');
+const { queries } = require('./transaction');
+const { consolidateOccurrences } = require('./occurrences');
 
 const services = [
   { code: 'wifi', name: 'Wi-Fi' },
@@ -169,6 +171,7 @@ async function seed(options = {}) {
   await execute(database, 'BEGIN IMMEDIATE TRANSACTION;');
 
   try {
+    await consolidateOccurrences(queries(database));
     await insertServices(database);
     await insertCatalog(database);
     const adminResult = await insertAdminIfMissing(database, admin);

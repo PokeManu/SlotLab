@@ -4,6 +4,8 @@ const express = require('express');
 const { getDatabase } = require('../db/db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { transaction } = require('../db/transaction');
+const { consolidateOccurrences } = require('../db/occurrences');
+const { statistics, validateStatisticsPeriod } = require('../db/statistics');
 
 const router = express.Router();
 router.use(requireAuth, requireRole('admin'));
@@ -36,9 +38,42 @@ async function prepareSpaceDeletion(db, id) {
   for (const user of users) await db.run("INSERT INTO notifications(user_id,type,title,message,created_at) VALUES(?,'space_unavailable','Prenotazione cancellata','Lo spazio della prenotazione è stato eliminato.',?)", [user.id,new Date().toISOString()]);
   await queuePhotos(db, await db.all('SELECT photo_path FROM reports WHERE space_id=? AND photo_path IS NOT NULL',[id]));
 }
-function romeDateTime() {
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{ timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23' }).formatToParts(new Date()).map(p=>[p.type,p.value]));
+function romeDateTime(now = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{ timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23' }).formatToParts(now).map(p=>[p.type,p.value]));
   return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
+async function cancelBookings(db, bookings, createdAt, message) {
+  for (const booking of bookings) {
+    const participants = await db.all('SELECT user_id FROM booking_participants WHERE booking_id=?', [booking.id]);
+    for (const participant of participants) {
+      await db.run(`INSERT INTO notifications(user_id,type,title,message,created_at)
+        VALUES(?,'space_unavailable','Prenotazione cancellata',?,?)`, [participant.user_id, message, createdAt]);
+    }
+    await db.run('DELETE FROM bookings WHERE id=?', [booking.id]);
+  }
+}
+
+// La nuova configurazione non può offrire due volte gli stessi posti.
+// Le prenotazioni future incompatibili sono cancellate con notifica; quelle iniziate restano valide.
+async function reconcileAvailability(db, spaceId, body, replacedId, now) {
+  const local = romeDateTime(now);
+  const bookings = await db.all(`SELECT b.id,b.availability_id,b.date,a.start_time,a.end_time
+    FROM bookings b JOIN availabilities a ON a.id=b.availability_id
+    WHERE b.space_id=? AND b.date || ' ' || a.end_time > ?`, [spaceId, local]);
+  const incompatible = [];
+  for (const booking of bookings) {
+    const weekday = new Date(`${booking.date}T12:00:00Z`).getUTCDay() || 7;
+    const applies = booking.date >= body.validFrom && booking.date <= body.validUntil && weekday === Number(body.weekday);
+    const same = applies && booking.start_time === body.startTime && booking.end_time === body.endTime;
+    const overlaps = applies && booking.start_time < body.endTime && booking.end_time > body.startTime;
+    if (!same && (booking.availability_id === replacedId || overlaps)) {
+      if (`${booking.date} ${booking.start_time}` <= local) {
+        if (overlaps) throw Object.assign(new Error('La nuova fascia si sovrappone a una prenotazione già iniziata.'), { status: 409, code: 'AVAILABILITY_OVERLAP' });
+      } else incompatible.push(booking);
+    }
+  }
+  await cancelBookings(db, incompatible, now.toISOString(), 'La prenotazione è stata cancellata perché la configurazione della fascia è cambiata.');
 }
 
 router.post('/announcements', async (request, response) => {
@@ -52,6 +87,7 @@ router.post('/announcements', async (request, response) => {
   const message = body.message.trim();
   const createdAt = new Date().toISOString();
   const data = await transaction(async db => {
+    await consolidateOccurrences(db);
     const announcement = await db.run(
       'INSERT INTO announcements (author_id, title, message, created_at) VALUES (?, ?, ?, ?);',
       [request.user.id, title, message, createdAt],
@@ -68,10 +104,10 @@ router.post('/announcements', async (request, response) => {
 
 router.get('/summary', async (request, response) => {
   const row = await get(`SELECT
-    (SELECT COUNT(*) FROM bookings WHERE date = date('now', 'localtime')) AS bookingCount,
+    (SELECT COUNT(*) FROM bookings WHERE date = ?) AS bookingCount,
     (SELECT COUNT(*) FROM spaces) AS spaceCount,
     (SELECT COUNT(*) FROM spaces WHERE status = 'active') AS availableSpaceCount,
-    (SELECT COUNT(*) FROM reports WHERE status <> 'resolved') AS openReportCount;`);
+    (SELECT COUNT(*) FROM reports WHERE status <> 'resolved') AS openReportCount;`, [romeDateTime().slice(0, 10)]);
   response.json({ data: {
     bookingCount: Number(row.bookingCount),
     spaceCount: Number(row.spaceCount),
@@ -141,6 +177,7 @@ router.delete('/buildings/:buildingId', async (request, response) => {
   const id = Number(request.params.buildingId);
   if (!Number.isInteger(id) || id < 1) throw Object.assign(new Error('Identificativo edificio non valido.'), { status: 400, code: 'INVALID_BUILDING_ID' });
   await transaction(async db => {
+    await consolidateOccurrences(db);
     const building = await db.get('SELECT id FROM buildings WHERE id = ?;', [id]);
     if (!building) throw Object.assign(new Error('L’edificio richiesto non esiste.'), { status: 404, code: 'BUILDING_NOT_FOUND' });
     for (const space of await db.all('SELECT id FROM spaces WHERE building_id=?',[id])) await prepareSpaceDeletion(db,space.id);
@@ -195,6 +232,7 @@ router.post('/spaces', async (request, response) => {
     throw Object.assign(new Error('I dati dello spazio non sono validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   }
   const created = await transaction(async db => {
+    await consolidateOccurrences(db);
     const building = await db.get('SELECT id FROM buildings WHERE id = ?;', [Number(body.buildingId)]);
     if (!building) throw Object.assign(new Error('L’edificio richiesto non esiste.'), { status: 404, code: 'BUILDING_NOT_FOUND' });
     const row = await db.run(
@@ -213,13 +251,14 @@ router.post('/spaces', async (request, response) => {
 router.patch('/spaces/:spaceId', async (request, response) => {
   const id = Number(request.params.spaceId);
   if (!Number.isInteger(id) || id < 1) throw Object.assign(new Error('Identificativo spazio non valido.'), { status: 400, code: 'INVALID_SPACE_ID' });
-  const current = await new Promise((resolve, reject) => getDatabase().get('SELECT * FROM spaces WHERE id = ?;', [id], (error, row) => error ? reject(error) : resolve(row)));
-  if (!current) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
-  const body = request.body || {};
-  if (body.serviceCodes !== undefined && (!Array.isArray(body.serviceCodes) || body.serviceCodes.some(code => !['wifi','power_outlets','projector','computer','air_conditioning'].includes(code)))) throw Object.assign(new Error('Servizi non validi.'),{status:400,code:'VALIDATION_ERROR'});
-  const next = { ...current, ...body };
-  if (typeof next.name !== 'string' || !next.name.trim() || !Number.isInteger(Number(body.buildingId ?? current.building_id)) || !Number.isInteger(Number(next.floor)) || !['study_room', 'laboratory', 'meeting_room'].includes(next.type) || !Number.isInteger(Number(next.capacity)) || Number(next.capacity) < 1 || !['active', 'maintenance', 'deactivated'].includes(next.status)) throw Object.assign(new Error('Dati dello spazio non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
-  await transaction(async db => {
+  const next = await transaction(async db => {
+    await consolidateOccurrences(db);
+    const current = await db.get('SELECT * FROM spaces WHERE id = ?;', [id]);
+    if (!current) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
+    const body = request.body || {};
+    if (body.serviceCodes !== undefined && (!Array.isArray(body.serviceCodes) || body.serviceCodes.some(code => !['wifi','power_outlets','projector','computer','air_conditioning'].includes(code)))) throw Object.assign(new Error('Servizi non validi.'),{status:400,code:'VALIDATION_ERROR'});
+    const next = { ...current, ...body };
+    if (typeof next.name !== 'string' || !next.name.trim() || !Number.isInteger(Number(body.buildingId ?? current.building_id)) || !Number.isInteger(Number(next.floor)) || !['study_room', 'laboratory', 'meeting_room'].includes(next.type) || !Number.isInteger(Number(next.capacity)) || Number(next.capacity) < 1 || !['active', 'maintenance', 'deactivated'].includes(next.status)) throw Object.assign(new Error('Dati dello spazio non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
     if (body.serviceCodes !== undefined) {
       await db.run('DELETE FROM space_services WHERE space_id=?',[id]);
       for (const code of new Set(body.serviceCodes)) await db.run('INSERT INTO space_services(space_id,service_id) SELECT ?,id FROM services WHERE code=?',[id,code]);
@@ -251,6 +290,7 @@ router.patch('/spaces/:spaceId', async (request, response) => {
       `UPDATE spaces SET building_id = ?, name = ?, floor = ?, type = ?, capacity = ?, accessible = ?, status = ? WHERE id = ?;`,
       [Number(body.buildingId ?? current.building_id), next.name.trim(), Number(next.floor), next.type, capacity, Boolean(next.accessible) ? 1 : 0, next.status, id],
     );
+    return next;
   });
   response.json({ data: { id, name: next.name.trim(), floor: Number(next.floor), type: next.type, capacity: Number(next.capacity), accessible: Boolean(next.accessible), status: next.status } });
 });
@@ -259,6 +299,7 @@ router.delete('/spaces/:spaceId', async (request, response) => {
   const id = Number(request.params.spaceId);
   if (!Number.isInteger(id) || id < 1) throw Object.assign(new Error('Identificativo spazio non valido.'), { status: 400, code: 'INVALID_SPACE_ID' });
   await transaction(async db => {
+    await consolidateOccurrences(db);
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [id]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
     await prepareSpaceDeletion(db,id);
@@ -284,6 +325,7 @@ router.post('/spaces/:spaceId/availability', async (request, response) => {
   const body = request.body || {};
   if (!Number.isInteger(spaceId) || spaceId < 1 || !validDate(body.validFrom) || !validDate(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   const created = await transaction(async db => {
+    await consolidateOccurrences(db);
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
     const overlap = await db.get(
@@ -292,6 +334,7 @@ router.post('/spaces/:spaceId/availability', async (request, response) => {
       [spaceId, Number(body.weekday), body.validUntil, body.validFrom, body.endTime, body.startTime],
     );
     if (overlap) throw Object.assign(new Error('La fascia si sovrappone a una configurazione attiva.'), { status: 409, code: 'AVAILABILITY_OVERLAP' });
+    await reconcileAvailability(db, spaceId, body, null, new Date());
     const result = await db.run(
       `INSERT INTO availabilities (space_id, valid_from, valid_until, weekday, start_time, end_time, is_retired)
        VALUES (?, ?, ?, ?, ?, ?, 0);`, [spaceId, body.validFrom, body.validUntil, Number(body.weekday), body.startTime, body.endTime],
@@ -310,41 +353,43 @@ router.get('/spaces/:spaceId/unavailability', async (request, response) => {
   ) });
 });
 
-router.post('/spaces/:spaceId/unavailability', async (request, response) => {
+async function saveUnavailability(request, response) {
   const spaceId = Number(request.params.spaceId);
   const body = request.body || {};
+  const unavailabilityId = request.params.unavailabilityId === undefined ? null : Number(request.params.unavailabilityId);
+  if (unavailabilityId !== null && (!Number.isInteger(unavailabilityId) || unavailabilityId < 1)) throw Object.assign(new Error('Identificativo indisponibilità non valido.'), { status: 400, code: 'VALIDATION_ERROR' });
   if (!Number.isInteger(spaceId) || spaceId < 1 || !validDate(body.date) || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime || typeof body.reason !== 'string' || !body.reason.trim()) throw Object.assign(new Error('Dati indisponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
-  await transaction(async db => {
+  const id = await transaction(async db => {
+    await consolidateOccurrences(db);
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
+    if (unavailabilityId !== null && !await db.get('SELECT id FROM unavailabilities WHERE id=? AND space_id=?', [unavailabilityId,spaceId])) throw Object.assign(new Error('L’indisponibilità richiesta non esiste.'), { status: 404, code: 'UNAVAILABILITY_NOT_FOUND' });
+    const now = new Date();
     const conflicts = await db.all(
-      `SELECT DISTINCT bp.user_id AS userId FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-        JOIN availabilities a ON a.id = b.availability_id
-       WHERE b.space_id = ? AND b.date = ? AND b.status = 'confirmed' AND a.start_time < ? AND a.end_time > ?;`,
-      [spaceId, body.date, body.endTime, body.startTime],
-    );
-    const createdAt = new Date().toISOString();
-    for (const participant of conflicts) await db.run(
-      `INSERT INTO notifications (user_id, type, title, message, created_at)
-       VALUES (?, 'space_unavailable', 'Fascia non disponibile', 'La prenotazione è stata cancellata per indisponibilità dello spazio.', ?);`, [participant.userId, createdAt],
-    );
-    await db.run(
-      `DELETE FROM bookings WHERE space_id = ? AND date = ? AND status = 'confirmed' AND availability_id IN
-       (SELECT id FROM availabilities WHERE start_time < ? AND end_time > ?);`, [spaceId, body.date, body.endTime, body.startTime],
-    );
-    await db.run(
-      'INSERT INTO unavailabilities (space_id, date, start_time, end_time, reason) VALUES (?, ?, ?, ?, ?);',
-      [spaceId, body.date, body.startTime, body.endTime, body.reason.trim()],
-    );
+      `SELECT b.id FROM bookings b JOIN availabilities a ON a.id=b.availability_id
+       WHERE b.space_id=? AND b.date=? AND a.start_time < ? AND a.end_time > ?
+         AND b.date || ' ' || a.start_time > ?`,
+      [spaceId, body.date, body.endTime, body.startTime, romeDateTime(now)]);
+    await cancelBookings(db, conflicts, now.toISOString(), 'La prenotazione è stata cancellata per indisponibilità dello spazio.');
+    if (unavailabilityId !== null) {
+      await db.run('UPDATE unavailabilities SET date=?,start_time=?,end_time=?,reason=? WHERE id=? AND space_id=?',
+        [body.date,body.startTime,body.endTime,body.reason.trim(),unavailabilityId,spaceId]);
+      return unavailabilityId;
+    }
+    return (await db.run('INSERT INTO unavailabilities(space_id,date,start_time,end_time,reason) VALUES(?,?,?,?,?)',
+      [spaceId,body.date,body.startTime,body.endTime,body.reason.trim()])).lastId;
   });
-  response.status(201).json({ data: { spaceId, date: body.date, startTime: body.startTime, endTime: body.endTime, reason: body.reason.trim() } });
-});
+  response.status(unavailabilityId === null ? 201 : 200).json({ data: { id, spaceId, date: body.date, startTime: body.startTime, endTime: body.endTime, reason: body.reason.trim() } });
+}
+router.post('/spaces/:spaceId/unavailability', saveUnavailability);
+router.patch('/spaces/:spaceId/unavailability/:unavailabilityId', saveUnavailability);
 
 router.patch('/spaces/:spaceId/availability/:availabilityId', async (request, response) => {
   const spaceId = Number(request.params.spaceId); const availabilityId = Number(request.params.availabilityId);
   const body = request.body || {};
   if (!Number.isInteger(spaceId) || !Number.isInteger(availabilityId) || !validDate(body.validFrom) || !validDate(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   const created = await transaction(async db => {
+    await consolidateOccurrences(db);
     const current = await db.get('SELECT id FROM availabilities WHERE id = ? AND space_id = ? AND is_retired = 0;', [availabilityId, spaceId]);
     if (!current) throw Object.assign(new Error('La disponibilità richiesta non esiste.'), { status: 404, code: 'AVAILABILITY_NOT_FOUND' });
     const overlap = await db.get(
@@ -353,6 +398,7 @@ router.patch('/spaces/:spaceId/availability/:availabilityId', async (request, re
       [spaceId, availabilityId, Number(body.weekday), body.validUntil, body.validFrom, body.endTime, body.startTime],
     );
     if (overlap) throw Object.assign(new Error('La fascia si sovrappone a una configurazione attiva.'), { status: 409, code: 'AVAILABILITY_OVERLAP' });
+    await reconcileAvailability(db, spaceId, body, availabilityId, new Date());
     await db.run('UPDATE availabilities SET is_retired = 1 WHERE id = ?;', [availabilityId]);
     const replacement = await db.run(
       `INSERT INTO availabilities (space_id, valid_from, valid_until, weekday, start_time, end_time, is_retired)
@@ -366,6 +412,7 @@ router.patch('/spaces/:spaceId/availability/:availabilityId', async (request, re
 router.delete('/spaces/:spaceId/availability/:availabilityId', async (request, response) => {
   const spaceId = Number(request.params.spaceId); const availabilityId = Number(request.params.availabilityId);
   await transaction(async db => {
+    await consolidateOccurrences(db);
     const result = await db.run('UPDATE availabilities SET is_retired = 1 WHERE id = ? AND space_id = ? AND is_retired = 0;', [availabilityId, spaceId]);
     if (!result.changes) throw Object.assign(new Error('La disponibilità richiesta non esiste.'), { status: 404, code: 'AVAILABILITY_NOT_FOUND' });
   });
@@ -374,33 +421,22 @@ router.delete('/spaces/:spaceId/availability/:availabilityId', async (request, r
 
 router.delete('/spaces/:spaceId/unavailability/:unavailabilityId', async (request, response) => {
   const spaceId = Number(request.params.spaceId); const unavailabilityId = Number(request.params.unavailabilityId);
-  const result = await new Promise((resolve, reject) => getDatabase().run('DELETE FROM unavailabilities WHERE id = ? AND space_id = ?;', [unavailabilityId, spaceId], function onDelete(error) { error ? reject(error) : resolve(this.changes); }));
-  if (!result) throw Object.assign(new Error('L’indisponibilità richiesta non esiste.'), { status: 404, code: 'UNAVAILABILITY_NOT_FOUND' });
+  await transaction(async db => {
+    await consolidateOccurrences(db);
+    const result = await db.run('DELETE FROM unavailabilities WHERE id=? AND space_id=?', [unavailabilityId, spaceId]);
+    if (!result.changes) throw Object.assign(new Error('L’indisponibilità richiesta non esiste.'), { status: 404, code: 'UNAVAILABILITY_NOT_FOUND' });
+  });
   response.status(204).end();
 });
 
 router.get('/statistics', async (request, response) => {
-  const from = typeof request.query.from === 'string' ? request.query.from : new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
-  const until = typeof request.query.until === 'string' ? request.query.until : new Date().toISOString().slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(until) || from > until) throw Object.assign(new Error('Periodo non valido.'), { status: 400, code: 'VALIDATION_ERROR' });
-  const totals = await get(`SELECT
-      (SELECT COUNT(*) FROM bookings b WHERE b.date BETWEEN ? AND ?) AS bookings,
-      (SELECT COALESCE(SUM(o.offered_capacity), 0) FROM slot_occurrences o WHERE o.finalized_at IS NOT NULL AND o.was_offered = 1 AND o.date BETWEEN ? AND ?) AS offeredCapacity,
-      (SELECT COUNT(*) FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id WHERE b.date BETWEEN ? AND ? AND bp.present = 1) AS presences,
-      (SELECT COUNT(*) FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id WHERE b.date BETWEEN ? AND ?) AS participants;`, [from, until, from, until, from, until, from, until]);
-  const daily = await all(`SELECT o.date AS date, COUNT(DISTINCT b.id) AS bookings FROM slot_occurrences o LEFT JOIN bookings b ON b.space_id = o.space_id AND b.date = o.date
-    LEFT JOIN availabilities a ON a.id = b.availability_id AND a.start_time = o.start_time AND a.end_time = o.end_time
-    WHERE o.finalized_at IS NOT NULL AND o.was_offered = 1 AND o.date BETWEEN ? AND ? GROUP BY o.date ORDER BY o.date;`, [from, until]);
-  const usageRows = await all(`SELECT s.type, COUNT(*) AS presences
-    FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id JOIN spaces s ON s.id = b.space_id
-    WHERE b.date BETWEEN ? AND ? AND bp.present = 1 AND EXISTS (
-      SELECT 1 FROM slot_occurrences o JOIN availabilities a ON a.id = b.availability_id
-      WHERE o.space_id = b.space_id AND o.date = b.date AND o.start_time = a.start_time AND o.end_time = a.end_time
-        AND o.finalized_at IS NOT NULL AND o.was_offered = 1
-    ) GROUP BY s.type;`, [from, until]);
-  const usageTotal = usageRows.reduce((sum, row) => sum + Number(row.presences), 0);
-  const usage = usageRows.map(row => ({ type: row.type, percentage: usageTotal ? Math.round((Number(row.presences) / usageTotal) * 100) : 0 }));
-  response.json({ data: { from, until, bookings: totals.bookings, offeredCapacity: totals.offeredCapacity, presences: totals.presences, participants: totals.participants, utilizationRate: totals.offeredCapacity ? Math.round((totals.presences / totals.offeredCapacity) * 100) : 0, checkInRate: totals.participants ? Math.round((totals.presences / totals.participants) * 100) : 0, daily, usage } });
+  const { dateFrom, dateTo } = validateStatisticsPeriod(request.query);
+  const data = await transaction(async db => {
+    const now = new Date();
+    await consolidateOccurrences(db, now);
+    return statistics(db, dateFrom, dateTo, now);
+  });
+  response.json({ data });
 });
 
 router.get('/bookings', async (request, response) => {
@@ -453,6 +489,7 @@ router.patch('/reports/:reportId/status', async (request, response) => {
   const nextStatus = request.body?.status;
   if (!Number.isInteger(id) || id < 1 || !['in_progress', 'resolved'].includes(nextStatus)) throw Object.assign(new Error('Stato segnalazione non valido.'), { status: 400, code: 'INVALID_REPORT_STATUS' });
   await transaction(async db => {
+    await consolidateOccurrences(db);
     const report = await db.get('SELECT id, user_id AS userId, status FROM reports WHERE id = ?;', [id]);
     if (!report) throw Object.assign(new Error('La segnalazione richiesta non esiste.'), { status: 404, code: 'REPORT_NOT_FOUND' });
     if ((report.status === 'open' && !['in_progress', 'resolved'].includes(nextStatus)) || (report.status === 'in_progress' && nextStatus !== 'resolved') || report.status === 'resolved') throw Object.assign(new Error('Transizione di stato non consentita.'), { status: 409, code: 'INVALID_REPORT_STATUS_TRANSITION' });
@@ -493,6 +530,7 @@ router.delete('/users/:userId', async (request, response) => {
   const id = Number(request.params.userId);
   if (!Number.isInteger(id) || id < 1) throw Object.assign(new Error('Identificativo utente non valido.'), { status: 400, code: 'INVALID_USER_ID' });
   await transaction(async db => {
+    await consolidateOccurrences(db);
     const user = await db.get('SELECT id, role FROM users WHERE id = ?;', [id]);
     if (!user) throw Object.assign(new Error('L’utente richiesto non esiste.'), { status: 404, code: 'USER_NOT_FOUND' });
     if (user.role === 'admin') throw Object.assign(new Error('Gli amministratori non possono essere eliminati da questa funzione.'), { status: 403, code: 'FORBIDDEN' });

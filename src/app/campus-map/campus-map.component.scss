@@ -38,6 +38,16 @@
   font-size: 14px;
 }
 
+.campus-map__state {
+  margin: 0 0 12px;
+  color: var(--slot-text-muted);
+  font-size: 14px;
+}
+
+.campus-map__state--error {
+  color: #ffb8c2;
+}
+
 .campus-map__canvas {
   width: 100%;
   height: var(--campus-map-height, 300px);

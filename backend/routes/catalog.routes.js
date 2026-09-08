@@ -4,6 +4,7 @@ const express = require('express');
 const { getDatabase } = require('../db/db');
 const { transaction } = require('../db/transaction');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { checkInWindow, isAtLeastAhead, romeNow } = require('../domain/time');
 
 const router = express.Router();
 router.use(['/buildings', '/spaces'], requireAuth, requireRole('user'));
@@ -66,23 +67,9 @@ function parseDate(value) {
   return { value, weekday: date.getUTCDay() || 7 };
 }
 
-function romeNow() {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.filter(part => part.type !== 'literal')
-    .map(part => [part.type, part.value]));
-  return { date: `${values.year}-${values.month}-${values.day}`, time: `${values.hour}:${values.minute}` };
-}
-
-function timeMinutes(value) {
-  const [hours, minutes] = value.split(':').map(Number);
-  return hours * 60 + minutes;
-}
-
 function dateRange(days) {
-  const now = romeNow();
+  const nowInstant = new Date();
+  const now = romeNow(nowInstant);
   const start = new Date(`${now.date}T12:00:00Z`);
   return Array.from({ length: days + 1 }, (_, index) => {
     const date = new Date(start.getTime() + index * 86400000);
@@ -92,7 +79,8 @@ function dateRange(days) {
 
 async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = false, tomorrowOnly = false } = {}) {
   const dates = tomorrowOnly ? dateRange(1).slice(1) : dateRange(todayOnly ? 0 : 30);
-  const now = romeNow();
+  const nowInstant = new Date();
+  const now = romeNow(nowInstant);
   const spaces = await query('SELECT id, capacity, status FROM spaces WHERE status = \'active\';');
   const result = [];
   for (const space of spaces) {
@@ -104,7 +92,12 @@ async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = fa
     for (const date of dates) {
       for (const slot of availabilities) {
         if (slot.weekday !== date.weekday || date.value < slot.validFrom || date.value > slot.validUntil) continue;
-        if (date.value === now.date && timeMinutes(slot.startTime) <= timeMinutes(now.time) + 60) continue;
+        try {
+          if (!isAtLeastAhead(date.value, slot.startTime, 60 * 60, nowInstant)) continue;
+        } catch (cause) {
+          if (cause.code === 'INVALID_LOCAL_TIME') continue;
+          throw cause;
+        }
         if (date.value < now.date) continue;
         const blocked = await get(
           `SELECT id FROM unavailabilities WHERE space_id = ? AND date = ? AND start_time < ? AND end_time > ?;`,
@@ -128,15 +121,6 @@ async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = fa
     if (match && !match.excluded) result.push({ id: space.id, ...match });
   }
   return result;
-}
-
-function checkInWindow(date, startTime, now = romeNow()) {
-  if (date !== now.date) return date < now.date ? 'expired' : 'early';
-  const current = timeMinutes(now.time);
-  const start = timeMinutes(startTime);
-  if (current < start - 15) return 'early';
-  if (current > start + 30) return 'expired';
-  return null;
 }
 
 async function servicesFor(spaceIds) {
@@ -260,13 +244,23 @@ router.post('/spaces/:spaceId/check-in', rateLimit({ limit: 30, windowMs: 60000,
     if (!bookings.length) throw Object.assign(new Error('Non esiste una prenotazione per questo spazio.'), {
       status: 404, code: 'NO_BOOKING_FOR_SPACE',
     });
-    const now = romeNow();
+    const now = new Date();
+    const checkInStatus = (date, startTime) => {
+      try {
+        return checkInWindow(date, startTime, now);
+      } catch (cause) {
+        if (cause.code === 'INVALID_LOCAL_TIME') {
+          throw Object.assign(new Error(cause.message), { status: 409, code: cause.code });
+        }
+        throw cause;
+      }
+    };
     // Una prenotazione precedente non deve nascondere quella nella finestra corrente.
-    const booking = bookings.find(item => checkInWindow(item.date, item.startTime, now) === null)
-      ?? bookings.find(item => checkInWindow(item.date, item.startTime, now) === 'early')
+    const booking = bookings.find(item => checkInStatus(item.date, item.startTime) === null)
+      ?? bookings.find(item => checkInStatus(item.date, item.startTime) === 'early')
       ?? bookings[bookings.length - 1];
     if (booking.present) return { booking, repeated: true };
-    const windowError = checkInWindow(booking.date, booking.startTime, now);
+    const windowError = checkInStatus(booking.date, booking.startTime);
     if (windowError === 'early') throw Object.assign(new Error('Il check-in è troppo anticipato.'), {
       status: 409, code: 'CHECK_IN_TOO_EARLY',
     });
@@ -308,8 +302,7 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
     `SELECT start_time AS startTime, end_time AS endTime FROM unavailabilities
       WHERE space_id = ? AND date = ?;`, [spaceId, requestedDate.value],
   );
-  const now = romeNow();
-  const minimumStart = timeMinutes(now.time) + 60;
+  const nowInstant = new Date();
   const data = await Promise.all(slots.map(async slot => {
     let reason = null;
     const overlaps = unavailable.some(item => item.startTime < slot.endTime && item.endTime > slot.startTime);
@@ -317,8 +310,16 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
     const availableSeats = Math.max(0, space.capacity - bookedSeats);
     if (space.status !== 'active') reason = 'SPACE_UNAVAILABLE';
     else if (overlaps || availableSeats === 0) reason = 'SLOT_UNAVAILABLE';
-    else if (requestedDate.value < now.date || (requestedDate.value === now.date &&
-      timeMinutes(slot.startTime) <= minimumStart)) reason = 'BOOKING_DEADLINE_EXPIRED';
+    else {
+      try {
+        if (!isAtLeastAhead(requestedDate.value, slot.startTime, 60 * 60, nowInstant)) {
+          reason = 'BOOKING_DEADLINE_EXPIRED';
+        }
+      } catch (cause) {
+        if (cause.code === 'INVALID_LOCAL_TIME') reason = cause.code;
+        else throw cause;
+      }
+    }
     return { availabilityId: slot.availabilityId, date: requestedDate.value,
       startTime: slot.startTime, endTime: slot.endTime, availableSeats,
       bookable: reason === null, reason };

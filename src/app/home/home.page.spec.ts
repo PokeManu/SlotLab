@@ -38,6 +38,8 @@ describe('HomePage', () => {
     http.expectOne('/api/v1/bookings').flush({ data: [] });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelectorAll('app-space-card').length).toBe(1);
+    http.expectOne('/api/v1/buildings').flush({ data: [] });
+    http.expectOne('/api/v1/spaces?size=100').flush({ data: [] });
     http.verify();
   });
 

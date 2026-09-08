@@ -22,6 +22,11 @@ const migrations = [
     name: 'file_deletions',
     filePath: path.join(__dirname, 'migrations', '003-file-deletions.sql'),
   },
+  {
+    version: 4,
+    name: 'occurrence_tracking',
+    filePath: path.join(__dirname, 'migrations', '004-occurrence-tracking.sql'),
+  },
 ];
 
 function openDatabase(databasePath) {

@@ -5,6 +5,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 const { validateEmail } = require('../security/validation');
 const { transaction, queries } = require('../db/transaction');
 const { getDatabase } = require('../db/db');
+const { isAtLeastAhead, romeNow } = require('../domain/time');
 
 const router = express.Router();
 router.use(requireAuth, requireRole('user'));
@@ -29,18 +30,12 @@ function dateInfo(value) {
   return { value, weekday: parsed.getUTCDay() || 7 };
 }
 
-function localNow() {
-  const values = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(new Date()).filter(part => part.type !== 'literal')
-    .map(part => [part.type, part.value]));
-  return { date: `${values.year}-${values.month}-${values.day}`, time: `${values.hour}:${values.minute}` };
-}
-
-function minutes(value) {
-  const [hours, mins] = value.split(':').map(Number);
-  return hours * 60 + mins;
+function isAtLeastOneHourAhead(date, startTime, instant) {
+  try {
+    return isAtLeastAhead(date, startTime, 60 * 60, instant);
+  } catch (cause) {
+    throw error(409, 'INVALID_LOCAL_TIME', cause.message);
+  }
 }
 
 function requestHash(input) {
@@ -84,7 +79,7 @@ router.get('/', async (request, response) => {
     throw error(400, 'VALIDATION_ERROR', 'I parametri di paginazione non sono validi.');
   }
   const db = queries(getDatabase());
-  const now = localNow();
+  const now = romeNow();
   const endAfter = `${now.date} ${now.time}`;
   const total = await db.get(
     `SELECT COUNT(*) AS count FROM bookings b JOIN availabilities a ON a.id=b.availability_id JOIN booking_participants bp ON bp.booking_id = b.id
@@ -118,9 +113,10 @@ async function loadEditableBooking(db, bookingId, userId) {
       WHERE booking_id = ? AND participant_role = 'organizer';`, [bookingId],
   );
   if (!organizer || organizer.userId !== userId) throw error(403, 'FORBIDDEN', 'Solo l’organizzatore può gestire il gruppo.');
-  const now = localNow();
-  if (booking.status !== 'confirmed' || booking.date < now.date ||
-    (booking.date === now.date && minutes(booking.startTime) <= minutes(now.time) + 60)) {
+  const now = new Date();
+  const today = romeNow(now).date;
+  if (booking.status !== 'confirmed' || booking.date < today ||
+    !isAtLeastOneHourAhead(booking.date, booking.startTime, now)) {
     throw error(409, 'BOOKING_DEADLINE_EXPIRED', 'Il termine per modificare la prenotazione è trascorso.');
   }
   return booking;
@@ -144,9 +140,12 @@ router.post('/:bookingId/participants', async (request, response) => {
       [user.id, booking.date, booking.endTime, booking.startTime],
     );
     if (overlap) throw error(409, 'BOOKING_OVERLAP', 'Il partecipante ha una prenotazione sovrapposta.');
+    const current = romeNow();
     const limit = await db.get(
       `SELECT COUNT(*) AS count FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-        WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date >= ?;`, [user.id, localNow().date],
+        JOIN availabilities a ON a.id = b.availability_id
+        WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.start_time > ?;`,
+      [user.id, `${current.date} ${current.time}`],
     );
     if (limit.count >= 5) throw error(409, 'BOOKING_LIMIT_REACHED', 'È stato raggiunto il limite di prenotazioni.');
     const occupied = await occupiedSeats(db, booking.spaceId, booking.date, booking.startTime, booking.endTime);
@@ -167,9 +166,10 @@ router.delete('/:bookingId/participants/:participantId', async (request, respons
         JOIN availabilities a ON a.id = b.availability_id WHERE b.id = ?;`, [bookingId],
     );
     if (!booking) throw error(404, 'BOOKING_NOT_FOUND', 'La prenotazione richiesta non esiste.');
-    const now = localNow();
-    if (booking.status !== 'confirmed' || booking.date < now.date ||
-      (booking.date === now.date && minutes(booking.startTime) <= minutes(now.time) + 60)) {
+    const now = new Date();
+    const today = romeNow(now).date;
+    if (booking.status !== 'confirmed' || booking.date < today ||
+      !isAtLeastOneHourAhead(booking.date, booking.startTime, now)) {
       throw error(409, 'BOOKING_DEADLINE_EXPIRED', 'Il termine per modificare la prenotazione è trascorso.');
     }
     const target = await db.get('SELECT user_id AS userId, participant_role AS participantRole FROM booking_participants WHERE id = ? AND booking_id = ?;', [participantId, bookingId]);
@@ -224,7 +224,8 @@ router.post('/', async (request, response) => {
   }
   const input = { spaceId, availabilityId, date: date.value, participantEmails };
   const hash = requestHash(input);
-  const now = localNow();
+  const nowInstant = new Date();
+  const now = romeNow(nowInstant);
   const today = new Date(`${now.date}T12:00:00Z`);
   const target = new Date(`${date.value}T12:00:00Z`);
   const maxDate = new Date(today.getTime() + 30 * 86400000);
@@ -248,7 +249,7 @@ router.post('/', async (request, response) => {
       [availabilityId, spaceId, date.weekday, date.value, date.value],
     );
     if (!slot || slot.status !== 'active') throw error(409, 'SPACE_NOT_AVAILABLE', 'Lo spazio non è disponibile.');
-    if (date.value === now.date && minutes(slot.startTime) <= minutes(now.time) + 60 || date.value < now.date) {
+    if (!isAtLeastOneHourAhead(date.value, slot.startTime, nowInstant)) {
       throw error(409, 'BOOKING_DEADLINE_EXPIRED', 'Il termine per prenotare è trascorso.');
     }
     const exceptional = await db.get(
@@ -267,7 +268,9 @@ router.post('/', async (request, response) => {
     for (const userId of userIds) {
       const limit = await db.get(
         `SELECT COUNT(*) AS count FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-          WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date >= ?;`, [userId, now.date],
+          JOIN availabilities a ON a.id = b.availability_id
+         WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.start_time > ?;`,
+        [userId, `${now.date} ${now.time}`],
       );
       if (limit.count >= 5) throw error(409, 'BOOKING_LIMIT_REACHED', 'È stato raggiunto il limite di prenotazioni.');
       const overlap = await db.get(
