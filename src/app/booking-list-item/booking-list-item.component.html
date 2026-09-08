@@ -33,6 +33,7 @@
   </span>
 
   <div class="booking-item__actions">
+    <a class="booking-item__check-in" [routerLink]="['/bookings', booking.id]">Dettaglio e partecipanti</a>
     @if (booking.canCheckIn) {
       <button class="booking-item__check-in" type="button" (click)="openCheckIn()">
         <ion-icon name="scan-outline" aria-hidden="true"></ion-icon>

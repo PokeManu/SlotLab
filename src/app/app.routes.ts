@@ -5,6 +5,7 @@ import { adminGuard } from './auth/admin-guard';
 import { guestGuard, sessionGuard } from './auth/session-guard';
 
 const userRoutes: Routes = [
+  { path: 'bookings/:id', loadComponent: () => import('./booking-detail/booking-detail.page').then(m => m.UserBookingDetailPage) },
   {
     path: 'home',
     loadComponent: () =>
@@ -74,6 +75,7 @@ const userRoutes: Routes = [
 ];
 
 const adminRoutes: Routes = [
+  { path: 'admin/announcements', loadComponent: () => import('./admin-announcements/admin-announcements.page').then(m => m.AdminAnnouncementsPage) },
   {
     path: 'admin/spaces',
     loadComponent: () =>

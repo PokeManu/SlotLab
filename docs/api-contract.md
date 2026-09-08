@@ -772,7 +772,7 @@ Da `resolved` non sono consentite transizioni.
 }
 ```
 
-Risposta: `201 Created`, con il numero di destinatari.
+Risposta: `201 Created`, con `{ data: { id, title, message, createdAt, recipientCount } }`. Titolo e messaggio sono stringhe obbligatorie non vuote dopo il trim. La pubblicazione salva atomicamente una notifica per ogni account `user` esistente, escludendo amministratori e iscrizioni successive.
 
 ### 11.9 Statistiche
 

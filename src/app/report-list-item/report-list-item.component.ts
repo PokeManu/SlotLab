@@ -1,5 +1,8 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { environment } from '../../environments/environment';
 import {
-  Component,
+  ChangeDetectorRef, OnChanges, OnDestroy, inject, Component,
   Input,
 } from '@angular/core';
 
@@ -22,7 +25,13 @@ import { SpaceReport } from '../models/space-report.model';
     IonIcon,
   ],
 })
-export class ReportListItemComponent {
+export class ReportListItemComponent implements OnChanges, OnDestroy {
+  private readonly http = inject(HttpClient);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private photoRequest?: Subscription;
+  photoUrl = '';
+  photoError = '';
+  photoLoading = false;
   @Input({ required: true })
   report!: SpaceReport;
 
@@ -34,6 +43,35 @@ export class ReportListItemComponent {
       sparklesOutline,
     });
   }
+
+  ngOnChanges(): void {
+    this.clearPhoto();
+    this.photoError = '';
+    this.photoLoading = Boolean(this.report?.photo);
+    if (!this.photoLoading) return;
+    this.photoRequest = this.http.get(`${environment.apiUrl}/reports/${this.report.id}/photo`, { responseType: 'blob' }).subscribe({
+      next: photo => {
+        this.photoUrl = URL.createObjectURL(photo);
+        this.photoLoading = false;
+        this.changeDetector.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.photoError = error.status === 0
+          ? 'Server non raggiungibile. Riprova.'
+          : `Non è stato possibile caricare la foto allegata (HTTP ${error.status}).`;
+        this.photoLoading = false;
+        this.changeDetector.markForCheck();
+      },
+    });
+  }
+
+  private clearPhoto(): void {
+    this.photoRequest?.unsubscribe();
+    if (this.photoUrl) URL.revokeObjectURL(this.photoUrl);
+    this.photoUrl = '';
+  }
+
+  ngOnDestroy(): void { this.clearPhoto(); }
 
   get categoryLabel(): string {
     switch (this.report.category) {

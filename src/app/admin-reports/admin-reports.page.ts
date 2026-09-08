@@ -40,6 +40,7 @@ export interface AdminReport{
   statusLabel: string;
   assignee: string;
   icon: string;
+  photoPath?: string | null;
   attachment?:{
     name: string;
     size: string;
@@ -62,6 +63,7 @@ export class AdminReportsPage implements OnInit{
   statusMessage = '';
   statusError = '';
   savingStatus = false;
+  private hasEntered = false;
 
   activeFilter: ReportFilter = 'all';
   selectedReport: AdminReport | undefined;
@@ -127,12 +129,22 @@ export class AdminReportsPage implements OnInit{
   }
 
   ngOnInit(): void {
-    this.http.get<{ data: Array<{ id: number; spaceName: string; category: string; description: string; priority: ReportPriority; status: string; authorEmail: string; createdAt: string }> }>(`${environment.apiUrl}/admin/reports`).subscribe({ next: response => {
+    this.loadReports();
+  }
+
+  ionViewWillEnter(): void {
+    if (this.hasEntered) this.loadReports();
+    this.hasEntered = true;
+  }
+
+  private loadReports(): void {
+    this.errorMessage = '';
+    this.http.get<{ data: Array<{ id: number; spaceName: string; category: string; description: string; priority: ReportPriority; status: string; authorEmail: string; photoPath?: string | null; createdAt: string }> }>(`${environment.apiUrl}/admin/reports`).subscribe({ next: response => {
       const reports = response.data.map(report => ({ id: report.id, title: report.category, space: report.spaceName,
         date: new Date(report.createdAt).toLocaleDateString('it-IT'), reporter: report.authorEmail, description: report.description,
         priority: report.priority, priorityLabel: report.priority === 'high' ? 'Alta' : report.priority === 'medium' ? 'Media' : 'Bassa',
         status: report.status === 'in_progress' ? 'in-progress' : report.status as ReportStatus, statusLabel: report.status === 'in_progress' ? 'In lavorazione' : report.status === 'open' ? 'Aperta' : 'Risolta',
-        assignee: '—', icon: 'warning-outline' }));
+        photoPath: report.photoPath, assignee: '—', icon: 'warning-outline' }));
       this.reports.splice(0, this.reports.length, ...reports);
       this.selectedReport = this.reports[0];
       this.changeDetector.markForCheck();

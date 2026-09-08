@@ -37,4 +37,19 @@ describe('AdminReportsPage', () => {
     expect(report.status).toBe('resolved');
     expect(report.statusLabel).toBe('Risolta');
   });
+
+  it('mostra una nuova segnalazione al rientro senza ricaricare il browser', async () => {
+    component.ionViewWillEnter();
+    http.expectNone('/api/v1/admin/reports');
+    component.ionViewWillEnter();
+    http.expectOne('/api/v1/admin/reports').flush({ data: [{
+      id: 9, spaceName: 'Aula nuova', category: 'other', description: 'Segnalazione appena inviata',
+      priority: 'low', status: 'open', authorEmail: 'utente@example.test', createdAt: '2026-09-08T08:00:00Z',
+    }] });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Segnalazione appena inviata');
+    expect(component.reports.map(report => report.id)).toEqual([9]);
+    http.verify();
+  });
+
 });

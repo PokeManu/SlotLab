@@ -34,6 +34,16 @@
       {{ report.description }}
     </p>
 
+    @if (report.photo) {
+      <section aria-label="Foto allegata">
+        @if (photoLoading) { <p role="status">Caricamento foto…</p> }
+        @if (photoError) { <p role="alert">{{ photoError }}</p> }
+        @if (photoUrl) {
+          <img class="report-item__photo" [src]="photoUrl" alt="Foto allegata alla segnalazione">
+        }
+      </section>
+    }
+
     <footer class="report-item__footer">
       <span>Segnalazione {{ report.id }}</span>
       <time>{{ report.dateLabel }}</time>

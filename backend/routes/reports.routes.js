@@ -1,3 +1,4 @@
+const { sendReportPhoto } = require('../security/report-files');
 const express = require('express');
 const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
@@ -91,6 +92,13 @@ router.get('/', async (request, response) => {
   const total = await get('SELECT COUNT(*) AS count FROM reports WHERE user_id = ?;', [request.user.id]);
   const rows = await query(`${select} WHERE r.user_id = ? ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?;`, [request.user.id, size, (page - 1) * size]);
   response.json({ data: rows.map(mapReport), pagination: { page, size, totalElements: total.count, totalPages: Math.ceil(total.count / size) } });
+});
+
+router.get('/:reportId/photo', async (request, response) => {
+  const id = reportId(request.params.reportId);
+  const report = await get('SELECT photo_path AS photo FROM reports WHERE id = ? AND user_id = ?;', [id, request.user.id]);
+  if (!report?.photo) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
+  await sendReportPhoto(report.photo, response);
 });
 
 router.get('/:reportId', async (request, response) => {

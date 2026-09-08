@@ -31,11 +31,6 @@
     padding: 32px 28px 72px 39px;
   }
 
-  .space-create-form { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 12px; align-items: end; margin: 24px 0; padding: 18px; border: 1px solid var(--slot-border); border-radius: 13px; background: #14243b; }
-  .space-create-form label { display: grid; gap: 6px; color: var(--slot-text-muted); font-size: 14px; }
-  .space-create-form input, .space-create-form select { min-height: 40px; padding: 0 10px; border: 1px solid var(--slot-border); border-radius: 8px; background: #111f33; color: var(--slot-text); font: inherit; }
-  .space-create-form .checkbox { display: flex; align-items: center; gap: 8px; min-height: 40px; }
-  .space-create-form button { min-height: 40px; border: 0; border-radius: 8px; background: var(--slot-primary); color: white; cursor: pointer; }
   .create-error { grid-column: 1 / -1; margin: 0; color: #ff9ea9; }
 
   /* Intestazione */

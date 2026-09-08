@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -14,7 +15,7 @@ import { BookingListItem } from '../models/booking-list-item.model';
   selector: 'app-booking-list-item',
   templateUrl: './booking-list-item.component.html',
   styleUrls: ['./booking-list-item.component.scss'],
-  imports: [IonIcon],
+  imports: [IonIcon, RouterLink],
 })
 export class BookingListItemComponent {
   @Input({ required: true })

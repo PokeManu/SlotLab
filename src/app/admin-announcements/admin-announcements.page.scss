@@ -1,0 +1,14 @@
+:host { display: block; }
+.admin-shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100%; background: #081526; }
+.announcements-page { min-width: 0; padding: 32px 28px 72px 39px; color: var(--slot-text); }
+h1 { margin: 0; font-size: clamp(30px, 2.1vw, 38px); font-weight: 500; }
+.intro { max-width: 720px; color: var(--slot-text-muted); line-height: 1.5; }
+form { display: grid; gap: 12px; max-width: 720px; margin: 24px 0; }
+label { color: var(--slot-text-muted); }
+input, textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 12px; border: 1px solid var(--slot-border); border-radius: 10px; background: #111f33; color: var(--slot-text); font: inherit; }
+textarea { resize: vertical; }
+button { justify-self: start; min-height: 44px; padding: 0 20px; border: 0; border-radius: 10px; background: var(--slot-primary); color: white; font: inherit; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--slot-primary); outline-offset: 3px; }
+.error { color: #ff9ea9; }
+@media (max-width: 900px) { .admin-shell { grid-template-columns: 1fr; } .announcements-page { padding: 32px 20px; } }

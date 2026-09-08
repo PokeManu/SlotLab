@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { checkboxOutline, homeOutline, searchOutline, calendarOutline, flagOutline, barChartOutline } from 'ionicons/icons';
+import { checkboxOutline, homeOutline, searchOutline, calendarOutline, flagOutline, megaphoneOutline, barChartOutline } from 'ionicons/icons';
 import { Auth } from '../auth/auth';
 import { adminNavigation } from '../auth/navigation-items';
 
@@ -11,6 +11,6 @@ import { adminNavigation } from '../auth/navigation-items';
 export class AdminSidebarComponent {
   readonly auth = inject(Auth);
   readonly navigationItems = adminNavigation;
-  constructor() { addIcons({ checkboxOutline, homeOutline, searchOutline, calendarOutline, flagOutline, barChartOutline }); }
+  constructor() { addIcons({ checkboxOutline, homeOutline, searchOutline, calendarOutline, flagOutline, megaphoneOutline, barChartOutline }); }
   logout() { this.auth.logout().subscribe({ error: () => {} }); }
 }

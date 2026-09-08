@@ -10,7 +10,7 @@ import {
   homeOutline,
   personOutline,
   searchOutline,
-  flagOutline,
+  flagOutline, megaphoneOutline,
   barChartOutline,
 } from 'ionicons/icons';
 
@@ -34,7 +34,7 @@ export class MobileNavigationComponent {
       homeOutline,
       personOutline,
       searchOutline,
-      flagOutline,
+      flagOutline, megaphoneOutline,
       barChartOutline,
     });
   }

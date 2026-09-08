@@ -1,3 +1,4 @@
+import { allPages } from '../api/all-pages';
 import { Auth } from '../auth/auth';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -76,7 +77,7 @@ export class SpacesPage implements OnInit {
     if (this.studyRooms) params.set('type', 'study_room');
     if (this.minimumSeats) params.set('minSeats', '10');
     const suffix = params.toString() ? `?${params}` : '';
-    this.http.get<{ data: Array<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number }> }>(`${environment.apiUrl}/spaces${suffix}`)
+    allPages<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number }>(this.http, `${environment.apiUrl}/spaces${suffix}`)
       .subscribe({ next: response => {
       this.spaces = response.data.map(space => ({
         id: String(space.id), name: space.name,
@@ -109,7 +110,7 @@ export class SpacesPage implements OnInit {
   }
 
   private loadFavorites(): void {
-    this.http.get<{ data: Array<{ id: number }> }>(`${environment.apiUrl}/favorites`)
+    allPages<{ id: number }>(this.http, `${environment.apiUrl}/favorites`)
       .subscribe({ next: response => {
         this.favoriteSpaceIds.clear();
         for (const space of response.data) this.favoriteSpaceIds.add(String(space.id));

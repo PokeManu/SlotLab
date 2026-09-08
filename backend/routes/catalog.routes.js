@@ -1,3 +1,5 @@
+const { rateLimit } = require('../middleware/rate-limit');
+const { occupiedSeats } = require('../db/occupied-seats');
 const express = require('express');
 const { getDatabase } = require('../db/db');
 const { transaction } = require('../db/transaction');
@@ -88,8 +90,8 @@ function dateRange(days) {
   });
 }
 
-async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = false } = {}) {
-  const dates = dateRange(todayOnly ? 0 : 30);
+async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = false, tomorrowOnly = false } = {}) {
+  const dates = tomorrowOnly ? dateRange(1).slice(1) : dateRange(todayOnly ? 0 : 30);
   const now = romeNow();
   const spaces = await query('SELECT id, capacity, status FROM spaces WHERE status = \'active\';');
   const result = [];
@@ -109,28 +111,26 @@ async function qualifyingSpaces({ availableNow = false, minSeats, todayOnly = fa
           [space.id, date.value, slot.endTime, slot.startTime],
         );
         if (blocked) continue;
-        const occupied = await get(
-          `SELECT COUNT(bp.id) AS count FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-            WHERE b.space_id = ? AND b.availability_id = ? AND b.date = ? AND b.status = 'confirmed';`,
-          [space.id, slot.id, date.value],
-        );
-        const free = Math.max(0, space.capacity - occupied.count);
-        if (free === 0 || (minSeats !== undefined && free < minSeats)) {
-          if (availableNow && minSeats === undefined) continue;
-          continue;
+        const occupied = await occupiedSeats({ all: query }, space.id, date.value, slot.startTime, slot.endTime);
+        const free = Math.max(0, space.capacity - occupied);
+        if (!free) continue;
+        // Con il solo filtro posti si valuta la prima fascia prenotabile.
+        if (minSeats !== undefined && free < minSeats) {
+          if (availableNow) continue;
+          match = { excluded: true };
+          break;
         }
         match = { date: date.value, startTime: slot.startTime, availableSeats: free };
         break;
       }
       if (match) break;
     }
-    if (match) result.push({ id: space.id, ...match });
+    if (match && !match.excluded) result.push({ id: space.id, ...match });
   }
   return result;
 }
 
-function checkInWindow(date, startTime) {
-  const now = romeNow();
+function checkInWindow(date, startTime, now = romeNow()) {
   if (date !== now.date) return date < now.date ? 'expired' : 'early';
   const current = timeMinutes(now.time);
   const start = timeMinutes(startTime);
@@ -243,25 +243,30 @@ router.get('/buildings/:buildingId/spaces', async (request, response) => {
   await spacesResponse(request, response, id);
 });
 
-router.post('/spaces/:spaceId/check-in', async (request, response) => {
+router.post('/spaces/:spaceId/check-in', rateLimit({ limit: 30, windowMs: 60000, key: request => request.user.id }), async (request, response) => {
   const spaceId = parseId(request.params.spaceId, 'INVALID_SPACE_ID');
   const result = await transaction(async db => {
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), {
       status: 404, code: 'SPACE_NOT_FOUND',
     });
-    const booking = await db.get(
+    const bookings = await db.all(
       `SELECT b.id AS bookingId, b.date, a.start_time AS startTime, bp.present, bp.checked_in_at AS checkedInAt
          FROM bookings b JOIN availabilities a ON a.id = b.availability_id
          JOIN booking_participants bp ON bp.booking_id = b.id
         WHERE b.space_id = ? AND b.status = 'confirmed' AND bp.user_id = ?
-        ORDER BY b.date ASC, a.start_time ASC LIMIT 1;`, [spaceId, request.user.id],
+        ORDER BY b.date ASC, a.start_time ASC;`, [spaceId, request.user.id],
     );
-    if (!booking) throw Object.assign(new Error('Non esiste una prenotazione per questo spazio.'), {
+    if (!bookings.length) throw Object.assign(new Error('Non esiste una prenotazione per questo spazio.'), {
       status: 404, code: 'NO_BOOKING_FOR_SPACE',
     });
+    const now = romeNow();
+    // Una prenotazione precedente non deve nascondere quella nella finestra corrente.
+    const booking = bookings.find(item => checkInWindow(item.date, item.startTime, now) === null)
+      ?? bookings.find(item => checkInWindow(item.date, item.startTime, now) === 'early')
+      ?? bookings[bookings.length - 1];
     if (booking.present) return { booking, repeated: true };
-    const windowError = checkInWindow(booking.date, booking.startTime);
+    const windowError = checkInWindow(booking.date, booking.startTime, now);
     if (windowError === 'early') throw Object.assign(new Error('Il check-in è troppo anticipato.'), {
       status: 409, code: 'CHECK_IN_TOO_EARLY',
     });
@@ -303,19 +308,12 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
     `SELECT start_time AS startTime, end_time AS endTime FROM unavailabilities
       WHERE space_id = ? AND date = ?;`, [spaceId, requestedDate.value],
   );
-  const bookings = await query(
-    `SELECT b.availability_id AS availabilityId, COUNT(bp.id) AS bookedSeats
-       FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-      WHERE b.space_id = ? AND b.date = ? AND b.status = 'confirmed'
-      GROUP BY b.availability_id;`, [spaceId, requestedDate.value],
-  );
-  const bookedByAvailability = new Map(bookings.map(row => [row.availabilityId, row.bookedSeats]));
   const now = romeNow();
   const minimumStart = timeMinutes(now.time) + 60;
-  const data = slots.map(slot => {
+  const data = await Promise.all(slots.map(async slot => {
     let reason = null;
     const overlaps = unavailable.some(item => item.startTime < slot.endTime && item.endTime > slot.startTime);
-    const bookedSeats = Number(bookedByAvailability.get(slot.availabilityId) || 0);
+    const bookedSeats = await occupiedSeats({ all: query }, spaceId, requestedDate.value, slot.startTime, slot.endTime);
     const availableSeats = Math.max(0, space.capacity - bookedSeats);
     if (space.status !== 'active') reason = 'SPACE_UNAVAILABLE';
     else if (overlaps || availableSeats === 0) reason = 'SLOT_UNAVAILABLE';
@@ -324,7 +322,7 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
     return { availabilityId: slot.availabilityId, date: requestedDate.value,
       startTime: slot.startTime, endTime: slot.endTime, availableSeats,
       bookable: reason === null, reason };
-  });
+  }));
   response.json({ data });
 });
 
@@ -332,7 +330,7 @@ router.get('/spaces', async (request, response) => spacesResponse(request, respo
 
 router.get('/spaces/recommended', async (request, response) => {
   const recommendations = await qualifyingSpaces({ todayOnly: true });
-  const selected = recommendations.length ? recommendations : await qualifyingSpaces();
+  const selected = recommendations.length ? recommendations : await qualifyingSpaces({ tomorrowOnly: true });
   const rows = await query(
     `SELECT sp.id, sp.name, sp.floor, sp.type, sp.capacity, sp.accessible, sp.status,
             b.id AS buildingId, b.number AS buildingNumber, b.name AS buildingName

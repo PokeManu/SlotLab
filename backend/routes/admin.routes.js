@@ -1,3 +1,5 @@
+const { occupiedSeats } = require('../db/occupied-seats');
+const { sendReportPhoto, photoName, cleanDeletedFiles } = require('../security/report-files');
 const express = require('express');
 const { getDatabase } = require('../db/db');
 const { requireAuth, requireRole } = require('../middleware/auth');
@@ -12,6 +14,57 @@ function all(sql, values = []) {
 function get(sql, values = []) {
   return new Promise((resolve, reject) => getDatabase().get(sql, values, (error, row) => error ? reject(error) : resolve(row)));
 }
+
+function validDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T12:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0,10) === value;
+}
+function validTime(value) { return typeof value === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value); }
+
+async function queuePhotos(db, photos) {
+  for (const photo of photos) await db.run('INSERT OR IGNORE INTO file_deletions(filename,created_at) VALUES(?,?)',
+    [photoName(photo.photo_path), new Date().toISOString()]);
+}
+async function cleanupPhotos() {
+  await cleanDeletedFiles().catch(() => console.error('Pulizia fotografie da riprovare.'));
+}
+async function prepareSpaceDeletion(db, id) {
+  const users = await db.all(`SELECT DISTINCT bp.user_id AS id FROM bookings b
+    JOIN availabilities a ON a.id=b.availability_id JOIN booking_participants bp ON bp.booking_id=b.id
+    WHERE b.space_id=? AND b.status='confirmed' AND b.date || ' ' || a.start_time > ?`, [id, romeDateTime()]);
+  for (const user of users) await db.run("INSERT INTO notifications(user_id,type,title,message,created_at) VALUES(?,'space_unavailable','Prenotazione cancellata','Lo spazio della prenotazione è stato eliminato.',?)", [user.id,new Date().toISOString()]);
+  await queuePhotos(db, await db.all('SELECT photo_path FROM reports WHERE space_id=? AND photo_path IS NOT NULL',[id]));
+}
+function romeDateTime() {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{ timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23' }).formatToParts(new Date()).map(p=>[p.type,p.value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
+router.post('/announcements', async (request, response) => {
+  const body = request.body;
+  if (!body || Array.isArray(body) || typeof body.title !== 'string' || !body.title.trim() ||
+      typeof body.message !== 'string' || !body.message.trim() ||
+      Object.keys(body).some(key => !['title', 'message'].includes(key))) {
+    throw Object.assign(new Error('Inserisci titolo e messaggio dell’avviso.'), { status: 400, code: 'VALIDATION_ERROR' });
+  }
+  const title = body.title.trim();
+  const message = body.message.trim();
+  const createdAt = new Date().toISOString();
+  const data = await transaction(async db => {
+    const announcement = await db.run(
+      'INSERT INTO announcements (author_id, title, message, created_at) VALUES (?, ?, ?, ?);',
+      [request.user.id, title, message, createdAt],
+    );
+    const delivered = await db.run(
+      `INSERT INTO notifications (user_id, announcement_id, type, title, message, created_at)
+       SELECT id, ?, 'global_announcement', ?, ?, ? FROM users WHERE role = 'user';`,
+      [announcement.lastId, title, message, createdAt],
+    );
+    return { id: announcement.lastId, title, message, createdAt, recipientCount: delivered.changes };
+  });
+  response.status(201).json({ data });
+});
 
 router.get('/summary', async (request, response) => {
   const row = await get(`SELECT
@@ -90,17 +143,10 @@ router.delete('/buildings/:buildingId', async (request, response) => {
   await transaction(async db => {
     const building = await db.get('SELECT id FROM buildings WHERE id = ?;', [id]);
     if (!building) throw Object.assign(new Error('L’edificio richiesto non esiste.'), { status: 404, code: 'BUILDING_NOT_FOUND' });
-    const participants = await db.all(
-      `SELECT DISTINCT bp.user_id AS userId FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id
-        JOIN spaces s ON s.id = b.space_id WHERE s.building_id = ? AND b.status = 'confirmed';`, [id],
-    );
-    const now = new Date().toISOString();
-    for (const participant of participants) await db.run(
-      `INSERT INTO notifications (user_id, type, title, message, created_at)
-       VALUES (?, 'space_unavailable', 'Prenotazione cancellata', 'Una prenotazione è stata cancellata perché l’edificio non è disponibile.', ?);`, [participant.userId, now],
-    );
+    for (const space of await db.all('SELECT id FROM spaces WHERE building_id=?',[id])) await prepareSpaceDeletion(db,space.id);
     await db.run('DELETE FROM buildings WHERE id = ?;', [id]);
   });
+  await cleanupPhotos();
   response.status(204).end();
 });
 
@@ -136,7 +182,8 @@ router.get('/spaces/:spaceId', async (request, response) => {
        FROM spaces sp JOIN buildings b ON b.id = sp.building_id WHERE sp.id = ?;`, [id], (error, value) => error ? reject(error) : resolve(value),
   ));
   if (!row) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
-  response.json({ data: { id: row.id, name: row.name, building: { id: row.buildingId, number: row.buildingNumber, name: row.buildingName }, floor: row.floor, type: row.type, capacity: row.capacity, accessible: Boolean(row.accessible), status: row.status } });
+  const serviceRows = await all('SELECT code FROM services JOIN space_services ss ON ss.service_id=services.id WHERE ss.space_id=? ORDER BY code',[id]);
+  response.json({ data: { id: row.id, name: row.name, building: { id: row.buildingId, number: row.buildingNumber, name: row.buildingName }, floor: row.floor, type: row.type, capacity: row.capacity, accessible: Boolean(row.accessible), status: row.status, serviceCodes: serviceRows.map(s => s.code) } });
 });
 
 router.post('/spaces', async (request, response) => {
@@ -169,34 +216,40 @@ router.patch('/spaces/:spaceId', async (request, response) => {
   const current = await new Promise((resolve, reject) => getDatabase().get('SELECT * FROM spaces WHERE id = ?;', [id], (error, row) => error ? reject(error) : resolve(row)));
   if (!current) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
   const body = request.body || {};
+  if (body.serviceCodes !== undefined && (!Array.isArray(body.serviceCodes) || body.serviceCodes.some(code => !['wifi','power_outlets','projector','computer','air_conditioning'].includes(code)))) throw Object.assign(new Error('Servizi non validi.'),{status:400,code:'VALIDATION_ERROR'});
   const next = { ...current, ...body };
-  if (typeof next.name !== 'string' || !next.name.trim() || !Number.isInteger(Number(next.building_id ?? next.buildingId)) || !Number.isInteger(Number(next.floor)) || !['study_room', 'laboratory', 'meeting_room'].includes(next.type) || !Number.isInteger(Number(next.capacity)) || Number(next.capacity) < 1 || !['active', 'maintenance', 'deactivated'].includes(next.status)) throw Object.assign(new Error('Dati dello spazio non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
+  if (typeof next.name !== 'string' || !next.name.trim() || !Number.isInteger(Number(body.buildingId ?? current.building_id)) || !Number.isInteger(Number(next.floor)) || !['study_room', 'laboratory', 'meeting_room'].includes(next.type) || !Number.isInteger(Number(next.capacity)) || Number(next.capacity) < 1 || !['active', 'maintenance', 'deactivated'].includes(next.status)) throw Object.assign(new Error('Dati dello spazio non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   await transaction(async db => {
+    if (body.serviceCodes !== undefined) {
+      await db.run('DELETE FROM space_services WHERE space_id=?',[id]);
+      for (const code of new Set(body.serviceCodes)) await db.run('INSERT INTO space_services(space_id,service_id) SELECT ?,id FROM services WHERE code=?',[id,code]);
+    }
     const capacity = Number(next.capacity);
     if (capacity < current.capacity) {
-      const conflict = await db.get(
-        `SELECT b.id FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-          WHERE b.space_id = ? AND b.status = 'confirmed' AND b.date >= date('now', 'localtime')
-          GROUP BY b.id HAVING COUNT(bp.id) > ? LIMIT 1;`, [id, capacity],
-      );
-      if (conflict) throw Object.assign(new Error('La nuova capienza è inferiore ai posti già prenotati.'), { status: 409, code: 'CAPACITY_REDUCTION_CONFLICT' });
+      const intervals = await db.all(`SELECT DISTINCT b.date,a.start_time AS startTime,a.end_time AS endTime
+        FROM bookings b JOIN availabilities a ON a.id=b.availability_id
+        WHERE b.space_id=? AND b.status='confirmed' AND b.date || ' ' || a.end_time > ?`,[id,romeDateTime()]);
+      for (const interval of intervals) {
+        if (await occupiedSeats(db,id,interval.date,interval.startTime,interval.endTime) > capacity)
+          throw Object.assign(new Error('La nuova capienza è inferiore ai posti già prenotati.'), { status:409,code:'CAPACITY_REDUCTION_CONFLICT' });
+      }
     }
     const statusChanged = current.status === 'active' && next.status !== 'active';
     if (statusChanged) {
       const participants = await db.all(
-        `SELECT DISTINCT bp.user_id AS userId FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id
-          WHERE b.space_id = ? AND b.status = 'confirmed' AND b.date >= date('now', 'localtime');`, [id],
+        `SELECT DISTINCT bp.user_id AS userId FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id JOIN availabilities a ON a.id=b.availability_id
+          WHERE b.space_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.start_time > ?;`, [id,romeDateTime()],
       );
       const createdAt = new Date().toISOString();
       for (const participant of participants) await db.run(
         `INSERT INTO notifications (user_id, type, title, message, created_at)
          VALUES (?, 'space_unavailable', 'Prenotazione cancellata', 'Una prenotazione è stata cancellata perché lo spazio non è disponibile.', ?);`, [participant.userId, createdAt],
       );
-      await db.run("DELETE FROM bookings WHERE space_id = ? AND status = 'confirmed' AND date >= date('now', 'localtime');", [id]);
+      await db.run("DELETE FROM bookings WHERE space_id = ? AND status = 'confirmed' AND date || ' ' || (SELECT start_time FROM availabilities WHERE id=bookings.availability_id) > ?;", [id,romeDateTime()]);
     }
     await db.run(
       `UPDATE spaces SET building_id = ?, name = ?, floor = ?, type = ?, capacity = ?, accessible = ?, status = ? WHERE id = ?;`,
-      [Number(next.building_id ?? next.buildingId), next.name.trim(), Number(next.floor), next.type, capacity, Boolean(next.accessible) ? 1 : 0, next.status, id],
+      [Number(body.buildingId ?? current.building_id), next.name.trim(), Number(next.floor), next.type, capacity, Boolean(next.accessible) ? 1 : 0, next.status, id],
     );
   });
   response.json({ data: { id, name: next.name.trim(), floor: Number(next.floor), type: next.type, capacity: Number(next.capacity), accessible: Boolean(next.accessible), status: next.status } });
@@ -208,8 +261,10 @@ router.delete('/spaces/:spaceId', async (request, response) => {
   await transaction(async db => {
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [id]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
+    await prepareSpaceDeletion(db,id);
     await db.run('DELETE FROM spaces WHERE id = ?;', [id]);
   });
+  await cleanupPhotos();
   response.status(204).end();
 });
 
@@ -227,7 +282,7 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
 router.post('/spaces/:spaceId/availability', async (request, response) => {
   const spaceId = Number(request.params.spaceId);
   const body = request.body || {};
-  if (!Number.isInteger(spaceId) || spaceId < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(body.validFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !/^\d{2}:\d{2}$/.test(body.startTime) || !/^\d{2}:\d{2}$/.test(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
+  if (!Number.isInteger(spaceId) || spaceId < 1 || !validDate(body.validFrom) || !validDate(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   const created = await transaction(async db => {
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
@@ -258,7 +313,7 @@ router.get('/spaces/:spaceId/unavailability', async (request, response) => {
 router.post('/spaces/:spaceId/unavailability', async (request, response) => {
   const spaceId = Number(request.params.spaceId);
   const body = request.body || {};
-  if (!Number.isInteger(spaceId) || spaceId < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(body.date) || !/^\d{2}:\d{2}$/.test(body.startTime) || !/^\d{2}:\d{2}$/.test(body.endTime) || body.endTime <= body.startTime || typeof body.reason !== 'string' || !body.reason.trim()) throw Object.assign(new Error('Dati indisponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
+  if (!Number.isInteger(spaceId) || spaceId < 1 || !validDate(body.date) || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime || typeof body.reason !== 'string' || !body.reason.trim()) throw Object.assign(new Error('Dati indisponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   await transaction(async db => {
     const space = await db.get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
     if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
@@ -288,7 +343,7 @@ router.post('/spaces/:spaceId/unavailability', async (request, response) => {
 router.patch('/spaces/:spaceId/availability/:availabilityId', async (request, response) => {
   const spaceId = Number(request.params.spaceId); const availabilityId = Number(request.params.availabilityId);
   const body = request.body || {};
-  if (!Number.isInteger(spaceId) || !Number.isInteger(availabilityId) || !/^\d{4}-\d{2}-\d{2}$/.test(body.validFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !/^\d{2}:\d{2}$/.test(body.startTime) || !/^\d{2}:\d{2}$/.test(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
+  if (!Number.isInteger(spaceId) || !Number.isInteger(availabilityId) || !validDate(body.validFrom) || !validDate(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
   const created = await transaction(async db => {
     const current = await db.get('SELECT id FROM availabilities WHERE id = ? AND space_id = ? AND is_retired = 0;', [availabilityId, spaceId]);
     if (!current) throw Object.assign(new Error('La disponibilità richiesta non esiste.'), { status: 404, code: 'AVAILABILITY_NOT_FOUND' });
@@ -352,15 +407,25 @@ router.get('/bookings', async (request, response) => {
   const page = request.query.page === undefined ? 1 : Number(request.query.page);
   const size = request.query.size === undefined ? 20 : Number(request.query.size);
   if (!Number.isInteger(page) || page < 1 || !Number.isInteger(size) || size < 1 || size > 100) throw Object.assign(new Error('I parametri di paginazione non sono validi.'), { status: 400, code: 'VALIDATION_ERROR' });
-  const total = await getDatabase().get('SELECT COUNT(*) AS total FROM bookings;');
+  const total = await get('SELECT COUNT(*) AS total FROM bookings;');
   const rows = await all(
     `SELECT b.id, b.date, b.status, b.created_at AS createdAt, s.id AS spaceId, s.name AS spaceName,
             bu.name AS building, s.floor, a.start_time AS startTime, a.end_time AS endTime,
-            COUNT(bp.id) AS participantCount
+            COUNT(bp.id) AS participantCount,
+            MAX(CASE WHEN bp.participant_role = 'organizer' THEN u.first_name || ' ' || u.last_name END) AS organizerName
        FROM bookings b JOIN spaces s ON s.id = b.space_id JOIN buildings bu ON bu.id = s.building_id
        JOIN availabilities a ON a.id = b.availability_id LEFT JOIN booking_participants bp ON bp.booking_id = b.id
+       LEFT JOIN users u ON u.id = bp.user_id
       GROUP BY b.id ORDER BY b.date DESC, b.id DESC LIMIT ? OFFSET ?;`, [size, (page - 1) * size],
   );
+  const now = romeDateTime();
+  for (const row of rows) {
+    if (`${row.date} ${row.endTime}` <= now) row.status = 'completed';
+    row.participants = await all(`SELECT u.id,u.first_name AS firstName,u.last_name AS lastName,u.email,
+      bp.participant_role AS participantRole,bp.present,bp.checked_in_at AS checkedInAt
+      FROM booking_participants bp JOIN users u ON u.id=bp.user_id WHERE bp.booking_id=? ORDER BY bp.id`,[row.id]);
+    row.participants = row.participants.map(person => ({ ...person,present:Boolean(person.present) }));
+  }
   response.json({ data: rows, pagination: { page, size, totalElements: total.total, totalPages: Math.ceil(total.total / size) } });
 });
 
@@ -373,6 +438,14 @@ router.get('/reports', async (request, response) => {
       ORDER BY r.created_at DESC, r.id DESC;`,
   );
   response.json({ data: rows });
+});
+
+router.get('/reports/:reportId/photo', async (request, response) => {
+  const id = Number(request.params.reportId);
+  if (!Number.isSafeInteger(id) || id < 1) throw Object.assign(new Error('Identificativo segnalazione non valido.'), { status: 400 });
+  const report = await get('SELECT photo_path AS photo FROM reports WHERE id = ?;', [id]);
+  if (!report?.photo) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
+  await sendReportPhoto(report.photo, response);
 });
 
 router.patch('/reports/:reportId/status', async (request, response) => {
@@ -424,9 +497,11 @@ router.delete('/users/:userId', async (request, response) => {
     if (!user) throw Object.assign(new Error('L’utente richiesto non esiste.'), { status: 404, code: 'USER_NOT_FOUND' });
     if (user.role === 'admin') throw Object.assign(new Error('Gli amministratori non possono essere eliminati da questa funzione.'), { status: 403, code: 'FORBIDDEN' });
     const participants = await db.all(
-      `SELECT DISTINCT bp.user_id AS userId FROM booking_participants bp JOIN bookings b ON b.id = bp.booking_id
-        WHERE b.status = 'confirmed' AND b.date >= date('now', 'localtime') AND bp.user_id <> ?;`, [id],
-    );
+      `SELECT DISTINCT bp.user_id AS userId FROM booking_participants bp JOIN bookings b ON b.id=bp.booking_id
+       JOIN availabilities a ON a.id=b.availability_id
+       WHERE b.id IN (SELECT booking_id FROM booking_participants WHERE user_id=? AND participant_role='organizer')
+       AND bp.user_id<>? AND b.status='confirmed' AND b.date || ' ' || a.start_time > ?`,[id,id,romeDateTime()]);
+    await queuePhotos(db,await db.all('SELECT photo_path FROM reports WHERE user_id=? AND photo_path IS NOT NULL',[id]));
     const createdAt = new Date().toISOString();
     for (const participant of participants) await db.run(
       `INSERT INTO notifications (user_id, type, title, message, created_at)
@@ -435,6 +510,7 @@ router.delete('/users/:userId', async (request, response) => {
     await db.run('DELETE FROM bookings WHERE id IN (SELECT booking_id FROM booking_participants WHERE user_id = ? AND participant_role = \'organizer\');', [id]);
     await db.run('DELETE FROM users WHERE id = ?;', [id]);
   });
+  await cleanupPhotos();
   response.status(204).end();
 });
 

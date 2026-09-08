@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import {
@@ -27,7 +27,6 @@ import {
 } from 'ionicons/icons';
 
 import {
-  findSpace,
   Space,
 } from '../data/spaces.data';
 
@@ -44,6 +43,10 @@ import {
 export class SpaceDetailPage implements OnInit {
   space: Space;
   availableToday = false;
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private hasEntered = false;
+  error = '';
+  ionViewWillEnter(): void { if (this.hasEntered) this.ngOnInit(); this.hasEntered = true; }
   private readonly http = inject(HttpClient);
 
   constructor(
@@ -53,7 +56,7 @@ export class SpaceDetailPage implements OnInit {
     const spaceId =
       this.activatedRoute.snapshot.paramMap.get('id');
 
-    this.space = findSpace(spaceId);
+    this.space = { id: spaceId ?? '', name: '', type: '', building: '', floor: 0, seats: 0, accessible: false, image: '', services: [] };
 
     addIcons({
       accessibilityOutline,
@@ -81,8 +84,9 @@ export class SpaceDetailPage implements OnInit {
         accessible: value.accessible, image: '', services: value.services };
       const today = new Date().toISOString().slice(0, 10);
       this.http.get<{ data: Array<{ bookable: boolean }> }>(`${environment.apiUrl}/spaces/${id}/availability?date=${today}`)
-        .subscribe({ next: availability => { this.availableToday = availability.data.some(slot => slot.bookable); } });
-    }});
+        .subscribe({ next: availability => { this.availableToday = availability.data.some(slot => slot.bookable); this.changeDetector.markForCheck(); } });
+      this.changeDetector.markForCheck();
+    }, error: () => { this.error = 'Impossibile caricare lo spazio.'; this.changeDetector.markForCheck(); }});
   }
 
   openBooking(): void {

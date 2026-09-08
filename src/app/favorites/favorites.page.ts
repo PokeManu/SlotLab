@@ -1,3 +1,4 @@
+import { allPages } from '../api/all-pages';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { OnInit } from '@angular/core';
@@ -41,7 +42,7 @@ export class FavoritesPage implements OnInit {
   }
 
   private loadFavorites(): void {
-    this.http.get<{ data: Array<{ id: number; name: string; building: { name: string }; floor: number; type: string; capacity: number; status: string }> }>(
+    allPages<{ id: number; name: string; building: { name: string }; floor: number; type: string; capacity: number; status: string }>(this.http,
       `${environment.apiUrl}/favorites`,
     ).subscribe({ next: response => {
       this.favoriteSpaces = response.data.map(space => ({

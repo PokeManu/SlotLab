@@ -11,6 +11,7 @@ export type ReportStatus =
 
 export interface SpaceReport {
   id: string;
+  photo?: string | null;
   spaceId: string;
   spaceName: string;
   building: string;

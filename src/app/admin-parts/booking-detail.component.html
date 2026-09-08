@@ -69,9 +69,6 @@
                 <dt>
                   <span
                     class="booking-details__status-dot"
-                    [class.booking-details__status-dot--cancelled]="
-                      selectedBooking.status === 'Annullata'
-                    "
                   ></span>
                   <span class="sr-only">Stato</span>
                 </dt>
@@ -79,9 +76,6 @@
                   Stato:
                   <span
                     class="booking-details__status-text"
-                    [class.booking-details__status-text--cancelled]="
-                      selectedBooking.status === 'Annullata'
-                    "
                   >
                     {{ selectedBooking.status }}
                   </span>
@@ -89,30 +83,8 @@
               </div>
             </dl>
 
-            <div class="booking-details__actions">
-              <button
-                class="primary-button"
-                type="button"
-                (click)="edit.emit()"
-              >
-                <ion-icon name="create-outline"></ion-icon>
-                <span>Modifica prenotazione</span>
-              </button>
-
-              <button
-                class="danger-button"
-                type="button"
-                [disabled]="selectedBooking.status === 'Annullata'"
-                (click)="cancel.emit()"
-              >
-                <ion-icon name="trash-outline"></ion-icon>
-                <span>
-                  {{
-                    selectedBooking.status === 'Annullata'
-                      ? 'Prenotazione annullata'
-                      : 'Annulla prenotazione'
-                  }}
-                </span>
-              </button>
-            </div>
+            <h3>Partecipanti e presenze</h3>
+            <ul>@for (person of selectedBooking.people; track person.email) {
+              <li>{{ person.firstName }} {{ person.lastName }} — {{ person.present ? 'Check-in registrato' : 'Check-in non registrato' }}</li>
+            } @empty { <li>Nessun partecipante disponibile.</li> }</ul>
           </aside>

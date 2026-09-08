@@ -39,23 +39,14 @@
               <p>{{selectedReport.description}}</p>
             </section>
 
-            @if (selectedReport.attachment; as attachment){
+            @if (selectedReport.photoPath) {
               <section class="report-attachment">
-                <h3>Allegati</h3>
-                <div class="attachment-card">
-                  <span class="attachment-card__icon">
-                    <ion-icon name="image-outline"></ion-icon>
-                  </span>
-
-                  <span class="attachment-card__information">
-                    <strong>{{attachment.name}}</strong>
-                    <small>{{attachment.size}}</small>
-                  </span>
-
-                  <button type="button" class="attachment-card__menu" aria-label="Azioni allegato">
-                    <span aria-hidden="true">⋮</span>
-                  </button>
-                </div>
+                <h3>Foto allegata</h3>
+                @if (photoLoading) { <p role="status">Caricamento foto…</p> }
+                @if (photoError) { <p role="alert">{{ photoError }}</p> }
+                @if (photoUrl) {
+                  <img class="report-photo" [src]="photoUrl" alt="Foto allegata alla segnalazione">
+                }
               </section>
             }
 

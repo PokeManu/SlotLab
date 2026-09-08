@@ -1,5 +1,6 @@
 <ion-content [fullscreen]="true">
   <main class="space-detail">
+    @if (error) { <p role="alert">{{ error }}</p> }
     <header class="detail-header">
       <a
         class="back-button"

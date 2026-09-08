@@ -158,3 +158,18 @@
   color: var(--slot-text-muted);
   font-size: 12px;
 }
+
+/* Checkbox del modulo di gestione spazi. */
+app-admin-spaces {
+  .space-create-form .checkbox { cursor: pointer; }
+  .space-create-form input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; margin: 0; padding: 0; accent-color: var(--slot-primary); cursor: pointer; }
+  .space-create-form input[type="checkbox"]:focus-visible { outline: 2px solid var(--slot-primary); outline-offset: 3px; }
+}
+
+app-admin-spaces {
+  .space-create-form { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 12px; align-items: end; margin: 24px 0; padding: 18px; border: 1px solid var(--slot-border); border-radius: 13px; background: #14243b; }
+  .space-create-form label { display: grid; gap: 6px; color: var(--slot-text-muted); font-size: 14px; }
+  .space-create-form input:not([type="checkbox"]), .space-create-form select { min-height: 40px; padding: 0 10px; border: 1px solid var(--slot-border); border-radius: 8px; background: #111f33; color: var(--slot-text); font: inherit; }
+  .space-create-form .checkbox { display: flex; align-items: center; gap: 8px; min-height: 40px; }
+  .space-create-form button { min-height: 40px; border: 0; border-radius: 8px; background: var(--slot-primary); color: white; cursor: pointer; }
+}

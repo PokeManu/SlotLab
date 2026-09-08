@@ -40,6 +40,13 @@
 
   <section class="booking-card time-section">
     <h2>Fascia oraria</h2>
+    @if (loadingAvailability) {
+      <p role="status">Caricamento fasce orarie…</p>
+    } @else if (availabilityError) {
+      <p role="alert">{{ availabilityError }}</p>
+    } @else if (!timeSlots.length) {
+      <p role="status">Nessuna fascia prenotabile per questa data. Verifica il giorno scelto: le fasce devono essere attive e iniziare con almeno un’ora di anticipo.</p>
+    }
     <div class="time-slots">
       @for (time of timeSlots; track time.id){
         <button
@@ -58,30 +65,7 @@
       <span>Partecipanti</span>
     </div>
 
-    <div class="counter">
-      <button type="button" aria-label="Diminuisci partecipanti" [disabled]="participants === 1" (click)="decreaseParticipants()">
-        <ion-icon name="remove-outline"></ion-icon>
-      </button>
-      <strong>{{participants}}</strong>
-      <button type="button" aria-label="Aumenta partecipanti" [disabled]="participants === space.seats" (click)="increaseParticipants()">
-        <ion-icon name="add-outline"></ion-icon>
-      </button>
-    </div>
-  </section>
-
-  <section class="booking-card field-row">
-    <ion-icon class="field-icon" name="desktop-outline"></ion-icon>
-    <label class="field-content">
-      <span class="field-label">Risorsa (opzionale)</span>
-      <select [value]="selectedResource" (change)="changeResource($event)">
-        <option value="Nessuna">Nessuna</option>
-        <option value="Proiettore">Proiettore</option>
-        <option value="Lavagna interattiva">Lavagna interattiva</option>
-        <option value="Computer">Computer</option>
-      </select>
-    </label>
-
-    <ion-icon class="field-arrow" name="chevron-down-outline"></ion-icon>
+    <p>{{ participants }} posti nominativi, organizzatore incluso.</p>
   </section>
 
   <section class="booking-card duration">
@@ -89,10 +73,10 @@
       <ion-icon name="time-outline"></ion-icon>
       <span>Durata</span>
     </div>
-    <strong>2 ore</strong>
+    <strong>{{ durationLabel }}</strong>
   </section>
 
   @if (errorMessage) { <p class="booking-error" role="alert">{{ errorMessage }}</p> }
-  <button class="primary-button" type="button" [disabled]="submitting" (click)="confirmBooking()">{{ submitting ? 'Invio in corso…' : 'Conferma prenotazione' }}</button>
+  <button class="primary-button" type="button" [disabled]="submitting || !selectedAvailabilityId || loadingAvailability" (click)="confirmBooking()">{{ submitting ? 'Invio in corso…' : 'Conferma prenotazione' }}</button>
  </main>
 </ion-content>

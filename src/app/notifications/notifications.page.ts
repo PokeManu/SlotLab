@@ -1,3 +1,4 @@
+import { allPages } from '../api/all-pages';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
@@ -67,7 +68,7 @@ export class NotificationsPage implements OnInit{
 
    private loadNotifications(): void {
     this.loading = true;
-    this.http.get<{ data: Array<{ id: number; type: string; title: string; message: string; createdAt: string; read: boolean }> }>(
+    allPages<{ id: number; type: string; title: string; message: string; createdAt: string; read: boolean }>(this.http,
       `${environment.apiUrl}/notifications`,
     ).pipe(finalize(() => { this.loading = false; })).subscribe({
       next: response => {

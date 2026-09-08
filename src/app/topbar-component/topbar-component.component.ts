@@ -7,7 +7,7 @@ import { addIcons } from 'ionicons';
 
 import {
   calendarClearOutline,
-  notificationsOutline,
+  notificationsOutline, megaphoneOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -26,7 +26,7 @@ export class TopbarComponent {
   constructor() {
     addIcons({
       calendarClearOutline,
-      notificationsOutline,
+      notificationsOutline, megaphoneOutline,
     });
   }
 }

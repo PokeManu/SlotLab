@@ -34,10 +34,10 @@ export class ReportsPage implements OnInit {
   }
 
   private loadReports(): void {
-    this.http.get<{ data: Array<{ id: number; spaceId: number; spaceName: string; category: string; description: string; createdAt: string; status: string }> }>(`${environment.apiUrl}/reports`)
+    this.http.get<{ data: Array<{ id: number; spaceId: number; spaceName: string; category: string; description: string; createdAt: string; photo?: string | null; status: string }> }>(`${environment.apiUrl}/reports`)
       .subscribe({ next: response => {
         this.reports = response.data.map(report => ({
-          id: String(report.id), spaceId: String(report.spaceId), spaceName: report.spaceName, building: '', floor: 0,
+          id: String(report.id), photo: report.photo, spaceId: String(report.spaceId), spaceName: report.spaceName, building: '', floor: 0,
           category: report.category === 'technical' ? 'equipment' : report.category as SpaceReport['category'],
           description: report.description, dateLabel: new Date(report.createdAt).toLocaleDateString('it-IT'),
           status: report.status === 'open' ? 'submitted' : report.status === 'in_progress' ? 'in-progress' : 'resolved',

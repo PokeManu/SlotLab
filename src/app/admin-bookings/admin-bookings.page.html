@@ -6,17 +6,9 @@
         <header class="page-header">
           <h1>Gestione prenotazioni</h1>
 
-          <button
-            class="primary-button page-header__button"
-            type="button"
-            (click)="createBooking()"
-          >
-            <ion-icon name="add-outline"></ion-icon>
-            <span>Nuova prenotazione</span>
-          </button>
         </header>
 
-        <app-booking-filters [(searchTerm)]="searchTerm" [(selectedDate)]="selectedDate" [(selectedSpace)]="selectedSpace" [(selectedStatus)]="selectedStatus" [availableSpaces]="availableSpaces" (changed)="applyFilters()"></app-booking-filters>
+        <app-booking-filters [(searchTerm)]="searchTerm" [(selectedDate)]="selectedDate" [(selectedSpace)]="selectedSpace" [(selectedStatus)]="selectedStatus" [availableSpaces]="availableSpaces" [availableDates]="availableDates" (changed)="applyFilters()"></app-booking-filters>
 
         <div class="booking-workspace">
           <section class="booking-panel">
@@ -62,7 +54,7 @@
                     <tr
                       tabindex="0"
                       [class.booking-table__row--selected]="
-                        selectedBooking.code === booking.code
+                        selectedBooking?.code === booking.code
                       "
                       (click)="selectBooking(booking)"
                       (keydown.enter)="selectBooking(booking)"
@@ -107,42 +99,6 @@
                           <ion-icon name="eye-outline"></ion-icon>
                         </button>
 
-                        <div class="row-menu">
-                          <button
-                            class="icon-button"
-                            type="button"
-                            aria-label="Apri azioni prenotazione"
-                            [attr.aria-expanded]="
-                              openedMenuCode === booking.code
-                            "
-                            (click)="
-                              toggleActions($event, booking.code)
-                            "
-                          >
-                            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-                          </button>
-
-                          @if (openedMenuCode === booking.code) {
-                            <div class="row-menu__popover">
-                              <button
-                                type="button"
-                                (click)="editBooking($event, booking)">
-                                <ion-icon name="create-outline"></ion-icon>
-                                Modifica
-                              </button>
-
-                              @if (booking.status !== 'Annullata') {
-                                <button
-                                  class="row-menu__danger"
-                                  type="button"
-                                  (click)="cancelBooking($event, booking)">
-                                  <ion-icon name="trash-outline"></ion-icon>
-                                  Annulla
-                                </button>
-                              }
-                            </div>
-                          }
-                        </div>
                       </td>
                     </tr>
                   } @empty {
@@ -151,8 +107,11 @@
                         class="booking-table__empty"
                         colspan="6"
                       >
-                        Nessuna prenotazione corrisponde ai filtri
-                        selezionati.
+                        @if (loading) { Caricamento prenotazioni… }
+                        @else if (errorMessage) {
+                          <p role="alert">{{ errorMessage }}</p>
+                          <button type="button" class="clear-filters" (click)="loadBookings()">Riprova</button>
+                        } @else { Nessuna prenotazione corrisponde ai filtri selezionati. }
                       </td>
                     </tr>
                   }
@@ -208,7 +167,9 @@
             </footer>
           </section>
 
-          <app-booking-detail [selectedBooking]="selectedBooking" (edit)="editSelectedBooking()" (cancel)="cancelSelectedBooking()"></app-booking-detail>
+          @if (selectedBooking; as booking) {
+            <app-booking-detail [selectedBooking]="booking"></app-booking-detail>
+          }
         </div>
       </main>
     </div>

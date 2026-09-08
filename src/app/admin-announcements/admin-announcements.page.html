@@ -1,0 +1,18 @@
+<ion-content [fullscreen]="true">
+  <div class="admin-shell">
+    <app-admin-sidebar></app-admin-sidebar>
+    <main class="announcements-page">
+      <h1>Avvisi globali</h1>
+      <p class="intro">Pubblica un avviso nelle notifiche di tutti gli utenti attualmente registrati. Gli amministratori non lo riceveranno.</p>
+      <form (ngSubmit)="publish()">
+        <label for="announcement-title">Titolo</label>
+        <input id="announcement-title" name="title" [(ngModel)]="title" required [disabled]="sending()">
+        <label for="announcement-message">Messaggio</label>
+        <textarea id="announcement-message" name="message" [(ngModel)]="message" rows="6" required [disabled]="sending()"></textarea>
+        <button type="submit" [disabled]="sending()">{{ sending() ? 'Pubblicazione in corso…' : 'Pubblica avviso' }}</button>
+      </form>
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      @if (result()) { <p role="status">{{ result() }}</p> }
+    </main>
+  </div>
+</ion-content>

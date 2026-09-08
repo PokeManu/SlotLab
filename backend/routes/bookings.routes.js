@@ -1,3 +1,4 @@
+const { occupiedSeats } = require('../db/occupied-seats');
 const crypto = require('node:crypto');
 const express = require('express');
 const { requireAuth, requireRole } = require('../middleware/auth');
@@ -65,7 +66,7 @@ async function bookingView(bookingId, userId, detailed = false) {
   );
   if (!booking) throw error(404, 'BOOKING_NOT_FOUND', 'La prenotazione richiesta non esiste.');
   const participants = await db.all(
-    `SELECT u.id, u.first_name AS firstName, u.last_name AS lastName, u.email,
+    `SELECT u.id, bp.id AS participantId, u.first_name AS firstName, u.last_name AS lastName, u.email,
             bp.participant_role AS participantRole, bp.present, bp.checked_in_at AS checkedInAt
        FROM booking_participants bp JOIN users u ON u.id = bp.user_id
       WHERE bp.booking_id = ? ORDER BY bp.participant_role DESC, u.last_name, u.first_name;`, [bookingId],
@@ -83,16 +84,17 @@ router.get('/', async (request, response) => {
     throw error(400, 'VALIDATION_ERROR', 'I parametri di paginazione non sono validi.');
   }
   const db = queries(getDatabase());
-  const today = localNow().date;
+  const now = localNow();
+  const endAfter = `${now.date} ${now.time}`;
   const total = await db.get(
-    `SELECT COUNT(*) AS count FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-      WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date >= ?;`, [request.user.id, today],
+    `SELECT COUNT(*) AS count FROM bookings b JOIN availabilities a ON a.id=b.availability_id JOIN booking_participants bp ON bp.booking_id = b.id
+      WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.end_time > ?;`, [request.user.id, endAfter],
   );
   const rows = await db.all(
-    `SELECT b.id FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-      WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date >= ?
+    `SELECT b.id FROM bookings b JOIN availabilities a ON a.id=b.availability_id JOIN booking_participants bp ON bp.booking_id = b.id
+      WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date || ' ' || a.end_time > ?
       ORDER BY b.date ASC, b.id ASC LIMIT ? OFFSET ?;`,
-    [request.user.id, today, size, (page - 1) * size],
+    [request.user.id, endAfter, size, (page - 1) * size],
   );
   const data = [];
   for (const row of rows) data.push(await bookingView(row.id, request.user.id, false));
@@ -147,10 +149,11 @@ router.post('/:bookingId/participants', async (request, response) => {
         WHERE bp.user_id = ? AND b.status = 'confirmed' AND b.date >= ?;`, [user.id, localNow().date],
     );
     if (limit.count >= 5) throw error(409, 'BOOKING_LIMIT_REACHED', 'È stato raggiunto il limite di prenotazioni.');
-    const count = await db.get('SELECT COUNT(*) AS count FROM booking_participants WHERE booking_id = ?;', [bookingId]);
+    const occupied = await occupiedSeats(db, booking.spaceId, booking.date, booking.startTime, booking.endTime);
     const space = await db.get('SELECT capacity FROM spaces WHERE id = ?;', [booking.spaceId]);
-    if (count.count >= space.capacity) throw error(409, 'INSUFFICIENT_CAPACITY', 'I posti disponibili non sono sufficienti.');
+    if (occupied >= space.capacity) throw error(409, 'INSUFFICIENT_CAPACITY', 'I posti disponibili non sono sufficienti.');
     await db.run('INSERT INTO booking_participants (booking_id, user_id, participant_role) VALUES (?, ?, \'participant\');', [bookingId, user.id]);
+    await db.run("INSERT INTO notifications(user_id,type,title,message,created_at) VALUES(?,'participant_added','Aggiunto a una prenotazione',?,?)", [user.id, `Sei stato aggiunto alla prenotazione ${bookingId}.`, new Date().toISOString()]);
   });
   response.status(201).json({ data: { bookingId, email } });
 });
@@ -176,6 +179,8 @@ router.delete('/:bookingId/participants/:participantId', async (request, respons
       throw error(403, 'FORBIDDEN', 'Non puoi rimuovere questo partecipante.');
     }
     await db.run('DELETE FROM booking_participants WHERE id = ?;', [participantId]);
+    const recipient = request.user.id === target.userId ? organizer.userId : target.userId;
+    await db.run("INSERT INTO notifications(user_id,type,title,message,created_at) VALUES(?,'participant_removed','Partecipazione rimossa',?,?)", [recipient, `È stata rimossa una partecipazione dalla prenotazione ${bookingId}.`, new Date().toISOString()]);
   });
   response.status(204).end();
 });
@@ -208,7 +213,7 @@ router.post('/', async (request, response) => {
   const spaceId = id(body.spaceId, 'INVALID_SPACE_ID');
   const availabilityId = id(body.availabilityId, 'INVALID_AVAILABILITY_ID');
   const date = dateInfo(body.date);
-  if (!Array.isArray(body.participantEmails) || body.participantEmails.length > 4) {
+  if (!Array.isArray(body.participantEmails)) {
     throw error(400, 'VALIDATION_ERROR', 'L’elenco dei partecipanti non è valido.');
   }
   let participantEmails;
@@ -273,12 +278,8 @@ router.post('/', async (request, response) => {
       );
       if (overlap) throw error(409, 'BOOKING_OVERLAP', 'Il partecipante ha una prenotazione sovrapposta.');
     }
-    const occupied = await db.get(
-      `SELECT COUNT(*) AS count FROM bookings b JOIN booking_participants bp ON bp.booking_id = b.id
-        WHERE b.space_id = ? AND b.availability_id = ? AND b.date = ? AND b.status = 'confirmed';`,
-      [spaceId, availabilityId, date.value],
-    );
-    if (occupied.count + userIds.length > slot.capacity) throw error(409, 'INSUFFICIENT_CAPACITY', 'I posti disponibili non sono sufficienti.');
+    const occupied = await occupiedSeats(db, spaceId, date.value, slot.startTime, slot.endTime);
+    if (occupied + userIds.length > slot.capacity) throw error(409, 'INSUFFICIENT_CAPACITY', 'I posti disponibili non sono sufficienti.');
     const createdAt = new Date().toISOString();
     const booking = await db.run(
       `INSERT INTO bookings (space_id, availability_id, date, status, created_at) VALUES (?, ?, ?, 'confirmed', ?);`,
@@ -287,6 +288,11 @@ router.post('/', async (request, response) => {
     await db.run('INSERT INTO booking_participants (booking_id, user_id, participant_role) VALUES (?, ?, ?);', [booking.lastId, userIds[0], 'organizer']);
     for (const userId of userIds.slice(1)) await db.run(
       'INSERT INTO booking_participants (booking_id, user_id, participant_role) VALUES (?, ?, ?);', [booking.lastId, userId, 'participant'],
+    );
+    for (const userId of userIds) await db.run(
+      'INSERT INTO notifications(user_id,type,title,message,created_at) VALUES(?,?,?,?,?)',
+      [userId, userId === request.user.id ? 'booking_created' : 'participant_added',
+        'Prenotazione confermata', `Partecipi alla prenotazione ${booking.lastId}.`, createdAt],
     );
     await db.run(
       'INSERT INTO booking_requests (user_id, idempotency_key, request_hash, booking_id, created_at) VALUES (?, ?, ?, ?, ?);',

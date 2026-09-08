@@ -11,6 +11,7 @@ export class BookingFiltersComponent {
   @Input() selectedDate = '';
   @Input() selectedSpace = '';
   @Input() selectedStatus = '';
+  @Input() availableDates: string[] = [];
   @Input() availableSpaces: string[] = [];
   @Output() searchTermChange = new EventEmitter<string>();
   @Output() selectedDateChange = new EventEmitter<string>();

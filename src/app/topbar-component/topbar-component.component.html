@@ -1,4 +1,4 @@
-<header class="topbar">
+<header class="topbar" [class.topbar--admin]="auth.isAdmin()">
   <div class="topbar__brand">
     <span class="topbar__logo">
       <ion-icon name="calendar-clear-outline"></ion-icon>

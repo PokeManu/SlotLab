@@ -19,7 +19,6 @@ import {
 } from 'ionicons/icons';
 
 import {
-  findSpace,
   Space,
 } from '../data/spaces.data';
 import { ReportCategory } from '../models/space-report.model';
@@ -54,7 +53,7 @@ export class ReportCreatePage implements OnInit {
     const spaceId = this.activatedRoute.snapshot.paramMap.get('spaceId');
     this.spaceId = spaceId;
 
-    this.space = findSpace(spaceId);
+    this.space = { id: spaceId ?? '', name: '', type: '', building: '', floor: 0, seats: 0, accessible: false, image: '', services: [] };
 
     addIcons({
       arrowBackOutline,

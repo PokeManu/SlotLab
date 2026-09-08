@@ -19,6 +19,8 @@
           <label>Tipologia<select name="type" [(ngModel)]="form.type"><option value="study_room">Aula studio</option><option value="laboratory">Laboratorio</option><option value="meeting_room">Sala riunioni</option></select></label>
           <label>Posti<input name="capacity" type="number" min="1" [(ngModel)]="form.capacity" required></label>
           <label class="checkbox"><input name="accessible" type="checkbox" [(ngModel)]="form.accessible"> Accessibile</label>
+          <label>Stato<select name="status" [(ngModel)]="form.status"><option value="active">Attivo</option><option value="maintenance">Manutenzione</option><option value="deactivated">Disattivato</option></select></label>
+          @for (service of services; track service.code) { <label class="checkbox"><input type="checkbox" [checked]="form.serviceCodes.includes(service.code)" (change)="toggleService(service.code)">{{ service.label }}</label> }
           <button type="submit">{{ editingId === null ? 'Aggiungi spazio' : 'Salva modifiche' }}</button>
           @if (createError) { <p class="create-error" role="alert">{{ createError }}</p> }
         </form>
@@ -27,20 +29,9 @@
       <app-space-search (searchChange)="searchSpaces($event)"></app-space-search>
 
       <section class="space-filters" aria-label="Filtri degli spazi">
-        <button type="button" class="filter-button">
-          <span>Edificio</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-
-        <button type="button" class="filter-button">
-          <span>Tipologia</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-
-        <button type="button" class="filter-button">
-          <span>Stato</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
+        <select class="filter-button" aria-label="Edificio" [(ngModel)]="filterBuilding" (ngModelChange)="currentPage=1"><option value="">Tutti gli edifici</option>@for (building of buildings; track building.id) { <option [value]="building.name">{{ building.name }}</option> }</select>
+        <select class="filter-button" aria-label="Tipologia" [(ngModel)]="filterType" (ngModelChange)="currentPage=1"><option value="">Tutte le tipologie</option><option value="study_room">Aula studio</option><option value="laboratory">Laboratorio</option><option value="meeting_room">Sala riunioni</option></select>
+        <select class="filter-button" aria-label="Stato" [(ngModel)]="filterStatus" (ngModelChange)="currentPage=1"><option value="">Tutti gli stati</option><option>Disponibile</option><option>Manutenzione</option><option>Disattivato</option></select>
       </section>
 
       @if (loadError) { <p class="create-error" role="alert">{{ loadError }}</p> }
@@ -54,7 +45,7 @@
         </div>
 
         <div class="spaces-table__body">
-          @for (space of spaces; track space.id){
+          @for (space of visibleSpaces; track space.id){
             <article class="space-row">
               <div class="space-row__iname">
                 <span class="space-row__icon">
@@ -74,6 +65,7 @@
               </span>
               
               <div class="space-row__actions">
+                <button type="button" class="icon-button" [attr.aria-label]="'Mostra QR di ' + space.name" (click)="qrSpaceId = space.id">QR</button>
                 <button type="button" class="icon-button" [attr.aria-label]="'Modifica ' + space.name" (click)="editSpace(space)">
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
@@ -87,21 +79,22 @@
         </div>
 
       <footer class="spaces-table__footer">
-        <span>{{ spaces.length }} spazi visualizzati</span>
+        <span>{{ filteredSpaces.length }} spazi trovati</span>
 
         <nav class="pagination" aria-label="Paginazione degli spazi">
-          <button type="button" class="pagination__button" aria-label="Pagina precedente" disabled>
+          <button type="button" class="pagination__button" aria-label="Pagina precedente" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
 
-          <button type="button" class="pagination__button pagination__button--active" aria-label="Pagina 1" aria-current="page">1</button>
+          <button type="button" class="pagination__button pagination__button--active" aria-label="Pagina corrente" aria-current="page">{{ currentPage }}</button>
 
-          <button type="button" class="pagination__button" aria-label="Pagina successiva" disabled>
+          <button type="button" class="pagination__button" aria-label="Pagina successiva" [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </button>
         </nav>
       </footer>
      </section>
-    </main>
+    @if (qrSpaceId) { <section aria-label="QR dello spazio"><app-space-qr [spaceId]="qrSpaceId"></app-space-qr><button type="button" (click)="qrSpaceId = null">Chiudi QR</button></section> }
+</main>
   </div>
 </ion-content>

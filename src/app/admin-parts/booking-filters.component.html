@@ -21,8 +21,7 @@
                 [ngModel]="selectedDate" (ngModelChange)="selectedDateChange.emit($event); changed.emit()"
               >
                 <option value="">Data</option>
-                <option value="2026-08-31">Oggi</option>
-                <option value="2026-09-01">Domani</option>
+                @for (date of availableDates; track date) { <option [value]="date">{{ date.split('-').reverse().join('/') }}</option> }
               </select>
 
               <ion-icon name="chevron-down-outline"></ion-icon>
@@ -52,8 +51,7 @@
               >
                 <option value="">Stato</option>
                 <option value="Confermata">Confermata</option>
-                <option value="Check-in">Check-in</option>
-                <option value="Annullata">Annullata</option>
+                <option value="Completata">Completata</option>
               </select>
 
               <ion-icon name="chevron-down-outline"></ion-icon>
