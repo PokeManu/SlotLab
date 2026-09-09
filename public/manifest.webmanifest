@@ -1,9 +1,11 @@
 {
-  "name": "app",
-  "short_name": "app",
+  "name": "SlotLab",
+  "short_name": "SlotLab",
+  "theme_color": "#0b1f3a",
+  "background_color": "#071628",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "scope": "/",
+  "start_url": "/",
   "icons": [
     {
       "src": "icons/icon-72x72.png",
