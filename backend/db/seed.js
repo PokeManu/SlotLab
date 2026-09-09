@@ -13,13 +13,29 @@ const services = [
 ];
 
 const catalog = [
+  { number: 2, name: 'Edificio 2', address: 'Viale delle Scienze, Edificio 2, Palermo', latitude: 38.1068248, longitude: 13.352513, spaces: [] },
+  { number: 3, name: 'Edificio 3', address: 'Viale delle Scienze, Edificio 3, Palermo', latitude: 38.107172, longitude: 13.3530283, spaces: [] },
+  { number: 4, name: 'Edificio 4', address: 'Viale delle Scienze, Edificio 4, Palermo', latitude: 38.1078889, longitude: 13.3527173, spaces: [] },
+  { number: 5, name: 'Edificio 5', address: 'Viale delle Scienze, Edificio 5, Palermo', latitude: 38.1075549, longitude: 13.3512888, spaces: [] },
   { number: 6, name: 'Edificio 6', address: 'Viale delle Scienze, Edificio 6, Palermo', latitude: 38.1059492, longitude: 13.3504286, spaces: [
     { name: 'Aula Studio A1', floor: 2, type: 'study_room', capacity: 24, accessible: 1, services: ['wifi', 'power_outlets'] },
     { name: 'Sala Riunioni B', floor: 1, type: 'meeting_room', capacity: 12, accessible: 1, services: ['wifi', 'projector'] },
   ] },
+  { number: 7, name: 'Edificio 7', address: 'Viale delle Scienze, Edificio 7, Palermo', latitude: 38.1050554, longitude: 13.3488747, spaces: [] },
+  { number: 8, name: 'Edificio 8', address: 'Viale delle Scienze, Edificio 8, Palermo', latitude: 38.1051682, longitude: 13.3475838, spaces: [] },
   { number: 9, name: 'Edificio 9', address: 'Viale delle Scienze, Edificio 9, Palermo', latitude: 38.1036268, longitude: 13.3457991, spaces: [
     { name: 'Laboratorio Reti', floor: 1, type: 'laboratory', capacity: 18, accessible: 1, services: ['wifi', 'computer', 'projector'] },
   ] },
+  { number: 10, name: 'Edificio 10', address: 'Viale delle Scienze, Edificio 10, Palermo', latitude: 38.103955, longitude: 13.345634, spaces: [] },
+  { number: 11, name: 'Edificio 11', address: 'Viale delle Scienze, Edificio 11, Palermo', latitude: 38.1029944, longitude: 13.3453127, spaces: [] },
+  { number: 12, name: 'Edificio 12', address: 'Viale delle Scienze, Edificio 12, Palermo', latitude: 38.1025434, longitude: 13.3460809, spaces: [] },
+  { number: 13, name: 'Edificio 13', address: 'Viale delle Scienze, Edificio 13, Palermo', latitude: 38.102846, longitude: 13.3483073, spaces: [] },
+  { number: 14, name: 'Edificio 14', address: 'Viale delle Scienze, Edificio 14, Palermo', latitude: 38.1017179, longitude: 13.3471544, spaces: [] },
+  { number: 15, name: 'Edificio 15', address: 'Viale delle Scienze, Edificio 15, Palermo', latitude: 38.1019604, longitude: 13.3449954, spaces: [] },
+  { number: 16, name: 'Edificio 16', address: 'Viale delle Scienze, Edificio 16, Palermo', latitude: 38.1004189, longitude: 13.3449737, spaces: [] },
+  { number: 17, name: 'Edificio 17', address: 'Viale delle Scienze, Edificio 17, Palermo', latitude: 38.0993237, longitude: 13.3443788, spaces: [] },
+  { number: 18, name: 'Edificio 18', address: 'Viale delle Scienze, Edificio 18, Palermo', latitude: 38.0985535, longitude: 13.3436033, spaces: [] },
+  { number: 19, name: 'Edificio 19', address: 'Viale delle Scienze, Edificio 19, Palermo', latitude: 38.1041405, longitude: 13.3496401, spaces: [] },
 ];
 
 function execute(database, sql) {
