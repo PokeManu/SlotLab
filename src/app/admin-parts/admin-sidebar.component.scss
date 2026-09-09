@@ -204,11 +204,7 @@
     }
   }
 
-.logout-button { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 1px solid var(--slot-border); border-radius: 9px; background: var(--slot-surface); color: var(--slot-text); font: inherit; font-size: 14px; cursor: pointer; }
-.logout-button:hover { background: var(--slot-hover); }
-.logout-button:disabled { cursor: wait; opacity: .6; }
-
-.logout-button:focus-visible,.administrator__avatar:focus-visible,.nav-item:focus-visible { outline: 2px solid var(--slot-primary); outline-offset: 3px; }
+.administrator__avatar:focus-visible,.nav-item:focus-visible { outline: 2px solid var(--slot-primary); outline-offset: 3px; }
 
 @media (max-width: 900px) {
   .administrator__information { display: none; }

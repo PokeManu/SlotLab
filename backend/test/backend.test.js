@@ -18,6 +18,7 @@ process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString('hex');
 const { connectDatabase, getDatabase } = require('../db/db');
 const { migrate } = require('../db/migrate');
 const { seed } = require('../db/seed');
+const { selectedDatabasePath } = require('../db/seed-demo');
 const { verifyPassword } = require('../security/password');
 const { startServer, stopServer } = require('../server');
 
@@ -126,7 +127,7 @@ test('le migrazioni sono ripetibili', async () => {
   const firstRun = await migrate({ databasePath });
   const secondRun = await migrate({ databasePath });
 
-  assert.deepEqual(firstRun.appliedNow, [1, 2, 3, 4, 5]);
+  assert.deepEqual(firstRun.appliedNow, [1, 2, 3, 4, 5, 6]);
   assert.deepEqual(secondRun.appliedNow, []);
 });
 
@@ -179,7 +180,7 @@ test('la migrazione 2 conserva dati, vincoli e ID gia utilizzati', async (t) => 
     `);
     await run(database, keepRows ? 'DELETE FROM slot_occurrences WHERE id = 50;' : 'DELETE FROM slot_occurrences;');
     const originalRows = await all(database, 'SELECT * FROM slot_occurrences ORDER BY id;');
-    assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5]);
+    assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5, 6]);
     assert.deepEqual(await all(database, 'SELECT * FROM slot_occurrences ORDER BY id;'), originalRows);
     assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, []);
     const insert = `INSERT INTO slot_occurrences (space_id, date, start_time, end_time)
@@ -206,7 +207,7 @@ test('dati storici incompleti annullano la migrazione 2 senza perdere dati', asy
   assert.deepEqual(await all(database, 'SELECT version FROM schema_migrations;'), [{ version: 1 }]);
   assert.equal(await get(database, "SELECT name FROM sqlite_master WHERE name = 'slot_occurrences_new';"), undefined);
   await run(database, 'UPDATE slot_occurrences SET offered_capacity = 20 WHERE id = 2;');
-  assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5]);
+  assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5, 6]);
 });
 
 test('la connessione condivisa usa lo schema completo', async () => {
@@ -227,10 +228,15 @@ test('la connessione condivisa usa lo schema completo', async () => {
     firstConnection,
     'PRAGMA foreign_key_check;',
   );
+  const queryIndexes = await get(
+    firstConnection,
+    "SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'index' AND name LIKE 'idx_%';",
+  );
 
   assert.equal(firstConnection, secondConnection);
   assert.equal(foreignKeys.foreign_keys, 1);
   assert.equal(applicationTables.length, 16);
+  assert.equal(queryIndexes.count, 15);
   assert.deepEqual(foreignKeyErrors, []);
 });
 
@@ -245,6 +251,19 @@ test('i dati iniziali non producono duplicati', async () => {
     database,
     'SELECT COUNT(*) AS count FROM services;',
   );
+  const buildingCount = await get(database, 'SELECT COUNT(*) AS count FROM buildings;');
+  const spaceCount = await get(database, 'SELECT COUNT(*) AS count FROM spaces;');
+  const availabilityCount = await get(database, 'SELECT COUNT(*) AS count FROM availabilities WHERE is_retired = 0;');
+  const spaceServiceCount = await get(database, 'SELECT COUNT(*) AS count FROM space_services;');
+  const buildingNumbers = await all(database, 'SELECT number FROM buildings ORDER BY number;');
+  const roomServices = await all(database, `
+    SELECT sv.code
+      FROM space_services ss
+      JOIN services sv ON sv.id = ss.service_id
+      JOIN spaces sp ON sp.id = ss.space_id
+     WHERE sp.name = 'Sala Riunioni B'
+     ORDER BY sv.code;
+  `);
   const admin = await get(
     database,
     `
@@ -261,6 +280,12 @@ test('i dati iniziali non producono duplicati', async () => {
   assert.equal(firstRun.adminCreated, true);
   assert.equal(secondRun.adminCreated, false);
   assert.equal(serviceCount.count, 5);
+  assert.equal(buildingCount.count, 18);
+  assert.equal(spaceCount.count, 3);
+  assert.equal(availabilityCount.count, 15);
+  assert.equal(spaceServiceCount.count, 6);
+  assert.deepEqual(buildingNumbers.map(building => building.number), Array.from({ length: 18 }, (_, index) => index + 2));
+  assert.deepEqual(roomServices, [{ code: 'wifi' }]);
   assert.equal(adminCount.count, 1);
   assert.equal(admin.email, 'admin@example.test');
   assert.equal(admin.role, 'admin');
@@ -271,6 +296,22 @@ test('i dati iniziali non producono duplicati', async () => {
   assert.equal(admin.password_hash.includes(testAdmin.password), false);
   assert.equal(await verifyPassword(testAdmin.password, admin.password_hash), true);
   assert.equal(await verifyPassword('DifferentPassword2026!', admin.password_hash), false);
+});
+
+test('il seed demo richiede un percorso distinto dal database operativo', () => {
+  const operational = path.join(testDirectory, 'operational.sqlite');
+  assert.throws(() => selectedDatabasePath({}), /SLOTLAB_DEMO_DB_PATH/);
+  assert.throws(
+    () => selectedDatabasePath({ SLOTLAB_DB_PATH: operational, SLOTLAB_DEMO_DB_PATH: operational }),
+    /non può modificare il database operativo/,
+  );
+  assert.equal(
+    selectedDatabasePath({
+      SLOTLAB_DB_PATH: operational,
+      SLOTLAB_DEMO_DB_PATH: path.join(testDirectory, 'demo.sqlite'),
+    }),
+    path.join(testDirectory, 'demo.sqlite'),
+  );
 });
 
 test('il seed rifiuta password non valide', async () => {

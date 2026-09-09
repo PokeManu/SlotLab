@@ -32,6 +32,11 @@ const migrations = [
     name: 'profile_photos',
     filePath: path.join(__dirname, 'migrations', '005-profile-photos.sql'),
   },
+  {
+    version: 6,
+    name: 'query_indexes',
+    filePath: path.join(__dirname, 'migrations', '006-query-indexes.sql'),
+  },
 ];
 
 function openDatabase(databasePath) {

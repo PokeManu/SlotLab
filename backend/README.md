@@ -72,7 +72,7 @@ Il server esegue prima le migrazioni e si mette in ascolto soltanto se SQLite è
 
 `npm run dev` avvia lo stesso server con riavvio automatico tramite nodemon. Dopo aver cambiato `.env`, riavviare il processo. `npm run db:migrate` e `npm run db:seed` leggono anch'essi `.env`; non richiedono il segreto JWT per eseguire le sole operazioni sul database.
 
-Per popolare esclusivamente un database separato di prova con tre fasce giornaliere per ogni spazio e prenotazioni fittizie, usare `npm run db:seed-demo` dopo il seed principale. Il comando richiede `SLOTLAB_DB_PATH`, rifiuta il percorso `backend/db/database.sqlite`, conserva i dati non demo e può essere rieseguito senza duplicare le proprie prenotazioni.
+Per popolare esclusivamente un database separato di prova con tre fasce giornaliere per ogni spazio e prenotazioni fittizie, usare `npm run db:seed-demo` dopo il seed principale. Il comando richiede `SLOTLAB_DEMO_DB_PATH`, lo rifiuta se coincide con `SLOTLAB_DB_PATH`, conserva i dati non demo e può essere rieseguito senza duplicare le proprie prenotazioni.
 
 **Attenzione:** un avvio manuale senza `SLOTLAB_DB_PATH` usa o crea `backend/db/database.sqlite`. La suite di test non usa questo file e non carica `.env`.
 

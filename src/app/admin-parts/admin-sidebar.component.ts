@@ -15,5 +15,4 @@ export class AdminSidebarComponent {
   readonly navigationItems = adminNavigation;
   constructor() { addIcons({ barChartOutline, businessOutline, calendarOutline, checkboxOutline,
     flagOutline, gridOutline, homeOutline, megaphoneOutline, peopleOutline, timeOutline }); }
-  logout() { this.auth.logout().subscribe({ error: () => {} }); }
 }

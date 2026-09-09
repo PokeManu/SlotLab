@@ -5,9 +5,9 @@ Questa cartella contiene lo schema SQLite, il sistema di migrazione e i dati ini
 ## File
 
 - `schema.sql`: prima migrazione, con le 16 tabelle applicative.
-- `migrations/002-slot-occurrences-integrity.sql`: seconda migrazione, corregge il vincolo sui valori nulli degli snapshot consolidati.
+- `migrations/`: estensioni successive dello schema; la versione 6 aggiunge gli indici usati dalle API.
 - `migrate.js`: applica in ordine le migrazioni non ancora registrate.
-- `seed.js`: inserisce il catalogo dei servizi e crea l'amministratore tecnico.
+- `seed.js`: inserisce servizi, edifici e spazi iniziali e crea l'amministratore tecnico.
 - `db.js`: inizializza le migrazioni e mantiene la connessione condivisa usata da Express.
 - `integrity-rules.md`: separa vincoli SQLite, controlli Express e transazioni.
 - `database.sqlite`: database locale predefinito, creato soltanto quando si esegue la migrazione e ignorato da Git.
@@ -52,7 +52,7 @@ Il percorso viene risolto prima di aprire SQLite e la sua cartella viene creata 
 
 ## Inserire i dati iniziali
 
-Lo script richiede nome, cognome, email e password dell'amministratore tramite variabili d'ambiente. Dalla cartella `backend`:
+Lo script richiede nome, cognome, email e password dell'amministratore tramite variabili d'ambiente. Importa inoltre i 18 edifici e i tre spazi descritti in `src/app/data`, senza dati dimostrativi. Dalla cartella `backend`:
 
 ```bash
 export SLOTLAB_ADMIN_FIRST_NAME="Nome"
@@ -69,7 +69,11 @@ I valori nell'esempio sono segnaposto e vanno sostituiti. `read -s` evita di mos
 
 Lo script esegue automaticamente le migrazioni, inserisce i cinque servizi approvati e crea l'account con ruolo `admin`. Può essere eseguito nuovamente senza produrre duplicati e non cambia la password di un amministratore già presente. Se l'email indicata appartiene a un utente normale, l'operazione viene annullata.
 
-Gli edifici e gli spazi dimostrativi del frontend non vengono copiati nel database. I dati del campus saranno inseriti dopo la verifica delle fonti ufficiali UniPa, durante lo sviluppo del relativo flusso.
+Gli edifici 2–19 e i tre spazi vengono mantenuti coerenti con `src/app/data/campus-buildings.data.ts` e `src/app/data/spaces.data.ts`. I servizi non previsti dal catalogo SQL non vengono inventati o aggiunti automaticamente.
+
+## Database dimostrativo separato
+
+`npm run db:seed-demo` richiede `SLOTLAB_DEMO_DB_PATH`. Il percorso deve essere diverso da `SLOTLAB_DB_PATH`; in caso contrario il comando si interrompe prima di aprire il database. Account e prenotazioni demo non fanno parte dei dati iniziali definitivi.
 
 ## Avviare il server
 

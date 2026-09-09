@@ -22,11 +22,11 @@ const DEMO_USERS = [
 ];
 
 function selectedDatabasePath(environment = process.env) {
-  if (!environment.SLOTLAB_DB_PATH) {
-    throw new Error('SLOTLAB_DB_PATH deve indicare un database separato di prova.');
+  if (!environment.SLOTLAB_DEMO_DB_PATH) {
+    throw new Error('SLOTLAB_DEMO_DB_PATH deve indicare un database separato di prova.');
   }
-  const selected = path.resolve(environment.SLOTLAB_DB_PATH);
-  const operational = path.resolve(__dirname, 'database.sqlite');
+  const selected = path.resolve(environment.SLOTLAB_DEMO_DB_PATH);
+  const operational = path.resolve(environment.SLOTLAB_DB_PATH || path.join(__dirname, 'database.sqlite'));
   if (selected === operational) {
     throw new Error('Il seed demo non può modificare il database operativo.');
   }
@@ -157,8 +157,10 @@ async function createDemoBookings(db, spaces, users, today) {
 }
 
 async function seedDemo(options = {}) {
-  const databasePath = options.databasePath || selectedDatabasePath(options.environment);
-  if (path.resolve(databasePath) === path.resolve(__dirname, 'database.sqlite')) {
+  const environment = options.environment || process.env;
+  const databasePath = options.databasePath || selectedDatabasePath(environment);
+  const operationalPath = path.resolve(environment.SLOTLAB_DB_PATH || path.join(__dirname, 'database.sqlite'));
+  if (path.resolve(databasePath) === operationalPath) {
     throw new Error('Il seed demo non può modificare il database operativo.');
   }
   const connection = await connectDatabase({ databasePath });
