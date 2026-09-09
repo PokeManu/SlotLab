@@ -1,4 +1,5 @@
 *.sqlite
+!/initial.sqlite
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal

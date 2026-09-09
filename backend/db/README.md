@@ -11,6 +11,9 @@ Questa cartella contiene lo schema SQLite, il sistema di migrazione e i dati ini
 - `db.js`: inizializza le migrazioni e mantiene la connessione condivisa usata da Express.
 - `integrity-rules.md`: separa vincoli SQLite, controlli Express e transazioni.
 - `database.sqlite`: database locale predefinito, creato soltanto quando si esegue la migrazione e ignorato da Git.
+- `initial.sqlite`: copia iniziale condivisa in Git, con schema aggiornato, 18 edifici, 3 spazi, 5 servizi e 15 disponibilità. Non contiene account, password o sessioni.
+
+Per usare il database incluso in una nuova installazione, dalla cartella `backend` eseguire `cp -n db/initial.sqlite db/database.sqlite`, quindi configurare `.env` seguendo il README ed eseguire `npm run db:seed` per creare il proprio amministratore. La copia non deve sovrascrivere un database operativo esistente. `initial.sqlite` è una base di partenza: i dati prodotti durante l'uso restano nel database locale ignorato da Git.
 
 Il server non apre più il vecchio database relativo alla cartella di esecuzione e non crea autonomamente una tabella `users` semplificata. Usa sempre il percorso risolto dal sistema di migrazione, che per impostazione predefinita è `backend/db/database.sqlite`.
 
