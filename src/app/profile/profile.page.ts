@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { IonContent, IonIcon} from '@ionic/angular';
@@ -19,6 +19,7 @@ import { Auth } from '../auth/auth';
 import { environment } from '../../environments/environment';
 import { finalize } from 'rxjs';
 import { ThemeToggleComponent } from '../theme/theme-toggle.component';
+import { ProfilePhoto } from './profile-photo';
 interface ProfileMenuItem{
   label: string;
   icon:string;
@@ -37,15 +38,16 @@ interface ProfileMenuItem{
     ThemeToggleComponent,
   ],
 })
-export class ProfilePage implements OnInit, OnDestroy {
+export class ProfilePage implements OnInit {
 
   readonly auth = inject(Auth);
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly profilePhoto = inject(ProfilePhoto);
   readonly maximumPhotoBytes = 2 * 1024 * 1024;
   readonly acceptedPhotoTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  profilePhotoUrl = '';
+  get profilePhotoUrl() { return this.profilePhoto.url(); }
   photoError = '';
   photoSaving = false;
   get user() {
@@ -89,10 +91,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.loadProfilePhoto();
   }
 
-  ngOnDestroy(): void {
-    this.clearPhotoUrl();
-  }
-
   selectProfilePhoto(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -115,7 +113,11 @@ export class ProfilePage implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => { this.photoSaving = false; this.changeDetector.markForCheck(); }),
     ).subscribe({
-      next: () => { this.setPhotoUrl(file); this.changeDetector.markForCheck(); },
+      next: () => {
+        const userId = this.auth.user()?.id;
+        if (userId) this.profilePhoto.update(userId, file);
+        this.changeDetector.markForCheck();
+      },
       error: error => {
         this.photoError = error instanceof HttpErrorResponse && error.status === 413
           ? 'L’immagine supera il limite di 2 MB.'
@@ -132,33 +134,27 @@ export class ProfilePage implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef),
       finalize(() => { this.photoSaving = false; this.changeDetector.markForCheck(); }),
     ).subscribe({
-      next: () => { this.clearPhotoUrl(); this.changeDetector.markForCheck(); },
+      next: () => {
+        const userId = this.auth.user()?.id;
+        if (userId) this.profilePhoto.remove(userId);
+        this.changeDetector.markForCheck();
+      },
       error: () => { this.photoError = 'Non è stato possibile rimuovere l’immagine.'; },
     });
   }
 
   private loadProfilePhoto(): void {
-    this.http.get(`${environment.apiUrl}/users/me/photo`, { responseType: 'blob' }).pipe(
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+    this.profilePhoto.load(userId).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: photo => { this.setPhotoUrl(photo); this.changeDetector.markForCheck(); },
-      error: error => {
-        if (!(error instanceof HttpErrorResponse) || error.status !== 404) {
-          this.photoError = 'Non è stato possibile caricare l’immagine del profilo.';
-          this.changeDetector.markForCheck();
-        }
+      next: () => { this.changeDetector.markForCheck(); },
+      error: () => {
+        this.photoError = 'Non è stato possibile caricare l’immagine del profilo.';
+        this.changeDetector.markForCheck();
       },
     });
-  }
-
-  private setPhotoUrl(photo: Blob): void {
-    this.clearPhotoUrl();
-    this.profilePhotoUrl = URL.createObjectURL(photo);
-  }
-
-  private clearPhotoUrl(): void {
-    if (this.profilePhotoUrl) URL.revokeObjectURL(this.profilePhotoUrl);
-    this.profilePhotoUrl = '';
   }
 
   logout(): void{

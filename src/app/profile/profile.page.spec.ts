@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ProfilePage } from './profile.page';
+import { Auth } from '../auth/auth';
 
 describe('ProfilePage', () => {
   let component: ProfilePage;
@@ -19,6 +20,10 @@ describe('ProfilePage', () => {
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:profile-photo') });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     http = TestBed.inject(HttpTestingController);
+    TestBed.inject(Auth).login({ email: 'anna@example.test', password: 'Password2026!' }).subscribe();
+    http.expectOne('/api/v1/auth/login').flush({ data: { accessToken: 'test-token', user: {
+      id: 1, firstName: 'Anna', lastName: 'Rossi', email: 'anna@example.test', role: 'user',
+    } } });
     fixture = TestBed.createComponent(ProfilePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -40,8 +45,11 @@ describe('ProfilePage', () => {
     expect(request.request.method).toBe('PUT');
     expect(request.request.headers.get('Content-Type')).toBe('image/png');
     request.flush(null, { status: 204, statusText: 'No Content' });
+    fixture.detectChanges();
 
     expect(component.profilePhotoUrl).toBe('blob:profile-photo');
+    expect((fixture.nativeElement.querySelector('.topbar__avatar img') as HTMLImageElement).src)
+      .toContain('blob:profile-photo');
   });
 
   it('rifiuta nel browser formato e dimensione non consentiti', () => {

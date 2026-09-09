@@ -1,7 +1,7 @@
 import { Auth } from '../auth/auth';
 import { romeDate } from '../models/rome-date';
 import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -57,8 +57,6 @@ export class BookingPage implements OnInit, OnDestroy{
   selectedAvailabilityId: number | null = null;
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  @ViewChild('datePicker') private datePicker?: ElementRef<HTMLInputElement>;
-
   private hasEntered = false;
   private spaceRequest?: Subscription;
   private availabilityRequest?: Subscription;
@@ -128,11 +126,13 @@ export class BookingPage implements OnInit, OnDestroy{
     if (/^\d+$/.test(this.space.id)) this.loadAvailability(this.space.id);
   }
 
-  openDatePicker(): void {
-    const picker = this.datePicker?.nativeElement;
-    if (!picker) return;
-    if (typeof picker.showPicker === 'function') picker.showPicker();
-    else picker.click();
+  get selectedDateLabel(): string {
+    return new Date(`${this.selectedDate}T12:00:00Z`).toLocaleDateString('it-IT', {
+      timeZone: 'Europe/Rome',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   }
 
   private loadAvailability(spaceId: string): void {

@@ -10,6 +10,7 @@ import {
   notificationsOutline, megaphoneOutline,
 } from 'ionicons/icons';
 import { ThemeToggleComponent } from '../theme/theme-toggle.component';
+import { ProfilePhoto } from '../profile/profile-photo';
 
 @Component({
   selector: 'app-topbar',
@@ -24,11 +25,14 @@ import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 })
 export class TopbarComponent {
   readonly auth = inject(Auth);
+  readonly profilePhoto = inject(ProfilePhoto);
   readonly adminNavigation = adminNavigation;
   constructor() {
     addIcons({
       calendarClearOutline,
       notificationsOutline, megaphoneOutline,
     });
+    const userId = this.auth.user()?.id;
+    if (userId) this.profilePhoto.load(userId).subscribe({ error: () => {} });
   }
 }

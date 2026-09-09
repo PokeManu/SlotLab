@@ -89,7 +89,7 @@ describe('Route reali e destinazioni dopo accesso', () => {
     const harness = await RouterTestingHarness.create('/check-in/12');
     const registerUrl = router.createUrlTree(['/register'], { queryParams: router.parseUrl(router.url).queryParams });
     const register = await harness.navigateByUrl(router.serializeUrl(registerUrl), AccessPage);
-    register.firstName = 'Anna'; register.lastName = 'Rossi'; register.email = 'anna@example.test'; register.password = 'TestPassword2026!';
+    register.firstName = 'Anna'; register.lastName = 'Rossi'; register.email = 'anna@example.test'; register.password = 'TestPassword2026!'; register.passwordConfirmation = 'TestPassword2026!';
     register.submit();
     http.expectOne('/api/v1/auth/register').flush({ data: { id: 1 } });
     await harness.fixture.whenStable();

@@ -13,14 +13,57 @@
         <fieldset [disabled]="busy()">
           @if (registering) {
             <div class="access__names">
-              <label>Nome<input name="firstName" autocomplete="given-name" [(ngModel)]="firstName" required></label>
-              <label>Cognome<input name="lastName" autocomplete="family-name" [(ngModel)]="lastName" required></label>
+              <label>Nome
+                <span class="access__input-wrap">
+                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+                  <input name="firstName" autocomplete="given-name" [(ngModel)]="firstName" required>
+                </span>
+              </label>
+              <label>Cognome
+                <span class="access__input-wrap">
+                  <ion-icon name="id-card-outline" aria-hidden="true"></ion-icon>
+                  <input name="lastName" autocomplete="family-name" [(ngModel)]="lastName" required>
+                </span>
+              </label>
             </div>
           }
-          <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" [(ngModel)]="email" required></label>
-          <label>Password<input name="password" type="password" [autocomplete]="registering ? 'new-password' : 'current-password'" [(ngModel)]="password" required [attr.aria-describedby]="registering ? 'password-help' : null"></label>
+          <label>Email
+            <span class="access__input-wrap">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" [(ngModel)]="email" required>
+            </span>
+          </label>
+          <label>Password
+            <span class="access__input-wrap">
+              <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+              <input name="password" type="password" [autocomplete]="registering ? 'new-password' : 'current-password'"
+                     [(ngModel)]="password" (blur)="passwordTouched = true" required
+                     [class.access__input--invalid]="showPasswordErrors"
+                     [attr.aria-invalid]="showPasswordErrors"
+                     [attr.aria-describedby]="showPasswordErrors ? 'password-requirements' : null">
+            </span>
+            @if (showPasswordErrors) {
+              <ul id="password-requirements" class="access__requirements" aria-live="polite">
+                @for (requirement of passwordErrors; track requirement) {
+                  <li>{{ requirement }}</li>
+                }
+              </ul>
+            }
+          </label>
           @if (registering) {
-            <p id="password-help" class="access__help">Da 8 a 64 caratteri, con maiuscola, minuscola, numero e carattere speciale. Nessuno spazio.</p>
+            <label>Conferma password
+              <span class="access__input-wrap">
+                <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+                <input name="passwordConfirmation" type="password" autocomplete="new-password"
+                       [(ngModel)]="passwordConfirmation" (blur)="confirmationTouched = true" required
+                       [class.access__input--invalid]="!!confirmationError"
+                       [attr.aria-invalid]="!!confirmationError"
+                       [attr.aria-describedby]="confirmationError ? 'password-confirmation-error' : null">
+              </span>
+              @if (confirmationError) {
+                <small id="password-confirmation-error" class="access__field-error" role="alert">{{ confirmationError }}</small>
+              }
+            </label>
           }
           @if (error()) { <p class="access__error" role="alert">{{ error() }}</p> }
           <button type="submit">{{ busy() ? 'Attendi…' : registering ? 'Crea account' : 'Accedi' }}</button>

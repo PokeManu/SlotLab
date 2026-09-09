@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { IonContent, IonIcon } from '@ionic/angular';
@@ -37,7 +37,6 @@ export class BookingsPage implements OnInit {
   cancelError = '';
   selectedMonth = this.currentMonthValue();
   private allBookings: BookingListItem[] = [];
-  @ViewChild('monthPicker') private monthPicker?: ElementRef<HTMLInputElement>;
   private hasEntered = false;
 
   selectedView: BookingView = 'upcoming';
@@ -81,13 +80,6 @@ export class BookingsPage implements OnInit {
     if (!/^\d{4}-\d{2}$/.test(value)) return;
     this.selectedMonth = value;
     this.rebuildGroups();
-  }
-
-  openMonthPicker(): void {
-    const picker = this.monthPicker?.nativeElement;
-    if (!picker) return;
-    if (typeof picker.showPicker === 'function') picker.showPicker();
-    else picker.click();
   }
 
   get selectedMonthLabel(): string {

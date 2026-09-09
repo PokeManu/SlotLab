@@ -74,7 +74,11 @@
       [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
     >
       <span class="topbar__avatar">
-        {{ auth.initials }}
+        @if (profilePhoto.url()) {
+          <img [src]="profilePhoto.url()" alt="">
+        } @else {
+          {{ auth.initials }}
+        }
       </span>
 
       <span class="topbar__username">

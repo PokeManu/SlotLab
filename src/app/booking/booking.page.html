@@ -23,15 +23,17 @@
     </div>
   </section>
 
-  <section class="booking-card field-row date-field" (click)="openDatePicker()">
+  <label class="booking-card field-row date-field">
     <ion-icon class="field-icon" name="calendar-outline" aria-hidden="true"></ion-icon>
     <div class="field-content">
       <span class="field-label">Data</span>
-      <input #datePicker class="booking-date-input" type="date" [(ngModel)]="selectedDate" (change)="changeDate()" aria-label="Data della prenotazione">
+      <span class="booking-date-value">{{ selectedDateLabel }}</span>
     </div>
 
-    <ion-icon class="field-arrow" name="chevron-down-outline"></ion-icon>
-  </section>
+    <ion-icon class="field-arrow" name="chevron-down-outline" aria-hidden="true"></ion-icon>
+    <input class="booking-date-input" type="date" [(ngModel)]="selectedDate"
+           (change)="changeDate()" aria-label="Data della prenotazione">
+  </label>
 
 
 

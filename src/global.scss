@@ -204,6 +204,56 @@ html.slotlab-theme-transition body *::after {
   font-size: 12px;
 }
 
+.campus-popup ul {
+  display: grid;
+  gap: 8px;
+  max-height: 180px;
+  margin: 14px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.campus-popup li {
+  margin: 0;
+}
+
+.campus-popup li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid var(--slot-border);
+  border-radius: 10px;
+  background: var(--slot-background);
+  color: var(--slot-text);
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.campus-popup li a::after {
+  content: '›';
+  flex-shrink: 0;
+  color: var(--slot-primary-soft);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.campus-popup li a:hover {
+  border-color: var(--slot-primary);
+  background: var(--slot-hover);
+}
+
+.campus-popup li a:focus-visible {
+  outline: 3px solid var(--slot-primary-soft);
+  outline-offset: 2px;
+}
+
 /* Checkbox del modulo di gestione spazi. */
 app-admin-spaces {
   .space-create-form .checkbox { cursor: pointer; }

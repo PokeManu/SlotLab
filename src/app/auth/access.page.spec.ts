@@ -33,15 +33,38 @@ describe('Form di accesso', () => {
     expect(page.busy()).toBe(false);
   });
   it('registrazione rifiuta whitespace e dopo successo rimanda al login', () => {
-    const page = create('register').componentInstance;
+    const fixture = create('register');
+    const page = fixture.componentInstance;
     page.firstName = ' Anna '; page.lastName = ' Rossi '; page.email = 'anna@example.test';
     page.password = ' Password2026!'; page.submit();
     http.expectNone('/api/v1/auth/register');
-    expect(page.error()).toContain('requisiti');
-    page.password = 'Password2026!'; page.submit();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.access__requirements').textContent).toContain('spazi');
+    expect(fixture.nativeElement.querySelector('[name=password]').classList).toContain('access__input--invalid');
+    page.password = 'Password2026!'; page.passwordConfirmation = 'Password2026!'; page.submit();
     http.expectOne('/api/v1/auth/register').flush({ data: { id: 1 } });
     expect(page.password).toBe('');
+    expect(page.passwordConfirmation).toBe('');
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/login'], { queryParams: { registered: '1' }, replaceUrl: true });
+  });
+  it('nasconde inizialmente i requisiti e blocca password diverse', async () => {
+    const fixture = create('register');
+    const page = fixture.componentInstance;
+    expect(fixture.nativeElement.querySelector('.access__requirements')).toBeNull();
+    page.firstName = 'Anna'; page.lastName = 'Rossi'; page.email = 'anna@example.test';
+    await fixture.whenStable();
+    const passwordInput = fixture.nativeElement.querySelector('[name=password]') as HTMLInputElement;
+    const confirmationInput = fixture.nativeElement.querySelector('[name=passwordConfirmation]') as HTMLInputElement;
+    passwordInput.value = 'Password2026!';
+    passwordInput.dispatchEvent(new Event('input'));
+    confirmationInput.value = 'Password2025!';
+    confirmationInput.dispatchEvent(new Event('input'));
+    confirmationInput.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[name=passwordConfirmation]').getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('.access__field-error').textContent).toContain('non coincidono');
+    page.submit();
+    http.expectNone('/api/v1/auth/register');
   });
   it('login admin apre dashboard e distingue errore rete', () => {
     const page = create().componentInstance;

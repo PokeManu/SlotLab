@@ -10,14 +10,13 @@
       class="bookings__controls"
       aria-label="Filtri delle prenotazioni"
     >
-      <button class="bookings__month" type="button" (click)="openMonthPicker()"
-              [attr.aria-label]="'Seleziona mese: ' + selectedMonthLabel">
+      <label class="bookings__month">
         <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
         <span>{{ selectedMonthLabel }}</span>
         <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
-      </button>
-      <input #monthPicker class="bookings__month-picker" type="month" [value]="selectedMonth"
-             [attr.aria-label]="'Seleziona mese: ' + selectedMonthLabel" (change)="selectMonth($event)">
+        <input class="bookings__month-picker" type="month" [value]="selectedMonth"
+               [attr.aria-label]="'Seleziona mese: ' + selectedMonthLabel" (change)="selectMonth($event)">
+      </label>
 
       <div
         class="bookings__tabs"

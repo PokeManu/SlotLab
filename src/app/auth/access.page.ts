@@ -1,14 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonContent } from '@ionic/angular';
+import { IonContent, IonIcon } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { idCardOutline, lockClosedOutline, mailOutline, personOutline } from 'ionicons/icons';
 import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { returnDestination } from './return-url';
 
 @Component({
   selector: 'app-access',
-  imports: [FormsModule, RouterLink, IonContent],
+  imports: [FormsModule, RouterLink, IonContent, IonIcon],
   templateUrl: './access.page.html',
   styleUrls: ['./access.page.scss'],
 })
@@ -24,6 +26,14 @@ export class AccessPage {
   lastName = '';
   email = '';
   password = '';
+  passwordConfirmation = '';
+  passwordTouched = false;
+  confirmationTouched = false;
+  attemptedSubmit = false;
+
+  constructor() {
+    addIcons({ idCardOutline, lockClosedOutline, mailOutline, personOutline });
+  }
 
   // Ionic conserva i form: l'URL attuale e autorevole anche dopo Indietro.
   private get queryParams() { return this.router.parseUrl(this.router.url).queryParamMap; }
@@ -35,14 +45,44 @@ export class AccessPage {
 
   ionViewWillEnter(): void {
     this.password = '';
+    this.passwordConfirmation = '';
+    this.passwordTouched = false;
+    this.confirmationTouched = false;
+    this.attemptedSubmit = false;
     this.error.set('');
+  }
+
+  get passwordErrors(): string[] {
+    if (!this.registering) return [];
+
+    const errors: string[] = [];
+    if (this.password.length < 8 || this.password.length > 64) errors.push('Usa da 8 a 64 caratteri.');
+    if (!/[A-Z]/.test(this.password)) errors.push('Inserisci almeno una lettera maiuscola.');
+    if (!/[a-z]/.test(this.password)) errors.push('Inserisci almeno una lettera minuscola.');
+    if (!/[0-9]/.test(this.password)) errors.push('Inserisci almeno un numero.');
+    if (!/[^A-Za-z0-9]/.test(this.password)) errors.push('Inserisci almeno un carattere speciale.');
+    if (/\s/.test(this.password)) errors.push('Non inserire spazi.');
+    return errors;
+  }
+
+  get showPasswordErrors(): boolean {
+    return this.registering && this.passwordErrors.length > 0
+      && (this.password.length > 0 || this.passwordTouched || this.attemptedSubmit);
+  }
+
+  get confirmationError(): string {
+    if (!this.registering || (!this.passwordConfirmation && !this.confirmationTouched && !this.attemptedSubmit)) return '';
+    if (!this.passwordConfirmation) return 'Conferma la password.';
+    if (this.passwordConfirmation !== this.password) return 'Le password non coincidono.';
+    return '';
   }
 
   submit(): void {
     if (this.busy()) return;
     this.error.set('');
+    this.attemptedSubmit = this.registering;
     const email = this.email.trim().toLowerCase();
-    if (!email || !this.password || (this.registering && (!this.firstName.trim() || !this.lastName.trim()))) {
+    if (!email || !this.password || (this.registering && (!this.firstName.trim() || !this.lastName.trim() || !this.passwordConfirmation))) {
       this.error.set('Compila tutti i campi.');
       return;
     }
@@ -50,10 +90,10 @@ export class AccessPage {
       this.error.set('Inserisci un indirizzo email valido.');
       return;
     }
-    if (this.registering && (this.password.length < 8 || this.password.length > 64 ||
-      /\s/.test(this.password) || !/[A-Z]/.test(this.password) || !/[a-z]/.test(this.password) ||
-      !/[0-9]/.test(this.password) || !/[^A-Za-z0-9]/.test(this.password))) {
-      this.error.set('La password deve rispettare tutti i requisiti indicati.');
+    if (this.registering && this.passwordErrors.length > 0) {
+      return;
+    }
+    if (this.registering && this.password !== this.passwordConfirmation) {
       return;
     }
     this.busy.set(true);
@@ -63,6 +103,7 @@ export class AccessPage {
     request.pipe(finalize(() => this.busy.set(false))).subscribe({
       next: () => {
         this.password = '';
+        this.passwordConfirmation = '';
         if (this.registering) void this.router.navigate(['/login'], {
           queryParams: { ...this.returnQuery, registered: '1' }, replaceUrl: true,
         });
