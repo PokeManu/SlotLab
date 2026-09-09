@@ -21,4 +21,9 @@ describe('MobileNavigationComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('usa un’icona diversa per ogni sezione amministrativa', () => {
+    const icons = component.adminNavigation.map(item => item.icon);
+    expect(new Set(icons).size).toBe(icons.length);
+  });
 });

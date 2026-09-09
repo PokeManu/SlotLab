@@ -6,6 +6,7 @@
   "scripts": {
     "db:migrate": "node --env-file-if-exists=.env db/migrate.js",
     "db:seed": "node --env-file-if-exists=.env db/seed.js",
+    "db:seed-demo": "node --env-file-if-exists=.env db/seed-demo.js",
     "start": "node --env-file-if-exists=.env server.js",
     "test": "node --test test/*.test.js",
     "dev": "nodemon --exec \"node --env-file-if-exists=.env\" server.js"

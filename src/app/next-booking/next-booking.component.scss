@@ -39,11 +39,11 @@
 }
 
 .next-booking__status[data-status='confirmed'] {
-  color: #79dab5;
+  color: var(--slot-success);
 }
 
 .next-booking__status[data-status='cancelled'] {
-  color: #ff9292;
+  color: var(--slot-danger);
 }
 
 .next-booking__details {

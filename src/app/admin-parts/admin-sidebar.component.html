@@ -14,10 +14,14 @@
           </button>
         }
       </nav>
-      <a class="account-link" routerLink="/profile">Profilo</a>
 
       <div class="administrator">
-        <span class="administrator__avatar">{{ auth.initials }}</span>
+        <app-theme-toggle></app-theme-toggle>
+        <a
+          class="administrator__avatar"
+          routerLink="/profile"
+          [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
+        >{{ auth.initials }}</a>
         <span class="administrator__information">
           <strong>{{ auth.user()?.firstName }}</strong>
           <small>Amministratore</small>

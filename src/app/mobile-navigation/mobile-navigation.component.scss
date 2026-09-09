@@ -21,6 +21,24 @@
     box-shadow: 0 -8px 24px rgb(0 0 0 / 18%);
   }
 
+  .mobile-navigation--admin {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-navigation--admin::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-navigation--admin .mobile-navigation__link {
+    flex: 0 0 76px;
+    scroll-snap-align: start;
+  }
+
   .mobile-navigation__link {
     display: flex;
     min-width: 0;

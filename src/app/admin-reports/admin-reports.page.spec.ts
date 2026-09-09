@@ -52,4 +52,18 @@ describe('AdminReportsPage', () => {
     http.verify();
   });
 
+  it('mostra lo stato corrente nell’elenco delle segnalazioni', async () => {
+    component.reports.push({
+      id: 10, title: 'cleaning', space: 'Aula Studio A1', date: '09/09/2026', reporter: 'utente@example.com',
+      description: 'Pulizia necessaria', priority: 'medium', priorityLabel: 'Media', status: 'in-progress',
+      statusLabel: 'In lavorazione', assignee: '—', icon: 'warning-outline',
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const status = fixture.nativeElement.querySelector('.status-pill');
+    expect(status.textContent).toContain('Stato: In lavorazione');
+    expect(status.getAttribute('data-status')).toBe('in-progress');
+  });
+
 });

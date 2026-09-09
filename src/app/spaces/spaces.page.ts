@@ -36,6 +36,7 @@ import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigatio
 export class SpacesPage implements OnInit {
   readonly auth = inject(Auth);
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
   spaces: SpaceSummary[] = [];
   private search = '';
@@ -46,9 +47,7 @@ export class SpacesPage implements OnInit {
 
   readonly favoriteSpaceIds = new Set<string>();
 
-  constructor(
-    private readonly router: Router,
-  ) {
+  constructor() {
     addIcons({ notificationsOutline });
   }
 
@@ -94,6 +93,10 @@ export class SpacesPage implements OnInit {
       '/spaces',
       spaceId,
     ]);
+  }
+
+  openNotifications(): void {
+    this.router.navigate(['/notifications']);
   }
 
   toggleFavorite(spaceId: string): void {

@@ -45,11 +45,17 @@
                 <small>{{report.date}}</small>
               </span>
 
-              <span class="priority-pill"
-                    [class.priority-pill--high]="report.priority === 'high'"
-                    [class.priority-pill--medium]="report.priority === 'medium'"
-                    [class.priority-pill--low]="report.priority === 'low'">
-              {{ report.priorityLabel}}
+              <span class="report-item__badges">
+                <span class="priority-pill"
+                      [class.priority-pill--high]="report.priority === 'high'"
+                      [class.priority-pill--medium]="report.priority === 'medium'"
+                      [class.priority-pill--low]="report.priority === 'low'">
+                  Priorità: {{ report.priorityLabel }}
+                </span>
+
+                <span class="status-pill" [attr.data-status]="report.status">
+                  Stato: {{ report.statusLabel }}
+                </span>
               </span>
             </button>
           } @empty{

@@ -23,7 +23,6 @@ import { Auth } from '../auth/auth';
     chevronForwardOutline,
     createOutline,
     ellipsisVerticalOutline,
-    eyeOutline,
     gridOutline,
     logOutOutline,
     peopleOutline,
@@ -88,7 +87,6 @@ import { Auth } from '../auth/auth';
     selectedDate = '';
     selectedSpace = '';
     selectedStatus = '';
-    openedMenuCode: string | null = null;
 
     bookings: AdminBooking[] = [];
     selectedBooking: AdminBooking | null = null;
@@ -104,7 +102,6 @@ import { Auth } from '../auth/auth';
         chevronForwardOutline,
         createOutline,
         ellipsisVerticalOutline,
-        eyeOutline,
         gridOutline,
         logOutOutline,
         peopleOutline,
@@ -132,7 +129,6 @@ import { Auth } from '../auth/auth';
       const selectedCode = this.selectedBooking?.code;
       this.bookings = [];
       this.selectedBooking = null;
-      this.openedMenuCode = null;
       this.loading = true;
       this.errorMessage = '';
       this.changeDetector.markForCheck();
@@ -253,7 +249,6 @@ import { Auth } from '../auth/auth';
 
     selectBooking(booking: AdminBooking): void {
       this.selectedBooking = booking;
-      this.openedMenuCode = null;
     }
 
     goToPage(page: number): void {
@@ -262,7 +257,6 @@ import { Auth } from '../auth/auth';
       }
 
       this.currentPage = page;
-      this.openedMenuCode = null;
     }
 
     previousPage(): void {
@@ -271,26 +265,6 @@ import { Auth } from '../auth/auth';
 
     nextPage(): void {
       this.goToPage(this.currentPage + 1);
-    }
-
-    toggleActions(
-      event: MouseEvent,
-      bookingCode: string,
-    ): void {
-      event.stopPropagation();
-
-      this.openedMenuCode =
-        this.openedMenuCode === bookingCode
-          ? null
-          : bookingCode;
-    }
-
-    openBookingDetails(
-      event: MouseEvent,
-      booking: AdminBooking,
-    ): void {
-      event.stopPropagation();
-      this.selectBooking(booking);
     }
 
     statusModifier(status: BookingStatus): string {

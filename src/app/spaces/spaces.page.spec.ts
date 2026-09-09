@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 
@@ -34,6 +34,16 @@ describe('SpacesPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Aula test');
+  });
+
+  it('apre le notifiche dal pulsante mobile', () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.spaces__mobile-notification');
+
+    button.click();
+
+    expect(navigate).toHaveBeenCalledWith(['/notifications']);
   });
 
   it('mantiene più spazi nei preferiti', () => {

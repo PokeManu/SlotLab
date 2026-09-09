@@ -1,9 +1,51 @@
 :root {
+  color-scheme: dark;
   --slot-background: #081526;
+  --slot-sidebar: #081321;
   --slot-surface: #14233b;
+  --slot-surface-raised: #172237;
+  --slot-panel: #19243a;
+  --slot-input: #111f33;
+  --slot-hover: #26344a;
+  --slot-surface-translucent: rgb(20 35 59 / 72%);
+  --slot-page-glow: rgb(54 82 128 / 20%);
+  --slot-primary-tint: rgb(79 127 255 / 12%);
   --slot-border: #314764;
   --slot-primary: #4f7fff;
+  --slot-primary-gradient-end: #5b68f5;
   --slot-text: #f4f7ff;
   --slot-text-muted: #94a5c2;
   --slot-primary-soft: #79a8ff;
+  --slot-success: #79dab5;
+  --slot-success-surface: rgb(71 190 147 / 14%);
+  --slot-danger: #ff9292;
+  --slot-danger-surface: rgb(255 146 146 / 14%);
+  --slot-warning: #f0c66e;
+  --slot-warning-surface: rgb(240 198 110 / 14%);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --slot-background: #f3f6fb;
+  --slot-sidebar: #ffffff;
+  --slot-surface: #ffffff;
+  --slot-surface-raised: #eaf0f8;
+  --slot-panel: #ffffff;
+  --slot-input: #f7f9fc;
+  --slot-hover: #e1e9f4;
+  --slot-surface-translucent: rgb(255 255 255 / 88%);
+  --slot-page-glow: rgb(85 115 194 / 10%);
+  --slot-primary-tint: rgb(85 115 194 / 12%);
+  --slot-border: #c5d1e1;
+  --slot-primary: #5573c2;
+  --slot-primary-gradient-end: #687fc5;
+  --slot-text: #18253a;
+  --slot-text-muted: #5e6f87;
+  --slot-primary-soft: #4564aa;
+  --slot-success: #23765b;
+  --slot-success-surface: #e1f3ec;
+  --slot-danger: #ad3e4b;
+  --slot-danger-surface: #fde8eb;
+  --slot-warning: #855812;
+  --slot-warning-surface: #fff0d7;
 }

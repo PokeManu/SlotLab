@@ -126,7 +126,7 @@ test('le migrazioni sono ripetibili', async () => {
   const firstRun = await migrate({ databasePath });
   const secondRun = await migrate({ databasePath });
 
-  assert.deepEqual(firstRun.appliedNow, [1, 2, 3, 4]);
+  assert.deepEqual(firstRun.appliedNow, [1, 2, 3, 4, 5]);
   assert.deepEqual(secondRun.appliedNow, []);
 });
 
@@ -179,7 +179,7 @@ test('la migrazione 2 conserva dati, vincoli e ID gia utilizzati', async (t) => 
     `);
     await run(database, keepRows ? 'DELETE FROM slot_occurrences WHERE id = 50;' : 'DELETE FROM slot_occurrences;');
     const originalRows = await all(database, 'SELECT * FROM slot_occurrences ORDER BY id;');
-    assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4]);
+    assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5]);
     assert.deepEqual(await all(database, 'SELECT * FROM slot_occurrences ORDER BY id;'), originalRows);
     assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, []);
     const insert = `INSERT INTO slot_occurrences (space_id, date, start_time, end_time)
@@ -206,7 +206,7 @@ test('dati storici incompleti annullano la migrazione 2 senza perdere dati', asy
   assert.deepEqual(await all(database, 'SELECT version FROM schema_migrations;'), [{ version: 1 }]);
   assert.equal(await get(database, "SELECT name FROM sqlite_master WHERE name = 'slot_occurrences_new';"), undefined);
   await run(database, 'UPDATE slot_occurrences SET offered_capacity = 20 WHERE id = 2;');
-  assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4]);
+  assert.deepEqual((await migrate({ databasePath: filePath })).appliedNow, [2, 3, 4, 5]);
 });
 
 test('la connessione condivisa usa lo schema completo', async () => {

@@ -33,18 +33,110 @@
   }
 
   .profile__avatar {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 112px;
     height: 112px;
-    margin-bottom: 22px;
+    margin-bottom: 12px;
     border-radius: 50%;
     background: linear-gradient(145deg, #f5f8ff, #d5e2ff);
     color: #263b60;
     box-shadow: 0 14px 36px rgb(0 0 0 / 20%);
     font-size: 36px;
     font-weight: 500;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .profile__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .profile__photo-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .profile__photo-edit {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--slot-background);
+    border-radius: 50%;
+    background: var(--slot-primary);
+    color: white;
+  }
+
+  .profile__photo-edit ion-icon {
+    font-size: 17px;
+  }
+
+  .profile__avatar:hover .profile__photo-edit {
+    background: var(--slot-primary-soft);
+  }
+
+  .profile__avatar--disabled {
+    cursor: wait;
+    opacity: .7;
+  }
+
+  .profile__photo-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 0 8px;
+  }
+
+  .profile__photo-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--slot-primary);
+    border-radius: 11px;
+    background: transparent;
+    color: var(--slot-primary-soft);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .profile__photo-remove:hover {
+    background: rgb(79 127 255 / 10%);
+  }
+
+  .profile__photo-remove:disabled {
+    cursor: wait;
+    opacity: .6;
+  }
+
+  .profile__photo-hint,
+  .profile__photo-error {
+    margin: 0 0 12px;
+    font-size: 13px;
+  }
+
+  .profile__photo-hint {
+    color: var(--slot-text-muted);
+  }
+
+  .profile__photo-error {
+    color: #ff9ea9;
   }
 
   .profile__name {
@@ -76,7 +168,7 @@
     overflow: hidden;
     border: 1px solid var(--slot-border);
     border-radius: 18px;
-    background: rgb(20 35 59 / 62%);
+    background: var(--slot-surface-translucent);
   }
 
   .profile-menu__item {
@@ -105,7 +197,9 @@
   }
 
   .profile-menu__item:focus-visible,
-  .profile__logout:focus-visible {
+  .profile__logout:focus-visible,
+  .profile__avatar:has(input:focus-visible),
+  .profile__photo-remove:focus-visible {
     position: relative;
     z-index: 1;
     outline: 3px solid var(--slot-primary);
@@ -176,6 +270,11 @@
       height: 90px;
       margin-bottom: 18px;
       font-size: 30px;
+    }
+
+    .profile__photo-actions {
+      width: 100%;
+      flex-wrap: wrap;
     }
 
     .profile__name {

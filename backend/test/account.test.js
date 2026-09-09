@@ -84,6 +84,35 @@ test('due cambi concorrenti: soltanto uno modifica la password', async () => {
   assert.ok(results.some(result => [400, 401].includes(result.status)));
 });
 
+test('foto profilo: user e admin possono sostituirla con formato e dimensione controllati', async () => {
+  const user = await account();
+  const call = (method, body, contentType, token = user.token) => fetch(`${base}/users/me/photo`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, ...(contentType ? { 'Content-Type': contentType } : {}) },
+    body,
+  });
+  assert.equal((await call('GET')).status, 404);
+
+  const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from('profile')]);
+  assert.equal((await call('PUT', png, 'image/png')).status, 204);
+  const stored = await call('GET');
+  assert.equal(stored.status, 200);
+  assert.equal(stored.headers.get('content-type'), 'image/png');
+  assert.deepEqual(Buffer.from(await stored.arrayBuffer()), png);
+
+  assert.equal((await call('PUT', Buffer.from('GIF89a'), 'image/gif')).status, 415);
+  assert.equal((await call('PUT', png, 'image/jpeg')).status, 415);
+  assert.equal((await call('PUT', Buffer.alloc(2 * 1024 * 1024 + 1), 'image/png')).status, 413);
+
+  assert.equal((await call('DELETE')).status, 204);
+  assert.equal((await call('GET')).status, 404);
+
+  await query.run("UPDATE users SET role = 'admin' WHERE id = ?", [user.id]);
+  const login = await request('POST', '/auth/login', { email: user.email, password });
+  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0x00]);
+  assert.equal((await call('PUT', jpeg, 'image/jpeg', login.body.data.accessToken)).status, 204);
+});
+
 test('errore durante la revoca annulla anche il cambio hash', async () => {
   const user = await account();
   const before = await query.get('SELECT password_hash FROM users WHERE id = ?', [user.id]);

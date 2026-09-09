@@ -81,14 +81,14 @@
   align-self: start;
   padding: 7px 13px;
   border-radius: 999px;
-  background: rgb(71 190 147 / 14%);
-  color: #79dab5;
+  background: var(--slot-success-surface);
+  color: var(--slot-success);
   font-size: 14px;
 }
 
 .booking-item__status[data-status='cancelled'] {
-  background: rgb(255 146 146 / 14%);
-  color: #ff9292;
+  background: var(--slot-danger-surface);
+  color: var(--slot-danger);
 }
 
 .booking-item__actions {

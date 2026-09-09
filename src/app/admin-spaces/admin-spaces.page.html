@@ -18,9 +18,14 @@
           <label>Piano<input name="floor" type="number" [(ngModel)]="form.floor" required></label>
           <label>Tipologia<select name="type" [(ngModel)]="form.type"><option value="study_room">Aula studio</option><option value="laboratory">Laboratorio</option><option value="meeting_room">Sala riunioni</option></select></label>
           <label>Posti<input name="capacity" type="number" min="1" [(ngModel)]="form.capacity" required></label>
-          <label class="checkbox"><input name="accessible" type="checkbox" [(ngModel)]="form.accessible"> Accessibile</label>
           <label>Stato<select name="status" [(ngModel)]="form.status"><option value="active">Attivo</option><option value="maintenance">Manutenzione</option><option value="deactivated">Disattivato</option></select></label>
-          @for (service of services; track service.code) { <label class="checkbox"><input type="checkbox" [checked]="form.serviceCodes.includes(service.code)" (change)="toggleService(service.code)">{{ service.label }}</label> }
+          <fieldset class="space-create-form__options">
+            <legend>Caratteristiche e servizi</legend>
+            <label class="checkbox"><input name="accessible" type="checkbox" [(ngModel)]="form.accessible"><span>Accessibile</span></label>
+            @for (service of services; track service.code) {
+              <label class="checkbox"><input type="checkbox" [checked]="form.serviceCodes.includes(service.code)" (change)="toggleService(service.code)"><span>{{ service.label }}</span></label>
+            }
+          </fieldset>
           <button type="submit">{{ editingId === null ? 'Aggiungi spazio' : 'Salva modifiche' }}</button>
           @if (createError) { <p class="create-error" role="alert">{{ createError }}</p> }
         </form>

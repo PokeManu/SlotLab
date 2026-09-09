@@ -3,12 +3,12 @@
   }
 
   ion-content {
-    --background: #091525;
+    --background: var(--slot-background);
     --color: var(--slot-text);
   }
 
   .admin-content {
-    --background: #091525;
+    --background: var(--slot-background);
     --color: var(--slot-text);
   }
 
@@ -19,7 +19,7 @@
     min-height: 100%;
     margin: 0;
     box-sizing: border-box;
-    background: #081526;
+    background: var(--slot-background);
   }
 
   /* Sidebar */
@@ -34,7 +34,7 @@
     padding: 32px 28px 72px 39px;
   }
 
-  .create-error { grid-column: 1 / -1; margin: 0; color: #ff9ea9; }
+  .create-error { grid-column: 1 / -1; margin: 0; color: var(--slot-danger); }
 
   /* Intestazione */
 
@@ -114,7 +114,7 @@
     padding: 0 22px;
     border: 2px solid var(--slot-border);
     border-radius: 16px;
-    background: #172237;
+    background: var(--slot-surface-raised);
     color: var(--slot-text);
     font: inherit;
     font-size: 18px;
@@ -138,7 +138,7 @@
     overflow: hidden;
     border: 2px solid var(--slot-border);
     border-radius: 24px;
-    background: #19243a;
+    background: var(--slot-panel);
   }
 
   .spaces-table__header {
@@ -187,7 +187,7 @@
     width: 58px;
     height: 58px;
     border-radius: 16px;
-    background: #202e48;
+    background: var(--slot-surface-raised);
     color: var(--slot-text-muted);
   }
 
@@ -212,18 +212,18 @@
   }
 
   .status-pill--available {
-    background: rgb(80 219 177 / 14%);
-    color: #50dbb1;
+    background: var(--slot-success-surface);
+    color: var(--slot-success);
   }
 
   .status-pill--in-use {
-    background: rgb(79 127 255 / 16%);
+    background: var(--slot-primary-tint);
     color: var(--slot-primary-soft);
   }
 
   .status-pill--maintenance {
-    background: rgb(255 180 91 / 16%);
-    color: #ffb45b;
+    background: var(--slot-warning-surface);
+    color: var(--slot-warning);
   }
 
   /* Azioni */
@@ -247,7 +247,7 @@
   }
 
   .icon-button:hover {
-    background: #26344a;
+    background: var(--slot-hover);
     color: var(--slot-text);
   }
 
@@ -391,7 +391,7 @@
       padding: 20px;
       border: 2px solid var(--slot-border);
       border-radius: 18px;
-      background: #19243a;
+      background: var(--slot-panel);
     }
 
     .space-row__name {

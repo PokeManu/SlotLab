@@ -40,9 +40,6 @@
                     <th>Prenotato da</th>
                     <th>Partecipanti</th>
                     <th>Stato</th>
-                    <th class="booking-table__actions-heading">
-                      Azioni
-                    </th>
                   </tr>
                 </thead>
 
@@ -84,28 +81,12 @@
                         </span>
                       </td>
 
-                      <td
-                        class="booking-table__actions"
-                        data-label="Azioni"
-                      >
-                        <button
-                          class="icon-button"
-                          type="button"
-                          aria-label="Mostra dettaglio prenotazione"
-                          (click)="
-                            openBookingDetails($event, booking)
-                          "
-                        >
-                          <ion-icon name="eye-outline"></ion-icon>
-                        </button>
-
-                      </td>
                     </tr>
                   } @empty {
                     <tr>
                       <td
                         class="booking-table__empty"
-                        colspan="6"
+                        colspan="5"
                       >
                         @if (loading) { Caricamento prenotazioni… }
                         @else if (errorMessage) {

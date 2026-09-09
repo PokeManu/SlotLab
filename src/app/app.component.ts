@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Auth } from './auth/auth';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
+import { ThemeService } from './theme/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -10,5 +11,6 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular';
 })
 export class AppComponent {
   readonly auth = inject(Auth);
+  readonly theme = inject(ThemeService);
   constructor() {}
 }

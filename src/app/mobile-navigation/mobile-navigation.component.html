@@ -1,7 +1,7 @@
 <nav
   class="mobile-navigation"
+  [class.mobile-navigation--admin]="auth.isAdmin()"
   aria-label="Navigazione mobile"
-  [style.grid-template-columns]="auth.isAdmin() ? 'repeat(6, minmax(0, 1fr))' : null"
 >
   @if (auth.isAdmin()) {
     @for (item of adminNavigation; track item.route) {

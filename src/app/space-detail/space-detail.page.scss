@@ -6,7 +6,7 @@
     --background:
       radial-gradient(
         circle at 50% 22%,
-        rgba(54, 82, 128, 0.2),
+        var(--slot-page-glow),
         transparent 42%
       ),
       var(--slot-background);
@@ -47,7 +47,7 @@
     place-items: center;
     border: 1px solid var(--slot-border);
     border-radius: 50%;
-    background: rgba(20, 35, 59, 0.8);
+    background: var(--slot-surface-translucent);
     color: var(--slot-text);
     text-decoration: none;
   }
@@ -106,8 +106,8 @@
     margin-top: 8px;
     padding: 8px 13px;
     border-radius: 999px;
-    background: rgba(88, 219, 177, 0.13);
-    color: #78dfbd;
+    background: var(--slot-success-surface);
+    color: var(--slot-success);
     font-size: 16px;
   }
 
@@ -139,7 +139,7 @@
     padding: 12px 6px;
     border: 1px solid var(--slot-border);
     border-radius: 14px;
-    background: rgba(20, 35, 59, 0.75);
+    background: var(--slot-surface-translucent);
     color: var(--slot-text);
     font-size: 14px;
     text-align: center;
@@ -166,8 +166,8 @@
     background:
       linear-gradient(
         135deg,
-        #4f7fff,
-        #5b68f5
+        var(--slot-primary),
+        var(--slot-primary-gradient-end)
       );
     color: white;
     font: inherit;

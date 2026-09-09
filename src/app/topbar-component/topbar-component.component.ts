@@ -9,6 +9,7 @@ import {
   calendarClearOutline,
   notificationsOutline, megaphoneOutline,
 } from 'ionicons/icons';
+import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 
 @Component({
   selector: 'app-topbar',
@@ -18,6 +19,7 @@ import {
     IonIcon,
     RouterLink,
     RouterLinkActive,
+    ThemeToggleComponent,
   ],
 })
 export class TopbarComponent {

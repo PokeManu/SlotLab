@@ -6,7 +6,7 @@
     --background:
       radial-gradient(
         circle at 50% 20%,
-        rgba(54, 82, 128, 0.22),
+        var(--slot-page-glow),
         transparent 42%
       ),
       var(--slot-background);
@@ -64,7 +64,7 @@
     box-sizing: border-box;
     border: 1px solid var(--slot-border);
     border-radius: 15px;
-    background: rgba(20, 35, 59, 0.78);
+    background: var(--slot-surface-translucent);
   }
 
   .booking-summary {
@@ -80,7 +80,7 @@
     flex: 0 0 82px;
     place-items: center;
     border-radius: 13px;
-    background: #263958;
+    background: var(--slot-surface-raised);
     color: var(--slot-text-muted);
   }
 

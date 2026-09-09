@@ -12,6 +12,10 @@ import {
   searchOutline,
   flagOutline, megaphoneOutline,
   barChartOutline,
+  businessOutline,
+  gridOutline,
+  peopleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -36,6 +40,10 @@ export class MobileNavigationComponent {
       searchOutline,
       flagOutline, megaphoneOutline,
       barChartOutline,
+      businessOutline,
+      gridOutline,
+      peopleOutline,
+      timeOutline,
     });
   }
 }

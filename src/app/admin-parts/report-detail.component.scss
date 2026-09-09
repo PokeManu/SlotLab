@@ -5,7 +5,7 @@
     overflow: hidden;
     border: 2px solid var(--slot-border);
     border-radius: 24px;
-    background: #19243a;
+    background: var(--slot-panel);
   }
 
   .report-detail__header {
@@ -95,7 +95,7 @@
     padding: 14px;
     border: 2px dashed var(--slot-border);
     border-radius: 15px;
-    background: #172237;
+    background: var(--slot-surface-raised);
   }
 
   .attachment-card__icon {
@@ -104,7 +104,7 @@
     width: 46px;
     height: 46px;
     border-radius: 12px;
-    background: #202e48;
+    background: var(--slot-surface-raised);
     color: var(--slot-text-muted);
   }
 
@@ -148,7 +148,7 @@
   }
 
   .attachment-card__menu:hover {
-    background: #26344a;
+    background: var(--slot-hover);
     color: var(--slot-text);
   }
 
@@ -177,7 +177,7 @@
     padding: 0 16px;
     border: 2px solid var(--slot-border);
     border-radius: 14px;
-    background: #202e48;
+    background: var(--slot-surface-raised);
     color: var(--slot-text);
   }
 
@@ -222,15 +222,15 @@
   }
 
   .status-dot--open {
-    background: #ff6878;
+    background: var(--slot-danger);
   }
 
   .status-dot--progress {
-    background: #ffb45b;
+    background: var(--slot-warning);
   }
 
   .status-dot--resolved {
-    background: #50dbb1;
+    background: var(--slot-success);
   }
 
   .save-report-button {

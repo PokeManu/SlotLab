@@ -33,7 +33,13 @@ describe('AdminBookingsPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Utente Test');
     expect(fixture.nativeElement.textContent).not.toContain('Mario Rossi');
     expect(fixture.nativeElement.querySelector('app-booking-detail').textContent).toContain('Codice: 81');
-    fixture.nativeElement.querySelector('button[aria-label="Mostra dettaglio prenotazione"]').click();
+    const rows = fixture.nativeElement.querySelectorAll('.booking-table tbody tr');
+    rows[1].click();
+    fixture.detectChanges();
+    expect(component.selectedBooking?.code).toBe('82');
+    expect(fixture.nativeElement.querySelector('app-booking-detail').textContent).toContain('Codice: 82');
+    rows[0].click();
+    fixture.detectChanges();
     expect(component.selectedBooking?.code).toBe('81');
     expect(fixture.nativeElement.querySelector('app-booking-detail').textContent).toContain('Dettaglio prenotazione');
     expect(component.bookings[1].status).toBe('Completata');

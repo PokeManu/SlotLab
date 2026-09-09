@@ -95,7 +95,7 @@ select {
   }
 
   .sidebar__link:hover {
-    background: rgb(255 255 255 / 6%);
+    background: var(--slot-hover);
     color: #ffffff;
   }
 
@@ -168,7 +168,7 @@ select {
   }
 
   .sidebar__logout:hover {
-    background: rgb(255 255 255 / 7%);
+    background: var(--slot-hover);
     color: #f4f7ff;
   }
 

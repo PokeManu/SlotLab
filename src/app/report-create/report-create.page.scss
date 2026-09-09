@@ -47,7 +47,7 @@ ion-content {
   place-items: center;
   border: 1px solid var(--slot-border);
   border-radius: 50%;
-  background: rgb(20 35 59 / 80%);
+  background: var(--slot-surface-translucent);
   color: var(--slot-text);
   text-decoration: none;
 }

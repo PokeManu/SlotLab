@@ -305,6 +305,14 @@ Verifica la password corrente e le regole della nuova password. Invalida tutti i
 
 Errori: `CURRENT_PASSWORD_INVALID`, `INVALID_PASSWORD_FORMAT`.
 
+### Foto profilo
+
+- `GET /users/me/photo`: restituisce la foto del proprio profilo oppure `404 PROFILE_PHOTO_NOT_FOUND`.
+- `PUT /users/me/photo`: sostituisce la foto usando il corpo binario della richiesta. Accetta JPEG, PNG o WebP fino a 2 MB e verifica che il contenuto corrisponda al formato dichiarato nell'header `Content-Type`. Risposta: `204 No Content`.
+- `DELETE /users/me/photo`: rimuove la foto e ripristina le iniziali. Risposta: `204 No Content`.
+
+Tutti e tre gli endpoint richiedono un account autenticato `user` o `admin`. Errori di caricamento: `INVALID_PROFILE_PHOTO_FORMAT`, `PROFILE_PHOTO_TOO_LARGE`, `EMPTY_PROFILE_PHOTO`.
+
 ### `DELETE /users/me`
 
 ```json
