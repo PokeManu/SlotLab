@@ -86,7 +86,7 @@ export class HomePage implements OnDestroy {
       .subscribe({ next: response => {
         const booking = response.data[0];
         this.nextBooking = booking ? { id: String(booking.id), spaceName: booking.spaceName, status: booking.status,
-          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT'), startTime: booking.startTime,
+          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }), startTime: booking.startTime,
           endTime: booking.endTime, building: booking.building, floor: booking.floor, participants: booking.participantCount } : null;
         this.changeDetector.markForCheck();
       }, error: () => { this.nextBooking = null; this.changeDetector.markForCheck(); } });

@@ -25,12 +25,13 @@ describe('BookingListItemComponent', () => {
       building: 'Edificio 6',
       floor: 2,
       participants: 4,
-      canCheckIn: true,
     });
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(fixture.nativeElement.textContent).not.toContain('Check-in');
+    expect(fixture.nativeElement.querySelector('a[href^="/check-in"]')).toBeNull();
   });
 });

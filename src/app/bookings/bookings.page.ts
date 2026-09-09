@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } f
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { IonContent, IonIcon } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { romeDate } from '../models/rome-date';
 import { addIcons } from 'ionicons';
 import {
   calendarOutline,
@@ -42,7 +42,7 @@ export class BookingsPage implements OnInit {
 
   selectedView: BookingView = 'upcoming';
 
-  constructor(private readonly router: Router) {
+  constructor() {
     addIcons({
       calendarOutline,
       chevronDownOutline,
@@ -63,9 +63,9 @@ export class BookingsPage implements OnInit {
       .subscribe({ next: response => {
         this.allBookings = response.data.map(booking => ({
           id: String(booking.id), spaceId: String(booking.spaceId), spaceName: booking.spaceName, status: booking.status,
-          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT'), dateValue: booking.date,
+          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }), dateValue: booking.date,
           startTime: booking.startTime, endTime: booking.endTime, building: booking.building,
-          floor: booking.floor, participants: booking.participantCount, spaceType: 'study-room', canCheckIn: this.isCheckInWindow(booking.date, booking.startTime),
+          floor: booking.floor, participants: booking.participantCount, spaceType: 'study-room',
         }));
         this.rebuildGroups();
         this.changeDetector.markForCheck();
@@ -91,20 +91,12 @@ export class BookingsPage implements OnInit {
   }
 
   get selectedMonthLabel(): string {
-    const label = new Date(`${this.selectedMonth}-01T12:00:00Z`).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+    const label = new Date(`${this.selectedMonth}-01T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome', month: 'long', year: 'numeric' });
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
   private currentMonthValue(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  }
-
-  private isCheckInWindow(date: string, startTime: string): boolean {
-    const start = new Date(`${date}T${startTime}:00`);
-    if (Number.isNaN(start.getTime())) return false;
-    const now = Date.now();
-    return now >= start.getTime() - 15 * 60 * 1000 && now <= start.getTime() + 30 * 60 * 1000;
+    return romeDate().slice(0, 7);
   }
 
   private rebuildGroups(): void {
@@ -114,10 +106,6 @@ export class BookingsPage implements OnInit {
     }
     this.upcomingBookingGroups = [...groups].map(([dateLabel, bookings]) => ({ dateLabel, bookings }));
     this.changeDetector.markForCheck();
-  }
-
-  openCheckIn(spaceId: string): void {
-    void this.router.navigate(['/check-in', spaceId]);
   }
 
   cancelBooking(bookingId: string): void {

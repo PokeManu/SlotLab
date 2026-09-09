@@ -5,7 +5,7 @@
       <h1>Dettaglio e partecipanti</h1>
     </header>
 
-    @if (error()) { <p class="error-message" role="alert">{{ error() }}</p> }
+    @if (error()) { <p class="error-message" role="alert">{{ error() }}</p><button class="secondary-button" type="button" [disabled]="busy()" (click)="load()">Ricarica prenotazione</button> }
     @if (booking(); as item) {
       <section class="detail-card" aria-labelledby="space-title">
         <span class="eyebrow">Prenotazione #{{ item.id }}</span>
@@ -51,7 +51,7 @@
         </section>
       }
       <p class="detail-note">Le modifiche sono consentite fino a un’ora prima dell’inizio.</p>
-      <a class="primary-button check-in-button" [routerLink]="['/check-in', item.spaceId]">Apri check-in</a>
+      <p class="detail-note">Per il check-in, scansiona con la fotocamera il QR affisso nell’aula.</p>
     } @else if (!error()) { <p class="detail-card" role="status">Caricamento…</p> }
   </main>
 </ion-content>

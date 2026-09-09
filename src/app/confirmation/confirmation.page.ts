@@ -36,5 +36,5 @@ export class ConfirmationPage implements OnInit, OnDestroy {
       error: () => { this.loading = false; this.error = 'Impossibile caricare la prenotazione.'; this.changeDetector.markForCheck(); },
     });
   }
-  get dateLabel(): string { return this.booking ? new Date(`${this.booking.date}T12:00:00Z`).toLocaleDateString('it-IT') : ''; }
+  get dateLabel(): string { return this.booking ? new Date(`${this.booking.date}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }) : ''; }
 }

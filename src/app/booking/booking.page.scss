@@ -110,6 +110,10 @@
   }
 
   .field-icon {
+    display: block;
+    align-self: center;
+    width: 24px;
+    height: 24px;
     flex: 0 0 auto;
     color: var(--slot-text-muted);
     font-size: 24px;

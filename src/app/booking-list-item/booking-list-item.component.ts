@@ -6,7 +6,6 @@ import {
   bookOutline,
   desktopOutline,
   peopleOutline,
-  scanOutline,
 } from 'ionicons/icons';
 
 import { BookingListItem } from '../models/booking-list-item.model';
@@ -22,9 +21,6 @@ export class BookingListItemComponent {
   booking!: BookingListItem;
 
   @Output()
-  checkIn = new EventEmitter<string>();
-
-  @Output()
   cancel = new EventEmitter<string>();
 
   constructor() {
@@ -32,7 +28,6 @@ export class BookingListItemComponent {
       bookOutline,
       desktopOutline,
       peopleOutline,
-      scanOutline,
     });
   }
 
@@ -40,10 +35,6 @@ export class BookingListItemComponent {
     return this.booking.spaceType === 'laboratory'
       ? 'desktop-outline'
       : 'book-outline';
-  }
-
-  openCheckIn(): void {
-    if (this.booking.spaceId) this.checkIn.emit(this.booking.spaceId);
   }
 
   cancelBooking(): void {

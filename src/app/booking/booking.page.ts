@@ -1,4 +1,5 @@
 import { Auth } from '../auth/auth';
+import { romeDate } from '../models/rome-date';
 import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -44,7 +45,7 @@ export class BookingPage implements OnInit, OnDestroy{
   space: Space;
   get participants(): number { return 1 + this.participantEmails.length; }
   selectedTime = '';
-  selectedDate = new Date().toISOString().slice(0, 10);
+  selectedDate = romeDate();
   participantEmails: string[] = [];
   emailTouched: boolean[] = [];
   attemptedSubmit = false;

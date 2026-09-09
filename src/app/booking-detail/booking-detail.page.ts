@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -24,13 +25,17 @@ export class UserBookingDetailPage {
   readonly busy = signal(false);
   email = '';
   private hasEntered = false;
+  private loadRequest?: Subscription;
   ngOnInit(): void { this.load(); }
   ionViewWillEnter(): void { if (this.hasEntered) this.load(); this.hasEntered = true; }
   isOrganizer(): boolean { return this.booking()?.participants.some(p => p.id === this.auth.user()?.id && p.participantRole === 'organizer') ?? false; }
   load(): void {
+    this.loadRequest?.unsubscribe();
+    this.booking.set(null);
+    this.error.set('');
     const id = this.route.snapshot.paramMap.get('id');
     if (!id || !/^[1-9]\d*$/.test(id)) { this.error.set('Prenotazione non valida.'); return; }
-    this.http.get<{ data: Booking }>(`${environment.apiUrl}/bookings/${id}`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.loadRequest = this.http.get<{ data: Booking }>(`${environment.apiUrl}/bookings/${id}`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => this.booking.set(response.data), error: error => this.showError(error),
     });
   }

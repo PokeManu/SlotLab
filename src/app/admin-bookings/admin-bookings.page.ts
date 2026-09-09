@@ -146,7 +146,7 @@ import { Auth } from '../auth/auth';
           people: booking.participants ?? [], code: String(booking.id), startTime: booking.startTime, endTime: booking.endTime, space: booking.spaceName,
           bookedBy: booking.organizerName ?? '—', participants: booking.participantCount,
           status: booking.status === 'completed' ? 'Completata' : 'Confermata',
-          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT'), dateValue: booking.date,
+          dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }), dateValue: booking.date,
           building: booking.building, floor: booking.floor,
         }));
         this.selectedBooking = this.bookings.find(booking => booking.code === selectedCode) ?? null;

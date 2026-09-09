@@ -141,7 +141,7 @@ export class AdminReportsPage implements OnInit{
     this.errorMessage = '';
     this.http.get<{ data: Array<{ id: number; spaceName: string; category: string; description: string; priority: ReportPriority; status: string; authorEmail: string; photoPath?: string | null; createdAt: string }> }>(`${environment.apiUrl}/admin/reports`).subscribe({ next: response => {
       const reports = response.data.map(report => ({ id: report.id, title: report.category, space: report.spaceName,
-        date: new Date(report.createdAt).toLocaleDateString('it-IT'), reporter: report.authorEmail, description: report.description,
+        date: new Date(report.createdAt).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }), reporter: report.authorEmail, description: report.description,
         priority: report.priority, priorityLabel: report.priority === 'high' ? 'Alta' : report.priority === 'medium' ? 'Media' : 'Bassa',
         status: report.status === 'in_progress' ? 'in-progress' : report.status as ReportStatus, statusLabel: report.status === 'in_progress' ? 'In lavorazione' : report.status === 'open' ? 'Aperta' : 'Risolta',
         photoPath: report.photoPath, assignee: '—', icon: 'warning-outline' }));

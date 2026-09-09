@@ -64,7 +64,6 @@
                 @for (booking of group.bookings; track booking.id) {
                   <app-booking-list-item
                     [booking]="booking"
-                    (checkIn)="openCheckIn($event)"
                     (cancel)="cancelBooking($event)"
                   ></app-booking-list-item>
                 }

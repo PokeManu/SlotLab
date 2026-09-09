@@ -44,6 +44,8 @@ export class NotificationsPage implements OnInit{
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
   loading = false;
+  error = '';
+  saving = false;
   notificationGroups: NotificationGroup[] = [];
   private hasEntered = false;
 
@@ -66,18 +68,19 @@ export class NotificationsPage implements OnInit{
       });
    }
 
-   private loadNotifications(): void {
+   loadNotifications(): void {
     this.loading = true;
+    this.error = '';
     allPages<{ id: number; type: string; title: string; message: string; createdAt: string; read: boolean }>(this.http,
       `${environment.apiUrl}/notifications`,
-    ).pipe(finalize(() => { this.loading = false; })).subscribe({
+    ).pipe(finalize(() => { this.loading = false; this.changeDetector.markForCheck(); })).subscribe({
       next: response => {
         const notifications = response.data.map(notification => ({
           id: notification.id,
           title: notification.title,
           context: notification.type,
           message: notification.message,
-          time: new Date(notification.createdAt).toLocaleString('it-IT'),
+          time: new Date(notification.createdAt).toLocaleString('it-IT', { timeZone: 'Europe/Rome' }),
           icon: this.iconFor(notification.type),
           variant: this.variantFor(notification.type),
           read: notification.read,
@@ -87,6 +90,7 @@ export class NotificationsPage implements OnInit{
       },
       error: () => {
         this.notificationGroups = [];
+        this.error = 'Impossibile caricare le notifiche. Riprova.';
         this.changeDetector.markForCheck();
       },
     });
@@ -106,15 +110,26 @@ export class NotificationsPage implements OnInit{
    }
 
    markAllAsRead(): void{
-    this.http.patch<void>(`${environment.apiUrl}/notifications/read-all`, {}).subscribe({
+    if (this.saving) return;
+    this.saving = true;
+    this.error = '';
+    this.http.patch<void>(`${environment.apiUrl}/notifications/read-all`, {}).pipe(finalize(() => {
+      this.saving = false; this.changeDetector.markForCheck();
+    })).subscribe({
       next: () => this.notificationGroups.forEach(group => group.notifications.forEach(notification => { notification.read = true; })),
+      error: () => { this.error = 'Impossibile segnare le notifiche come lette. Riprova.'; },
     });
    }
 
    markAsRead(notification: SlotNotification): void{
-    if (notification.read) return;
-    this.http.patch<{ data: { read: boolean } }>(`${environment.apiUrl}/notifications/${notification.id}/read`, {}).subscribe({
+    if (notification.read || this.saving) return;
+    this.saving = true;
+    this.error = '';
+    this.http.patch<{ data: { read: boolean } }>(`${environment.apiUrl}/notifications/${notification.id}/read`, {}).pipe(finalize(() => {
+      this.saving = false; this.changeDetector.markForCheck();
+    })).subscribe({
       next: () => { notification.read = true; },
+      error: () => { this.error = 'Impossibile segnare la notifica come letta. Riprova.'; },
     });
    }
 }

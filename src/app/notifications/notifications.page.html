@@ -3,18 +3,21 @@
   <main class="notifications">
     <header class="notifications__header">
       <h1>Notifiche</h1>
-      <button class="notifications__mark-all" type="button" (click)="markAllAsRead()">Segna tutte come lette</button>
+      <button class="notifications__mark-all" type="button" [disabled]="saving || loading || !notificationGroups.length" (click)="markAllAsRead()">Segna tutte come lette</button>
     </header>
 
+    @if (loading) { <p role="status">Caricamento notifiche…</p> }
+    @if (error) { <p role="alert">{{ error }}</p><button type="button" class="notifications__mark-all" [disabled]="loading || saving" (click)="loadNotifications()">Ricarica notifiche</button> }
+    @if (!loading && !error && !notificationGroups.length) { <p role="status">Nessuna notifica presente.</p> }
     <div class="notifications__groups">
       @for(
         group of notificationGroups; track group.label
       ){
-        <section class="notification-group" [attr.aria-labelledby]="'notification-group' + $index">
+        <section class="notification-group" [attr.aria-labelledby]="'notification-group-' + $index">
           <h2 class="notification-group__title" [id]="'notification-group-' + $index">{{group.label}}</h2>
           <div class="notification-group__list">
             @for(notification of group.notifications; track notification.id){
-              <button class="notification-card" type="button" [class.notificarion-card--read]="notification.read" (click)="markAsRead(notification)">
+              <button class="notification-card" type="button" [disabled]="saving || loading" [class.notification-card--read]="notification.read" (click)="markAsRead(notification)">
                 <span
                   class="notification-card__icon"
                   [class.notification-card__icon--primary]="notification.variant === 'primary'"

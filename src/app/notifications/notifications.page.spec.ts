@@ -18,6 +18,23 @@ describe('NotificationsPage', () => {
     http.expectOne('/api/v1/notifications').flush({ data: [] });
   });
 
+  afterEach(() => http.verify());
+
+  it('aggiorna immediatamente lo stile dopo la lettura e gestisce gli errori', async () => {
+    component.loadNotifications();
+    http.expectOne('/api/v1/notifications').flush({ data: [{ id: 1, type: 'report_updated', title: 'Risolta', message: 'Test', createdAt: '2026-09-07T17:00:00Z', read: false }] });
+    await fixture.whenStable();
+    fixture.nativeElement.querySelector('.notification-card').click();
+    http.expectOne('/api/v1/notifications/1/read').flush({ data: { read: true } });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.notification-card--read')).not.toBeNull();
+    component.loadNotifications();
+    http.expectOne('/api/v1/notifications').flush({}, { status: 500, statusText: 'Error' });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Impossibile caricare');
+    expect(fixture.nativeElement.textContent).not.toContain('Nessuna notifica presente');
+  });
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

@@ -175,6 +175,68 @@ app-admin-spaces {
 }
 
 /* Layout condiviso delle aree amministrative, incluse le pagine legacy. */
+/* Campi e testi dinamici devono poter restringersi nelle griglie. */
+main {
+  overflow-wrap: anywhere;
+}
+
+main :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:is(app-admin-buildings, app-admin-availability, app-admin-users) {
+  .form > label, .row > *, .search { min-width: 0; }
+  .row { overflow-wrap: anywhere; }
+}
+
+app-admin-spaces .space-create-form {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  label { min-width: 0; }
+}
+
+app-admin-availability .form,
+app-admin-buildings .form {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+@media (max-width: 1180px) {
+  app-admin-availability .row:not(.row--head),
+  app-admin-buildings .row:not(.row--head),
+  app-admin-users .row:not(.row--head) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 16px;
+  }
+  :is(app-admin-availability, app-admin-buildings, app-admin-users) .row--head { display: none; }
+}
+
+@media (min-width: 701px) and (max-width: 1180px) {
+  app-topbar .topbar:not(.topbar--admin) {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 24px;
+    .topbar__navigation { order: 3; width: 100%; margin-left: 0; flex-wrap: wrap; justify-content: center; }
+    .topbar__user { margin-left: auto; }
+  }
+  app-booking-list-item .booking-item {
+    grid-template-columns: 80px 60px minmax(0, 1fr);
+    grid-template-areas: 'time icon information' 'time icon status' 'actions actions actions';
+    .booking-item__status { justify-self: start; }
+  }
+}
+
+@media (max-width: 480px) {
+  app-space-detail .services__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  app-space-list-item .space-list-item { grid-template-columns: minmax(0, 1fr); }
+  app-space-list-item .space-list-item__media { height: 150px; }
+  app-booking-list-item .booking-item__actions { flex-wrap: wrap; gap: 12px; }
+  app-booking-list-item .booking-item__check-in { flex-basis: 100%; }
+  app-admin-statistics .date-controls { grid-template-columns: minmax(0, 1fr); }
+  app-admin-statistics .data-list li { grid-template-columns: minmax(0, 1fr); }
+}
+
 body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {
   display: grid;
   grid-template-columns: 232px minmax(0, 1fr);

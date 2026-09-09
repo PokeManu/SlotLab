@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { romeDate } from '../models/rome-date';
 import { HttpClient } from '@angular/common/http';
 import { IonContent } from '@ionic/angular';
 import { environment } from '../../environments/environment';
@@ -12,8 +13,8 @@ export class AdminAvailabilityPage implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly http = inject(HttpClient); spaces: Space[] = []; rows: Availability[] = []; unavailabilities: Unavailability[] = []; spaceId = 0; error = '';
   editingId: number | null = null;
-  form = { validFrom: new Date().toISOString().slice(0, 10), validUntil: '2099-12-31', weekday: 1, startTime: '08:00', endTime: '20:00' };
-  exception = { date: new Date().toISOString().slice(0, 10), startTime: '08:00', endTime: '20:00', reason: '' };
+  form = { validFrom: romeDate(), validUntil: '2099-12-31', weekday: 1, startTime: '08:00', endTime: '20:00' };
+  exception = { date: romeDate(), startTime: '08:00', endTime: '20:00', reason: '' };
   ngOnInit(): void { this.http.get<{ data: Space[] }>(`${environment.apiUrl}/admin/spaces`).subscribe({ next: response => { this.spaces = response.data; this.changeDetector.markForCheck(); if (this.spaces[0]) { this.spaceId = this.spaces[0].id; this.load(); } }, error: () => { this.error = 'Impossibile caricare gli spazi.'; this.changeDetector.markForCheck(); } }); }
   load(): void { this.editingId = null; this.error = ''; this.changeDetector.markForCheck(); if (!this.spaceId) { this.rows = []; this.unavailabilities = []; return; } this.http.get<{ data: Availability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/availability`).subscribe({ next: response => { this.rows = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le disponibilità.'; this.changeDetector.markForCheck(); } }); this.http.get<{ data: Unavailability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/unavailability`).subscribe({ next: response => { this.unavailabilities = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le indisponibilità.'; this.changeDetector.markForCheck(); } }); }
   edit(row: Availability): void { this.editingId = row.availabilityId; this.form = { validFrom: row.validFrom, validUntil: row.validUntil, weekday: row.weekday, startTime: row.startTime, endTime: row.endTime }; }

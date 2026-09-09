@@ -45,7 +45,7 @@ describe('BookingsPage', () => {
     const booking = {
       id: '7', spaceId: '1', spaceName: 'Aula test', status: 'confirmed' as const,
       dateLabel: '08/09/2026', startTime: '08:00', endTime: '20:00', building: 'Edificio 6',
-      floor: 2, participants: 1, spaceType: 'study-room' as const, canCheckIn: false,
+      floor: 2, participants: 1, spaceType: 'study-room' as const,
     };
     component.upcomingBookingGroups = [{ dateLabel: booking.dateLabel, bookings: [booking] }];
     component.cancelBooking('7');

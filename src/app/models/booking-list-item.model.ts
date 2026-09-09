@@ -7,7 +7,6 @@ export type BookingSpaceType =
 export interface BookingListItem extends BookingSummary {
   spaceId?: string;
   spaceType: BookingSpaceType;
-  canCheckIn: boolean;
   dateValue?: string;
 }
 

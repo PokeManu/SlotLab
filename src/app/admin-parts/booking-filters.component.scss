@@ -19,7 +19,7 @@ select {
   }
 
   .filters {
-    width: min(842px, calc(100% - 370px));
+    width: 100%;
     margin-bottom: 17px;
   }
 
@@ -53,6 +53,7 @@ select {
 
   .search-field input {
     width: 100%;
+    min-width: 0;
     height: 100%;
     padding: 0 18px;
     border: 0;
@@ -119,7 +120,7 @@ select {
   @media (max-width: 1250px) {
 
     .filters {
-      width: calc(100% - 340px);
+      width: 100%;
     }
   }
 

@@ -39,7 +39,7 @@ export class ReportsPage implements OnInit {
         this.reports = response.data.map(report => ({
           id: String(report.id), photo: report.photo, spaceId: String(report.spaceId), spaceName: report.spaceName, building: '', floor: 0,
           category: report.category === 'technical' ? 'equipment' : report.category as SpaceReport['category'],
-          description: report.description, dateLabel: new Date(report.createdAt).toLocaleDateString('it-IT'),
+          description: report.description, dateLabel: new Date(report.createdAt).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }),
           status: report.status === 'open' ? 'submitted' : report.status === 'in_progress' ? 'in-progress' : 'resolved',
         }));
         this.changeDetector.markForCheck();

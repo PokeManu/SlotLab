@@ -24,7 +24,7 @@
   </section>
 
   <section class="booking-card field-row date-field" (click)="openDatePicker()">
-    <ion-icon name="calendar-outline"></ion-icon>
+    <ion-icon class="field-icon" name="calendar-outline" aria-hidden="true"></ion-icon>
     <div class="field-content">
       <span class="field-label">Data</span>
       <input #datePicker class="booking-date-input" type="date" [(ngModel)]="selectedDate" (change)="changeDate()" aria-label="Data della prenotazione">

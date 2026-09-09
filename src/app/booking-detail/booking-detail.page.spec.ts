@@ -18,6 +18,21 @@ describe('UserBookingDetailPage', () => {
     ] });
   });
   afterEach(() => TestBed.inject(HttpTestingController).verify());
+  it('cancella dati obsoleti e recupera dopo un errore senza collegamenti diretti al check-in', async () => {
+    const fixture = TestBed.createComponent(UserBookingDetailPage); fixture.detectChanges();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/v1/bookings/7').flush({ data: booking });
+    fixture.componentInstance.load();
+    expect(fixture.componentInstance.booking()).toBeNull();
+    http.expectOne('/api/v1/bookings/7').flush({}, { status: 500, statusText: 'Error' });
+    fixture.componentInstance.load();
+    http.expectOne('/api/v1/bookings/7').flush({ data: booking });
+    await fixture.whenStable();
+    expect(fixture.componentInstance.error()).toBe('');
+    expect(fixture.nativeElement.querySelector('a[href^="/check-in"]')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('QR affisso');
+  });
+
   it('aggiunge tramite email e rimuove usando ID partecipazione, non ID utente', async () => {
     const fixture = TestBed.createComponent(UserBookingDetailPage);
     fixture.detectChanges();
