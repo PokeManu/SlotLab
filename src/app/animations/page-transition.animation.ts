@@ -20,7 +20,9 @@ export const slotLabPageTransition: AnimationBuilder = (_baseElement, options = 
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const transition = createAnimation('slotlab-page-transition')
-    .duration(prefersReducedMotion ? 0 : (options.duration ?? PAGE_TRANSITION_DURATION))
+    // Il primo ingresso non ha una pagina uscente: animarlo durante il redirect
+    // iniziale può lasciare il contenitore traslato finché non si ricarica la pagina.
+    .duration(prefersReducedMotion || !leavingPage ? 0 : (options.duration ?? PAGE_TRANSITION_DURATION))
     .easing(PAGE_TRANSITION_EASING);
 
   const enteringAnimation = createAnimation('slotlab-page-enter')
@@ -28,7 +30,8 @@ export const slotLabPageTransition: AnimationBuilder = (_baseElement, options = 
     .fill('both')
     .beforeRemoveClass('ion-page-invisible')
     .fromTo('opacity', 0.01, 1)
-    .fromTo('transform', 'translateY(8px)', 'translateY(0)');
+    .fromTo('transform', 'translateY(8px)', 'translateY(0)')
+    .afterClearStyles(['opacity', 'transform']);
 
   transition.addAnimation(enteringAnimation);
 

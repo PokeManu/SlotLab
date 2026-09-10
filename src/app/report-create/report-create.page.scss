@@ -20,9 +20,9 @@ ion-content {
   min-height: 100%;
   margin: 0 auto;
   padding:
-    calc(28px + env(safe-area-inset-top))
+    calc(28px + var(--slot-safe-area-top))
     24px
-    calc(40px + env(safe-area-inset-bottom));
+    calc(40px + var(--slot-safe-area-bottom));
 }
 
 .report-create-page__header {

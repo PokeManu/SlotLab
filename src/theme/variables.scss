@@ -1,5 +1,9 @@
 :root {
   color-scheme: dark;
+  // Capacitor e il browser possono valorizzare una sola delle due safe area.
+  // Usando il valore maggiore, le barre non finiscono sotto la status bar iOS.
+  --slot-safe-area-top: max(var(--ion-safe-area-top, 0px), env(safe-area-inset-top, 0px));
+  --slot-safe-area-bottom: max(var(--ion-safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px));
   --slot-background: #081526;
   --slot-sidebar: #081321;
   --slot-surface: #14233b;

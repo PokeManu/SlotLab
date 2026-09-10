@@ -193,9 +193,9 @@
 
 @media (max-width: 700px) {
   .topbar {
-    min-height: calc(76px + var(--ion-safe-area-top, env(safe-area-inset-top)));
+    min-height: calc(76px + var(--slot-safe-area-top));
     padding:
-      calc(16px + var(--ion-safe-area-top, env(safe-area-inset-top)))
+      calc(16px + var(--slot-safe-area-top))
       20px
       16px;
   }

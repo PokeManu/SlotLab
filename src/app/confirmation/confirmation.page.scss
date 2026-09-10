@@ -20,9 +20,9 @@
     min-height: 100%;
     margin: 0 auto;
     padding:
-      calc(90px + env(safe-area-inset-top))
+      calc(90px + var(--slot-safe-area-top))
       24px
-      calc(40px + env(safe-area-inset-bottom));
+      calc(40px + var(--slot-safe-area-bottom));
   }
 
   .success-icon {

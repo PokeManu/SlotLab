@@ -20,9 +20,9 @@
     min-height: 100%;
     margin: 0 auto;
     padding:
-      calc(24px + env(safe-area-inset-top))
+      calc(24px + var(--slot-safe-area-top))
       24px
-      calc(32px + env(safe-area-inset-bottom));
+      calc(32px + var(--slot-safe-area-bottom));
   }
 
   .booking-header {

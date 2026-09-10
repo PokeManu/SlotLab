@@ -123,7 +123,10 @@ ion-content {
   }
 
   .spaces {
-    padding: 32px 20px calc(100px + env(safe-area-inset-bottom));
+    padding:
+      calc(32px + var(--slot-safe-area-top))
+      20px
+      calc(100px + var(--slot-safe-area-bottom));
   }
 
   .spaces__intro {

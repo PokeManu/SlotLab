@@ -66,6 +66,26 @@ describe('Form di accesso', () => {
     page.submit();
     http.expectNone('/api/v1/auth/register');
   });
+  it('mostra e nasconde separatamente password e conferma senza inviare il form', () => {
+    const fixture = create('register');
+    const toggles = fixture.nativeElement.querySelectorAll('.access__password-toggle') as NodeListOf<HTMLButtonElement>;
+    const password = fixture.nativeElement.querySelector('[name=password]') as HTMLInputElement;
+    const confirmation = fixture.nativeElement.querySelector('[name=passwordConfirmation]') as HTMLInputElement;
+    expect(toggles.length).toBe(2);
+    expect(password.type).toBe('password');
+    expect(confirmation.type).toBe('password');
+    toggles[0].click();
+    fixture.detectChanges();
+    expect(password.type).toBe('text');
+    expect(confirmation.type).toBe('password');
+    expect(toggles[0].getAttribute('aria-label')).toBe('Nascondi password');
+    toggles[0].click();
+    toggles[1].click();
+    fixture.detectChanges();
+    expect(password.type).toBe('password');
+    expect(confirmation.type).toBe('text');
+    http.expectNone('/api/v1/auth/register');
+  });
   it('login admin apre dashboard e distingue errore rete', () => {
     const page = create().componentInstance;
     page.email = 'admin@example.test'; page.password = 'Password2026!';

@@ -3,7 +3,7 @@ ion-content {
   --background: radial-gradient(circle at 50% 22%, rgba(54,82,128,.2), transparent 42%), var(--slot-background);
   --color: var(--slot-text);
 }
-.booking-detail { box-sizing: border-box; width: min(100%, 760px); min-height: 100%; margin: auto; padding: calc(24px + env(safe-area-inset-top)) 24px calc(32px + env(safe-area-inset-bottom)); }
+.booking-detail { box-sizing: border-box; width: min(100%, 760px); min-height: 100%; margin: auto; padding: calc(24px + var(--slot-safe-area-top)) 24px calc(32px + var(--slot-safe-area-bottom)); }
 .detail-header { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
 h1 { margin: 0; font-size: 23px; font-weight: 500; }
 h2 { margin: 0 0 18px; font-size: 20px; font-weight: 600; overflow-wrap: anywhere; }

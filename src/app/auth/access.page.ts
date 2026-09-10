@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { idCardOutline, lockClosedOutline, mailOutline, personOutline } from 'ionicons/icons';
+import { eyeOffOutline, eyeOutline, idCardOutline, lockClosedOutline, mailOutline, personOutline } from 'ionicons/icons';
 import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { returnDestination } from './return-url';
@@ -30,9 +30,11 @@ export class AccessPage {
   passwordTouched = false;
   confirmationTouched = false;
   attemptedSubmit = false;
+  showPassword = false;
+  showPasswordConfirmation = false;
 
   constructor() {
-    addIcons({ idCardOutline, lockClosedOutline, mailOutline, personOutline });
+    addIcons({ eyeOffOutline, eyeOutline, idCardOutline, lockClosedOutline, mailOutline, personOutline });
   }
 
   // Ionic conserva i form: l'URL attuale e autorevole anche dopo Indietro.
@@ -49,6 +51,8 @@ export class AccessPage {
     this.passwordTouched = false;
     this.confirmationTouched = false;
     this.attemptedSubmit = false;
+    this.showPassword = false;
+    this.showPasswordConfirmation = false;
     this.error.set('');
   }
 

@@ -192,9 +192,9 @@
     .notifications {
       max-width: none;
       padding:
-        calc(34px + env(safe-area-inset-top))
+        calc(34px + var(--slot-safe-area-top))
         20px
-        calc(112px + env(safe-area-inset-bottom));
+        calc(112px + var(--slot-safe-area-bottom));
     }
 
     .notifications__header {

@@ -127,7 +127,7 @@ app-topbar {
   .home {
     display: flex;
     flex-direction: column;
-    padding: 40px 20px calc(100px + env(safe-area-inset-bottom));
+    padding: 40px 20px calc(100px + var(--slot-safe-area-bottom));
   }
 
   .home__intro {

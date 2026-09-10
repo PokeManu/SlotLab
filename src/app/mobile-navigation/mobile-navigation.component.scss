@@ -15,7 +15,7 @@
     left: 0;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    padding: 8px 6px calc(8px + var(--slot-safe-area-bottom));
     border-top: 1px solid var(--slot-border);
     background: var(--slot-surface);
     box-shadow: 0 -8px 24px rgb(0 0 0 / 18%);

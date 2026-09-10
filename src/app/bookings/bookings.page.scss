@@ -151,7 +151,7 @@ ion-content {
 
 @media (max-width: 700px) {
   .bookings {
-    padding: 32px 20px calc(100px + env(safe-area-inset-bottom));
+    padding: 32px 20px calc(100px + var(--slot-safe-area-bottom));
   }
 
   .bookings__header h1 {
