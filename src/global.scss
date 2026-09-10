@@ -360,6 +360,19 @@ app-admin-buildings .form {
 }
 
 @media (max-width: 900px) {
+  app-admin-spaces .space-create-form.space-create-form {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  app-admin-spaces .space-create-form > :is(label, fieldset, button),
+  app-admin-spaces .space-create-form > label > :is(input:not([type="checkbox"]), select) {
+    box-sizing: border-box;
+    width: 100%;
+  }
+  app-admin-spaces .space-create-form > label > :is(input:not([type="checkbox"]), select),
+  app-admin-spaces .space-create-form > button {
+    min-height: 46px;
+  }
   app-admin-spaces .space-row__actions.space-row__actions { gap: 8px; }
   app-admin-spaces .icon-button.icon-button { width: 46px; height: 46px; }
 }
