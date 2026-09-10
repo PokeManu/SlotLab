@@ -24,9 +24,9 @@ import { addIcons } from 'ionicons';
     constructOutline,
     createOutline,
     desktopOutline,
-    ellipsisVerticalOutline,
     gridOutline,
-    searchOutline
+    searchOutline,
+    trashOutline
   } from 'ionicons/icons';
 
   interface AdminSpace{
@@ -85,9 +85,9 @@ export class AdminSpacesPage implements OnInit{
         constructOutline,
         createOutline,
         desktopOutline,
-        ellipsisVerticalOutline,
         gridOutline,
-        searchOutline
+        searchOutline,
+        trashOutline
       });
    }
 

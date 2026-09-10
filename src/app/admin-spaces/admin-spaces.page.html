@@ -75,8 +75,10 @@
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
 
-                <button type="button" class="icon-button" [attr.aria-label]="'Elimina '+ space.name" (click)="removeSpace(space)">
-                  <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                <button type="button" class="icon-button icon-button--danger"
+                        [attr.aria-label]="'Elimina ' + space.name" title="Elimina spazio"
+                        (click)="removeSpace(space)">
+                  <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
                 </button>
               </div>
             </article>

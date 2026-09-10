@@ -244,6 +244,7 @@
     border-radius: 10px;
     background: transparent;
     color: var(--slot-text-muted);
+    cursor: pointer;
   }
 
   .icon-button:hover {
@@ -253,6 +254,25 @@
 
   .icon-button ion-icon {
     font-size: 23px;
+  }
+
+  .icon-button--danger {
+    color: var(--slot-danger);
+  }
+
+  .icon-button--danger:hover,
+  .icon-button--danger:focus-visible {
+    background: var(--slot-danger-surface);
+    color: var(--slot-danger);
+  }
+
+  .icon-button:focus-visible {
+    outline: 3px solid var(--slot-primary-soft);
+    outline-offset: 2px;
+  }
+
+  .icon-button--danger:focus-visible {
+    outline-color: var(--slot-danger);
   }
 
   /* Footer e paginazione */
@@ -419,7 +439,13 @@
     }
 
     .space-row__actions {
+      gap: 8px;
       justify-content: flex-end;
+    }
+
+    .icon-button {
+      width: 46px;
+      height: 46px;
     }
 
     .spaces-table__footer {

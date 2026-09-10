@@ -36,4 +36,18 @@ describe('AdminSpacesPage', () => {
     expect(fixture.nativeElement.querySelector('input[name="name"]')?.value).toBe(space.name);
     http.verify();
   });
+
+  it('rende riconoscibile e accessibile il comando per eliminare uno spazio', async () => {
+    const space = { id: 1, name: 'Aula Studio A1', building: { id: 1, name: 'Edificio 6' }, floor: 2, capacity: 24, type: 'study_room', status: 'active', accessible: true };
+    http.expectOne('/api/v1/admin/buildings').flush({ data: [space.building] });
+    http.expectOne('/api/v1/admin/spaces').flush({ data: [space] });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const deleteButton = fixture.nativeElement.querySelector('.icon-button--danger');
+    expect(deleteButton).not.toBeNull();
+    expect(deleteButton.getAttribute('aria-label')).toBe(`Elimina ${space.name}`);
+    expect(deleteButton.querySelector('ion-icon')?.getAttribute('name')).toBe('trash-outline');
+    http.verify();
+  });
 });
