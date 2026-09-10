@@ -6,7 +6,6 @@ interface QuickFilter {
   mobileLabel?: string;
   active: boolean;
   desktopOnly?: boolean;
-  mobileOnly?: boolean;
 }
 
 @Component({
@@ -40,12 +39,6 @@ export class QuickFiltersComponent {
       label: 'Posti ≥ 10',
       active: false,
       desktopOnly: true,
-    },
-    {
-      id: 'more-filters',
-      label: 'Filtri',
-      active: false,
-      mobileOnly: true,
     },
   ];
 

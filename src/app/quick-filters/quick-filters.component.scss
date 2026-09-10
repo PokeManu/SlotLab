@@ -33,7 +33,6 @@
     transform 100ms ease;
 }
 
-.quick-filters__button--mobile-only,
 .quick-filters__label-mobile {
   display: none;
 }
@@ -81,10 +80,6 @@
   .quick-filters__button--desktop-only,
   .quick-filters__label-desktop {
     display: none;
-  }
-
-  .quick-filters__button--mobile-only {
-    display: inline-flex;
   }
 
   .quick-filters__label-mobile {

@@ -78,6 +78,8 @@ Gli edifici 2–19 e i tre spazi vengono mantenuti coerenti con `src/app/data/ca
 
 `npm run db:seed-demo` richiede `SLOTLAB_DEMO_DB_PATH`. Il percorso deve essere diverso da `SLOTLAB_DB_PATH`; in caso contrario il comando si interrompe prima di aprire il database. Account e prenotazioni demo non fanno parte dei dati iniziali definitivi.
 
+Con i tre spazi del catalogo iniziale genera 10 utenti fittizi, 18 prenotazioni concluse con gruppi e check-in parziali, 6 prenotazioni future e 7 segnalazioni distribuite tra categorie e stati. Prepara inoltre gli snapshot delle fasce terminate del mese corrente, comprese quelle senza prenotazioni, così la pagina Statistiche usa denominatori e presenze reali. Lo script sostituisce soltanto i propri dati demo e può essere rieseguito senza accumulare duplicati.
+
 ## Avviare il server
 
 Dalla cartella `backend`:
