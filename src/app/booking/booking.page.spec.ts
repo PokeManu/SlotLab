@@ -25,6 +25,16 @@ describe('BookingPage', () => {
     expect(component).toBeTruthy();
   });
 
+  it('apre il selettore data cliccando il contenuto del riquadro', () => {
+    const input = fixture.nativeElement.querySelector('.booking-date-input') as HTMLInputElement;
+    const showPicker = vi.fn();
+    Object.defineProperty(input, 'showPicker', { configurable: true, value: showPicker });
+
+    fixture.nativeElement.querySelector('.booking-date-value').click();
+
+    expect(showPicker).toHaveBeenCalledOnce();
+  });
+
   afterEach(() => http.verify());
 
   it('mostra le fasce ricevute dal server', async () => {

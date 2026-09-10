@@ -174,10 +174,11 @@
     margin: 0;
     border: 0;
     opacity: 0.001;
+    pointer-events: none;
     cursor: pointer;
   }
 
-  .date-field:has(.booking-date-input:focus-visible) {
+  .date-field:focus-visible {
     outline: 3px solid var(--slot-primary-soft);
     outline-offset: 3px;
   }

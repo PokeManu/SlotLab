@@ -126,6 +126,25 @@ export class BookingPage implements OnInit, OnDestroy{
     if (/^\d+$/.test(this.space.id)) this.loadAvailability(this.space.id);
   }
 
+  openDatePicker(input: HTMLInputElement): void {
+    input.focus({ preventScroll: true });
+    try {
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+        return;
+      }
+    } catch {
+      // Alcune WebView espongono showPicker ma richiedono il fallback nativo.
+    }
+    input.click();
+  }
+
+  openDatePickerFromKeyboard(input: HTMLInputElement, event: KeyboardEvent): void {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    this.openDatePicker(input);
+  }
+
   get selectedDateLabel(): string {
     return new Date(`${this.selectedDate}T12:00:00Z`).toLocaleDateString('it-IT', {
       timeZone: 'Europe/Rome',

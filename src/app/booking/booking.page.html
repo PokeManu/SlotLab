@@ -23,7 +23,11 @@
     </div>
   </section>
 
-  <label class="booking-card field-row date-field">
+  <div class="booking-card field-row date-field"
+       role="button" tabindex="0"
+       [attr.aria-label]="'Scegli la data della prenotazione. Data selezionata: ' + selectedDateLabel"
+       (click)="openDatePicker(dateInput)"
+       (keydown)="openDatePickerFromKeyboard(dateInput, $event)">
     <ion-icon class="field-icon" name="calendar-outline" aria-hidden="true"></ion-icon>
     <div class="field-content">
       <span class="field-label">Data</span>
@@ -31,9 +35,10 @@
     </div>
 
     <ion-icon class="field-arrow" name="chevron-down-outline" aria-hidden="true"></ion-icon>
-    <input class="booking-date-input" type="date" [(ngModel)]="selectedDate"
-           (change)="changeDate()" aria-label="Data della prenotazione">
-  </label>
+    <input #dateInput class="booking-date-input" type="date" tabindex="-1"
+           [(ngModel)]="selectedDate" (change)="changeDate()"
+           aria-label="Data della prenotazione">
+  </div>
 
 
 
