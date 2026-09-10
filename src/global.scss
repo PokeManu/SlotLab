@@ -274,6 +274,15 @@ app-admin-spaces {
   .space-create-form__options .checkbox:has(input:checked) { border-color: var(--slot-primary); background: rgb(79 127 255 / 12%); }
 }
 
+/* Azione di eliminazione nella gestione spazi. */
+app-admin-spaces {
+  .icon-button.icon-button { cursor: pointer; }
+  .icon-button.icon-button--danger { color: var(--slot-danger); }
+  .icon-button.icon-button--danger:is(:hover, :focus-visible) { background: var(--slot-danger-surface); color: var(--slot-danger); }
+  .icon-button.icon-button:focus-visible { outline: 3px solid var(--slot-primary-soft); outline-offset: 2px; }
+  .icon-button.icon-button--danger:focus-visible { outline-color: var(--slot-danger); }
+}
+
 /* Layout condiviso delle aree amministrative, incluse le pagine legacy. */
 /* Campi e testi dinamici devono poter restringersi nelle griglie. */
 main {
@@ -348,6 +357,11 @@ app-admin-buildings .form {
 
 @media (min-width: 481px) and (max-width: 900px) {
   app-admin-spaces .space-create-form__options { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  app-admin-spaces .space-row__actions.space-row__actions { gap: 8px; }
+  app-admin-spaces .icon-button.icon-button { width: 46px; height: 46px; }
 }
 
 body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {
