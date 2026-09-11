@@ -3,7 +3,7 @@
 La configurazione di esempio è in `deploy/nginx.conf.example`. Non attiva né pubblica servizi. Occorrono un dominio proprio, un certificato HTTPS attendibile e un host configurato; non sono inclusi credenziali o certificati.
 
 1. Installare le dipendenze dalle versioni nei lockfile e compilare con `npm run build`. Impostare `root` alla directory `www` che contiene `index.html` della build; `angular.json` imposta `outputPath.browser` alla stringa vuota.
-2. Configurare Express con `NODE_ENV=production`, `HOST=127.0.0.1`, `PORT=3000`, segreto JWT distinto e percorsi persistenti per database e allegati, fuori dalla directory pubblica. Configurare SMTP localmente senza inserire credenziali nel repository.
+2. Configurare Express con `NODE_ENV=production`, `HOST=127.0.0.1`, `PORT=3000`, segreto JWT distinto e un percorso persistente per il database, fuori dalla directory pubblica. Le nuove foto delle segnalazioni sono conservate nel database; `SLOTLAB_UPLOAD_DIR` serve soltanto per leggere ed eliminare eventuali allegati creati da versioni precedenti. Configurare SMTP localmente senza inserire credenziali nel repository.
 3. Solo se Nginx è sullo stesso host e Express è raggiungibile esclusivamente sul loopback, impostare `SLOTLAB_TRUST_PROXY=loopback`. Il proxy sovrascrive `X-Forwarded-For`: i limiti per indirizzo client funzionano senza fidarsi di header arbitrari. Il valore predefinito è `none`. Non estendere questa configurazione a proxy remoti senza adattarla.
 4. Sostituire i segnaposto nel file Nginx, verificare con `nginx -t` sull'host di destinazione, poi attivare il servizio secondo la gestione dell'host.
 

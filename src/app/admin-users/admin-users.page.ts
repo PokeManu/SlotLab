@@ -12,7 +12,9 @@ export class AdminUsersPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
   users: AdminUser[] = []; search = ''; page = 1; totalPages = 0; loading = false; error = '';
+  private hasEntered = false;
   ngOnInit(): void { this.loadUsers(); }
+  ionViewWillEnter(): void { if (this.hasEntered) this.loadUsers(); this.hasEntered = true; }
   loadUsers(): void {
     this.loading = true;
     this.error = '';

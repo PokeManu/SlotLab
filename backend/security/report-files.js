@@ -33,7 +33,14 @@ function cleanDeletedFiles() {
   return cleaning;
 }
 
-async function sendReportPhoto(photo, response) {
+async function sendReportPhoto(photo, response, data = null, contentType = null) {
+  if (data) {
+    if (!Buffer.isBuffer(data) || data.length > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(contentType)) throw new Error('Foto non valida.');
+    response.set('Cache-Control', 'no-store');
+    response.set('X-Content-Type-Options', 'nosniff');
+    response.type(contentType).send(data);
+    return;
+  }
   const filename = photoName(photo);
   const root = process.env.SLOTLAB_UPLOAD_DIR || path.join(__dirname, '..', 'uploads', 'reports');
   if (!path.isAbsolute(root)) throw new Error('La cartella foto deve essere assoluta.');

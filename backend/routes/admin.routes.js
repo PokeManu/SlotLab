@@ -8,6 +8,7 @@ const { consolidateOccurrences } = require('../db/occurrences');
 const { statistics, validateStatisticsPeriod } = require('../db/statistics');
 
 const router = express.Router();
+const MAX_ANNOUNCEMENT_MESSAGE_LENGTH = 1000;
 router.use(requireAuth, requireRole('admin'));
 
 function all(sql, values = []) {
@@ -85,6 +86,9 @@ router.post('/announcements', async (request, response) => {
   }
   const title = body.title.trim();
   const message = body.message.trim();
+  if (message.length > MAX_ANNOUNCEMENT_MESSAGE_LENGTH) {
+    throw Object.assign(new Error(`Il messaggio non può superare ${MAX_ANNOUNCEMENT_MESSAGE_LENGTH} caratteri.`), { status: 400, code: 'VALIDATION_ERROR' });
+  }
   const createdAt = new Date().toISOString();
   const data = await transaction(async db => {
     await consolidateOccurrences(db);
@@ -195,7 +199,7 @@ router.get('/spaces', async (request, response) => {
   }
   const where = typeof request.query.search === 'string' && request.query.search.trim()
     ? 'WHERE sp.name LIKE ? OR b.name LIKE ? OR CAST(b.number AS TEXT) = ?' : '';
-  const search = typeof request.query.search === 'string' ? request.query.search.trim() : '';
+  const search = typeof request.query.search === 'string' ? request.query.search.trim().replace(/\s+/g, ' ') : '';
   const values = where ? [`%${search}%`, `%${search}%`, search] : [];
   const total = await new Promise((resolve, reject) => getDatabase().get(`SELECT COUNT(*) AS count FROM spaces sp JOIN buildings b ON b.id = sp.building_id ${where};`, values, (error, row) => error ? reject(error) : resolve(row.count)));
   const rows = await all(
@@ -237,7 +241,7 @@ router.post('/spaces', async (request, response) => {
     if (!building) throw Object.assign(new Error('L’edificio richiesto non esiste.'), { status: 404, code: 'BUILDING_NOT_FOUND' });
     const row = await db.run(
       `INSERT INTO spaces (building_id, name, floor, type, capacity, accessible, status) VALUES (?, ?, ?, ?, ?, ?, ?);`,
-      [Number(body.buildingId), body.name.trim(), Number(body.floor), body.type, Number(body.capacity), Boolean(body.accessible) ? 1 : 0, body.status],
+      [Number(body.buildingId), body.name.trim(), Number(body.floor), body.type, Number(body.capacity), body.status === 'active' && Boolean(body.accessible) ? 1 : 0, body.status],
     );
     for (const code of serviceCodes) {
       const service = await db.get('SELECT id FROM services WHERE code = ?;', [code]);
@@ -288,9 +292,9 @@ router.patch('/spaces/:spaceId', async (request, response) => {
     }
     await db.run(
       `UPDATE spaces SET building_id = ?, name = ?, floor = ?, type = ?, capacity = ?, accessible = ?, status = ? WHERE id = ?;`,
-      [Number(body.buildingId ?? current.building_id), next.name.trim(), Number(next.floor), next.type, capacity, Boolean(next.accessible) ? 1 : 0, next.status, id],
+      [Number(body.buildingId ?? current.building_id), next.name.trim(), Number(next.floor), next.type, capacity, next.status === 'active' && Boolean(next.accessible) ? 1 : 0, next.status, id],
     );
-    return next;
+    return { ...next, accessible: next.status === 'active' && Boolean(next.accessible) };
   });
   response.json({ data: { id, name: next.name.trim(), floor: Number(next.floor), type: next.type, capacity: Number(next.capacity), accessible: Boolean(next.accessible), status: next.status } });
 });
@@ -315,7 +319,7 @@ router.get('/spaces/:spaceId/availability', async (request, response) => {
   const rows = await all(
     `SELECT id AS availabilityId, valid_from AS validFrom, valid_until AS validUntil, weekday,
             start_time AS startTime, end_time AS endTime, is_retired AS isRetired
-       FROM availabilities WHERE space_id = ? ORDER BY valid_from, weekday, start_time, id;`, [spaceId],
+       FROM availabilities WHERE space_id = ? AND superseded_by_id IS NULL ORDER BY valid_from, weekday, start_time, id;`, [spaceId],
   );
   response.json({ data: rows.map(row => ({ ...row, isRetired: Boolean(row.isRetired) })) });
 });
@@ -340,6 +344,38 @@ router.post('/spaces/:spaceId/availability', async (request, response) => {
        VALUES (?, ?, ?, ?, ?, ?, 0);`, [spaceId, body.validFrom, body.validUntil, Number(body.weekday), body.startTime, body.endTime],
     );
     return result.lastId;
+  });
+  response.status(201).json({ data: { availabilityId: created, spaceId, validFrom: body.validFrom, validUntil: body.validUntil, weekday: Number(body.weekday), startTime: body.startTime, endTime: body.endTime, isRetired: false } });
+});
+
+router.post('/spaces/:spaceId/availability/:availabilityId/reuse', async (request, response) => {
+  const spaceId = Number(request.params.spaceId);
+  const availabilityId = Number(request.params.availabilityId);
+  const body = request.body || {};
+  if (!Number.isInteger(spaceId) || !Number.isInteger(availabilityId) || !validDate(body.validFrom) || !validDate(body.validUntil) || body.validUntil < body.validFrom || !Number.isInteger(Number(body.weekday)) || Number(body.weekday) < 1 || Number(body.weekday) > 7 || !validTime(body.startTime) || !validTime(body.endTime) || body.endTime <= body.startTime) throw Object.assign(new Error('Dati disponibilità non validi.'), { status: 400, code: 'VALIDATION_ERROR' });
+  const created = await transaction(async db => {
+    await consolidateOccurrences(db);
+    const source = await db.get('SELECT id FROM availabilities WHERE id=? AND space_id=? AND is_retired=1 AND superseded_by_id IS NULL', [availabilityId, spaceId]);
+    if (!source) throw Object.assign(new Error('La fascia ritirata richiesta non esiste.'), { status: 404, code: 'AVAILABILITY_NOT_FOUND' });
+    const overlap = await db.get(
+      `SELECT id FROM availabilities WHERE space_id=? AND is_retired=0 AND weekday=?
+       AND valid_from<=? AND valid_until>=? AND start_time<? AND end_time>?`,
+      [spaceId, Number(body.weekday), body.validUntil, body.validFrom, body.endTime, body.startTime],
+    );
+    if (overlap) throw Object.assign(new Error('La fascia si sovrappone a una configurazione attiva.'), { status: 409, code: 'AVAILABILITY_OVERLAP' });
+    await reconcileAvailability(db, spaceId, body, availabilityId, new Date());
+    const replacement = await db.run(
+      `INSERT INTO availabilities (space_id,valid_from,valid_until,weekday,start_time,end_time,is_retired)
+       VALUES (?,?,?,?,?,?,0)`,
+      [spaceId, body.validFrom, body.validUntil, Number(body.weekday), body.startTime, body.endTime],
+    );
+    await db.run(
+      `UPDATE bookings SET availability_id=? WHERE availability_id=? AND date BETWEEN ? AND ?
+       AND CAST(strftime('%w', date) AS INTEGER)=?`,
+      [replacement.lastId, availabilityId, body.validFrom, body.validUntil, Number(body.weekday) % 7],
+    );
+    await db.run('UPDATE availabilities SET superseded_by_id=? WHERE id=?', [replacement.lastId, availabilityId]);
+    return replacement.lastId;
   });
   response.status(201).json({ data: { availabilityId: created, spaceId, validFrom: body.validFrom, validUntil: body.validUntil, weekday: Number(body.weekday), startTime: body.startTime, endTime: body.endTime, isRetired: false } });
 });
@@ -468,7 +504,7 @@ router.get('/bookings', async (request, response) => {
 router.get('/reports', async (request, response) => {
   const rows = await all(
     `SELECT r.id, r.space_id AS spaceId, s.name AS spaceName, r.category, r.description,
-            r.priority, r.status, r.photo_path AS photoPath, r.created_at AS createdAt, r.updated_at AS updatedAt,
+            r.priority, r.status, CASE WHEN r.photo_path IS NOT NULL OR r.photo_data IS NOT NULL THEN COALESCE(r.photo_path, 'available') END AS photoPath, r.created_at AS createdAt, r.updated_at AS updatedAt,
             u.email AS authorEmail
        FROM reports r JOIN spaces s ON s.id = r.space_id JOIN users u ON u.id = r.user_id
       ORDER BY r.created_at DESC, r.id DESC;`,
@@ -479,9 +515,9 @@ router.get('/reports', async (request, response) => {
 router.get('/reports/:reportId/photo', async (request, response) => {
   const id = Number(request.params.reportId);
   if (!Number.isSafeInteger(id) || id < 1) throw Object.assign(new Error('Identificativo segnalazione non valido.'), { status: 400 });
-  const report = await get('SELECT photo_path AS photo FROM reports WHERE id = ?;', [id]);
-  if (!report?.photo) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
-  await sendReportPhoto(report.photo, response);
+  const report = await get('SELECT photo_path AS photo, photo_data AS photoData, photo_type AS photoType FROM reports WHERE id = ?;', [id]);
+  if (!report || (!report.photo && !report.photoData)) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
+  await sendReportPhoto(report.photo, response, report.photoData, report.photoType);
 });
 
 router.patch('/reports/:reportId/status', async (request, response) => {
@@ -507,10 +543,10 @@ router.patch('/reports/:reportId/status', async (request, response) => {
 router.get('/users', async (request, response) => {
   const page = request.query.page === undefined ? 1 : Number(request.query.page);
   const size = request.query.size === undefined ? 20 : Number(request.query.size);
-  const search = typeof request.query.search === 'string' ? request.query.search.trim() : '';
+  const search = typeof request.query.search === 'string' ? request.query.search.trim().replace(/\s+/g, ' ') : '';
   if (!Number.isInteger(page) || page < 1 || !Number.isInteger(size) || size < 1 || size > 100) throw Object.assign(new Error('I parametri di paginazione non sono validi.'), { status: 400, code: 'VALIDATION_ERROR' });
-  const where = search ? "AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?)" : '';
-  const values = search ? [`%${search}%`, `%${search}%`, `%${search}%`] : [];
+  const where = search ? "AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR TRIM(u.first_name) || ' ' || TRIM(u.last_name) LIKE ?)" : '';
+  const values = search ? [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`] : [];
   const total = await getDatabase().get(`SELECT COUNT(*) AS total FROM users u WHERE 1 = 1 ${where};`, values);
   const rows = await all(
     `SELECT u.id, u.first_name AS firstName, u.last_name AS lastName, u.email, u.role, u.created_at AS createdAt

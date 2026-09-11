@@ -60,7 +60,7 @@ export class FavoritesPage implements OnInit {
     this.router.navigate([
       '/spaces',
       spaceId,
-    ]);
+    ], { queryParams: { from: 'favorites' } });
   }
 
   removeFavorite(spaceId: string): void {

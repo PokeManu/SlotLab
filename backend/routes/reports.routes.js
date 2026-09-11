@@ -1,8 +1,5 @@
 const { sendReportPhoto } = require('../security/report-files');
 const express = require('express');
-const crypto = require('node:crypto');
-const fs = require('node:fs/promises');
-const path = require('node:path');
 const { getDatabase } = require('../db/db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { transaction } = require('../db/transaction');
@@ -27,7 +24,7 @@ function reportId(value) {
 
 function mapReport(row) {
   return { id: row.id, spaceId: row.spaceId, spaceName: row.spaceName, category: row.category,
-    description: row.description, priority: row.priority, status: row.status, photo: row.photoPath,
+    description: row.description, priority: row.priority, status: row.status, photo: row.hasPhoto ? 'available' : null,
     createdAt: row.createdAt, updatedAt: row.updatedAt };
 }
 
@@ -79,7 +76,7 @@ function photoFormat(photo) {
 }
 
 const select = `SELECT r.id, r.space_id AS spaceId, s.name AS spaceName, r.category, r.description,
-                       r.priority, r.status, r.photo_path AS photoPath, r.created_at AS createdAt,
+                       r.priority, r.status, (r.photo_path IS NOT NULL OR r.photo_data IS NOT NULL) AS hasPhoto, r.created_at AS createdAt,
                        r.updated_at AS updatedAt
                   FROM reports r JOIN spaces s ON s.id = r.space_id`;
 
@@ -96,9 +93,9 @@ router.get('/', async (request, response) => {
 
 router.get('/:reportId/photo', async (request, response) => {
   const id = reportId(request.params.reportId);
-  const report = await get('SELECT photo_path AS photo FROM reports WHERE id = ? AND user_id = ?;', [id, request.user.id]);
-  if (!report?.photo) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
-  await sendReportPhoto(report.photo, response);
+  const report = await get('SELECT photo_path AS photo, photo_data AS photoData, photo_type AS photoType FROM reports WHERE id = ? AND user_id = ?;', [id, request.user.id]);
+  if (!report || (!report.photo && !report.photoData)) throw Object.assign(new Error('Foto non disponibile.'), { status: 404, code: 'PHOTO_NOT_FOUND' });
+  await sendReportPhoto(report.photo, response, report.photoData, report.photoType);
 });
 
 router.get('/:reportId', async (request, response) => {
@@ -120,26 +117,17 @@ spaceReportsRouter.post('/spaces/:spaceId/reports', async (request, response) =>
   const extension = photoFormat(photo);
   const space = await get('SELECT id FROM spaces WHERE id = ?;', [spaceId]);
   if (!space) throw Object.assign(new Error('Lo spazio richiesto non esiste.'), { status: 404, code: 'SPACE_NOT_FOUND' });
-  const filename = extension ? `${crypto.randomUUID()}.${extension}` : null;
-  const uploadRoot = process.env.SLOTLAB_UPLOAD_DIR || path.join(__dirname, '..', 'uploads', 'reports');
-  if (!path.isAbsolute(uploadRoot)) throw new Error('La cartella foto deve essere assoluta.');
-  let saved = false;
-  try {
-    if (filename) { await fs.mkdir(uploadRoot, { recursive: true }); await fs.writeFile(path.join(uploadRoot, filename), photo.data, { flag: 'wx' }); saved = true; }
-    const createdAt = new Date().toISOString();
-    const row = await transaction(async db => {
-      const result = await db.run(
-        `INSERT INTO reports (user_id, space_id, category, description, priority, status, photo_path, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'open', ?, ?, ?);`,
-        [request.user.id, spaceId, category, description, priorities[category], filename, createdAt, createdAt],
-      );
-      return await db.get(`${select} WHERE r.id = ?;`, [result.lastId]);
-    });
-    response.status(201).json({ data: mapReport(row) });
-  } catch (error) {
-    if (saved) await fs.unlink(path.join(uploadRoot, filename)).catch(() => {});
-    throw error;
-  }
+  const photoType = extension === 'jpg' ? 'image/jpeg' : extension ? `image/${extension}` : null;
+  const createdAt = new Date().toISOString();
+  const row = await transaction(async db => {
+    const result = await db.run(
+      `INSERT INTO reports (user_id, space_id, category, description, priority, status, photo_path, photo_data, photo_type, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, 'open', NULL, ?, ?, ?, ?);`,
+      [request.user.id, spaceId, category, description, priorities[category], photo?.data ?? null, photoType, createdAt, createdAt],
+    );
+    return await db.get(`${select} WHERE r.id = ?;`, [result.lastId]);
+  });
+  response.status(201).json({ data: mapReport(row) });
 });
 
 module.exports = { router, spaceReportsRouter };

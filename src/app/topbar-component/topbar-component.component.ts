@@ -11,6 +11,7 @@ import {
 } from 'ionicons/icons';
 import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 import { ProfilePhoto } from '../profile/profile-photo';
+import { NotificationState } from '../notifications/notification-state';
 
 @Component({
   selector: 'app-topbar',
@@ -26,13 +27,12 @@ import { ProfilePhoto } from '../profile/profile-photo';
 export class TopbarComponent {
   readonly auth = inject(Auth);
   readonly profilePhoto = inject(ProfilePhoto);
+  readonly notificationState = inject(NotificationState);
   readonly adminNavigation = adminNavigation;
   constructor() {
     addIcons({
       calendarClearOutline,
       notificationsOutline, megaphoneOutline,
     });
-    const userId = this.auth.user()?.id;
-    if (userId) this.profilePhoto.load(userId).subscribe({ error: () => {} });
   }
 }

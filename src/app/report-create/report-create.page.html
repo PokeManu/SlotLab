@@ -120,12 +120,14 @@
           <small>JPEG, PNG o WebP, massimo 5 MB.</small>
         </div>
 
+        @if (error) { <p class="report-create-page__error" role="alert">{{ error }}</p> }
+
         <button
           class="report-create-page__submit"
           type="submit"
-          [disabled]="reportForm.invalid"
+          [disabled]="reportForm.invalid || sending"
         >
-          Invia segnalazione
+          {{ sending ? 'Invio in corso…' : 'Invia segnalazione' }}
         </button>
       </form>
     } @else {

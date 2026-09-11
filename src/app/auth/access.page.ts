@@ -7,6 +7,7 @@ import { eyeOffOutline, eyeOutline, idCardOutline, lockClosedOutline, mailOutlin
 import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { returnDestination } from './return-url';
+import { passwordValidationMessages } from './password-validation';
 
 @Component({
   selector: 'app-access',
@@ -59,14 +60,7 @@ export class AccessPage {
   get passwordErrors(): string[] {
     if (!this.registering) return [];
 
-    const errors: string[] = [];
-    if (this.password.length < 8 || this.password.length > 64) errors.push('Usa da 8 a 64 caratteri.');
-    if (!/[A-Z]/.test(this.password)) errors.push('Inserisci almeno una lettera maiuscola.');
-    if (!/[a-z]/.test(this.password)) errors.push('Inserisci almeno una lettera minuscola.');
-    if (!/[0-9]/.test(this.password)) errors.push('Inserisci almeno un numero.');
-    if (!/[^A-Za-z0-9]/.test(this.password)) errors.push('Inserisci almeno un carattere speciale.');
-    if (/\s/.test(this.password)) errors.push('Non inserire spazi.');
-    return errors;
+    return passwordValidationMessages(this.password);
   }
 
   get showPasswordErrors(): boolean {

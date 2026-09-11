@@ -20,11 +20,16 @@
           }
           @if (mode === 'password') {
             <label>Nuova password<input type="password" name="newPassword" autocomplete="new-password" [(ngModel)]="newPassword" required></label>
-            <p class="access__help">8–64 caratteri, maiuscola, minuscola, numero e carattere speciale, senza spazi.</p>
+            @if (passwordErrors.length && (newPassword || attemptedSubmit)) {
+              <ul class="access__requirements" aria-label="Requisiti password non soddisfatti">
+                @for (passwordError of passwordErrors; track passwordError) { <li>{{ passwordError }}</li> }
+              </ul>
+            }
             <label>Conferma nuova password<input type="password" name="confirmation" autocomplete="new-password" [(ngModel)]="confirmation" required></label>
+            @if (attemptedSubmit && confirmation !== newPassword) { <p class="access__field-error">Le password non coincidono.</p> }
           }
           @if (mode === 'delete') {
-            <label><input style="width: 24px; height: 24px" type="checkbox" name="confirmed" [(ngModel)]="confirmed">Confermo di voler eliminare definitivamente il mio account.</label>
+            <label class="access__confirmation"><input type="checkbox" name="confirmed" [(ngModel)]="confirmed">Confermo di voler eliminare definitivamente il mio account.</label>
           }
           @if (error()) { <p class="access__error" role="alert">{{ error() }}</p> }
           <button type="submit">{{ busy() ? 'Attendi…' : mode === 'forgot' ? 'Invia richiesta' : mode === 'delete' ? 'Elimina definitivamente' : 'Modifica password' }}</button>

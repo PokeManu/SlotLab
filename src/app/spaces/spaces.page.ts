@@ -17,6 +17,7 @@ import { SpaceListItemComponent } from '../space-list-item/space-list-item.compo
 import { SpaceSearchComponent } from '../space-search/space-search.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
+import { NotificationState } from '../notifications/notification-state';
 
 @Component({
   selector: 'app-spaces',
@@ -38,6 +39,7 @@ export class SpacesPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  readonly notificationState = inject(NotificationState);
   spaces: SpaceSummary[] = [];
   private search = '';
   private availableNow = false;
@@ -77,12 +79,12 @@ export class SpacesPage implements OnInit {
     if (this.studyRooms) params.set('type', 'study_room');
     if (this.minimumSeats) params.set('minSeats', '10');
     const suffix = params.toString() ? `?${params}` : '';
-    allPages<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number }>(this.http, `${environment.apiUrl}/spaces${suffix}`)
+    allPages<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number; status: 'active' | 'maintenance' | 'deactivated' }>(this.http, `${environment.apiUrl}/spaces${suffix}`)
       .subscribe({ next: response => {
       this.spaces = response.data.map(space => ({
         id: String(space.id), name: space.name,
         type: space.type === 'study_room' ? 'Aula studio' : space.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
-        building: space.building.name, floor: space.floor, seats: space.capacity, image: SPACE_PREVIEW_IMAGE,
+        building: space.building.name, floor: space.floor, seats: space.capacity, image: SPACE_PREVIEW_IMAGE, status: space.status,
       }));
       this.changeDetector.markForCheck();
     }, error: () => { this.spaces = []; this.changeDetector.markForCheck(); } });
@@ -92,7 +94,7 @@ export class SpacesPage implements OnInit {
     this.router.navigate([
       '/spaces',
       spaceId,
-    ]);
+    ], { queryParams: { from: 'spaces' } });
   }
 
   openNotifications(): void {

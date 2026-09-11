@@ -5,7 +5,7 @@ Questa cartella contiene lo schema SQLite, il sistema di migrazione e i dati ini
 ## File
 
 - `schema.sql`: prima migrazione, con le 16 tabelle applicative.
-- `migrations/`: estensioni successive dello schema; la versione 6 aggiunge gli indici usati dalle API.
+- `migrations/`: estensioni successive dello schema; le versioni 7 e 8 tracciano il riutilizzo delle fasce e salvano nel database le nuove foto delle segnalazioni.
 - `migrate.js`: applica in ordine le migrazioni non ancora registrate.
 - `seed.js`: inserisce servizi, edifici e spazi iniziali e crea l'amministratore tecnico.
 - `db.js`: inizializza le migrazioni e mantiene la connessione condivisa usata da Express.

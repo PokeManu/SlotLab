@@ -33,8 +33,8 @@
       {{ space.seats === 1 ? 'posto' : 'posti' }}
     </p>
 
-    <p class="space-list-item__availability">
-      {{ availability }}
+    <p class="space-list-item__availability" [class.space-list-item__availability--unavailable]="unavailable">
+      {{ availabilityLabel }}
     </p>
   </div>
 

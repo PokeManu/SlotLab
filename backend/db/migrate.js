@@ -37,6 +37,16 @@ const migrations = [
     name: 'query_indexes',
     filePath: path.join(__dirname, 'migrations', '006-query-indexes.sql'),
   },
+  {
+    version: 7,
+    name: 'availability_supersession',
+    filePath: path.join(__dirname, 'migrations', '007-availability-supersession.sql'),
+  },
+  {
+    version: 8,
+    name: 'report_photo_data',
+    filePath: path.join(__dirname, 'migrations', '008-report-photo-data.sql'),
+  },
 ];
 
 function openDatabase(databasePath) {

@@ -14,6 +14,7 @@ import {
 } from 'ionicons/icons';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
+import { NotificationState } from './notification-state';
 
 type NotificationIcon = | 'book-outline' | 'checkmark-circle-outline' | 'desktop-outline' | 'easel-outline' | 'warning-outline';
 type NotificationVariant = | 'primary' | 'success' | 'warning' | 'neutral';
@@ -43,6 +44,7 @@ interface NotificationGroup{
 export class NotificationsPage implements OnInit{
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly notificationState = inject(NotificationState);
   loading = false;
   error = '';
   saving = false;
@@ -78,7 +80,7 @@ export class NotificationsPage implements OnInit{
         const notifications = response.data.map(notification => ({
           id: notification.id,
           title: notification.title,
-          context: notification.type,
+          context: this.contextFor(notification.type),
           message: notification.message,
           time: new Date(notification.createdAt).toLocaleString('it-IT', { timeZone: 'Europe/Rome' }),
           icon: this.iconFor(notification.type),
@@ -86,6 +88,7 @@ export class NotificationsPage implements OnInit{
           read: notification.read,
         }));
         this.notificationGroups = notifications.length ? [{ label: 'Notifiche', notifications }] : [];
+        this.notificationState.set(notifications.filter(notification => !notification.read).length);
         this.changeDetector.markForCheck();
       },
       error: () => {
@@ -103,6 +106,21 @@ export class NotificationsPage implements OnInit{
     return 'desktop-outline';
    }
 
+   private contextFor(type: string): string {
+    const labels: Record<string, string> = {
+      booking_created: 'Prenotazione',
+      booking_cancelled: 'Prenotazione cancellata',
+      participant_added: 'Partecipazione',
+      participant_removed: 'Partecipazione',
+      space_unavailable: 'Spazio non disponibile',
+      report_updated: 'Segnalazione',
+      global_announcement: 'Avviso generale',
+      check_in_completed: 'Check-in',
+      check_in_expired: 'Check-in scaduto',
+    };
+    return labels[type] ?? 'Aggiornamento';
+   }
+
    private variantFor(type: string): NotificationVariant {
     if (type.includes('cancelled') || type.includes('expired')) return 'warning';
     if (type.includes('created') || type.includes('updated')) return 'success';
@@ -116,7 +134,10 @@ export class NotificationsPage implements OnInit{
     this.http.patch<void>(`${environment.apiUrl}/notifications/read-all`, {}).pipe(finalize(() => {
       this.saving = false; this.changeDetector.markForCheck();
     })).subscribe({
-      next: () => this.notificationGroups.forEach(group => group.notifications.forEach(notification => { notification.read = true; })),
+      next: () => {
+        this.notificationGroups.forEach(group => group.notifications.forEach(notification => { notification.read = true; }));
+        this.notificationState.markAllRead();
+      },
       error: () => { this.error = 'Impossibile segnare le notifiche come lette. Riprova.'; },
     });
    }
@@ -128,7 +149,7 @@ export class NotificationsPage implements OnInit{
     this.http.patch<{ data: { read: boolean } }>(`${environment.apiUrl}/notifications/${notification.id}/read`, {}).pipe(finalize(() => {
       this.saving = false; this.changeDetector.markForCheck();
     })).subscribe({
-      next: () => { notification.read = true; },
+      next: () => { notification.read = true; this.notificationState.markOneRead(); },
       error: () => { this.error = 'Impossibile segnare la notifica come letta. Riprova.'; },
     });
    }

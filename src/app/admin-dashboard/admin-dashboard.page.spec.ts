@@ -48,6 +48,7 @@ describe('AdminDashboardPage', () => {
     http.expectNone('/api/v1/admin/summary');
     component.ionViewWillEnter();
     http.expectOne('/api/v1/admin/summary').flush({ data: { bookingCount: 1, spaceCount: 4, availableSpaceCount: 3, openReportCount: 0 } });
+    http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [] });
     await fixture.whenStable();
 
     expect(component.openReportCount).toBe(0);

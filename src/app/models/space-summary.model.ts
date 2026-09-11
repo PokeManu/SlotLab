@@ -6,4 +6,5 @@ export interface SpaceSummary {
   floor: number;
   seats: number;
   image?: string;
+  status?: 'active' | 'maintenance' | 'deactivated';
 }

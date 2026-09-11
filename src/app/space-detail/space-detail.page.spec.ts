@@ -80,6 +80,19 @@ describe('SpaceDetailPage', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Nessuna fascia prenotabile oggi');
   });
 
+  it('non richiede disponibilità e disabilita la prenotazione per uno spazio in manutenzione', async () => {
+    component.ngOnInit();
+    http.expectOne('/api/v1/spaces/1').flush({ data: {
+      id: 1, name: 'Test', building: { name: 'Edificio' }, floor: 1,
+      type: 'study_room', capacity: 10, accessible: true, status: 'maintenance', services: [],
+    } });
+    http.expectNone(request => request.url.includes('/availability'));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('temporaneamente in manutenzione');
+    expect(fixture.nativeElement.querySelector('.primary-button').disabled).toBe(true);
+    expect(fixture.nativeElement.textContent).not.toContain('Accessibile');
+  });
+
   it('associa testi italiani e icone distinte ai cinque servizi reali', () => {
     component.space.services = ['wifi', 'power_outlets', 'projector', 'computer', 'air_conditioning'];
     fixture.detectChanges();

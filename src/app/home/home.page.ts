@@ -93,7 +93,7 @@ export class HomePage implements OnDestroy {
   }
 
   openSpace(spaceId: string): void {
-    this.router.navigate(['/spaces', spaceId]);
+    this.router.navigate(['/spaces', spaceId], { queryParams: { from: 'home' } });
   }
 
   openAllSpaces(): void {

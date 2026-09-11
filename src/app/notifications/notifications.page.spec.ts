@@ -28,6 +28,7 @@ describe('NotificationsPage', () => {
     http.expectOne('/api/v1/notifications/1/read').flush({ data: { read: true } });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('.notification-card--read')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.notification-card__context').textContent).toContain('Segnalazione');
     component.loadNotifications();
     http.expectOne('/api/v1/notifications').flush({}, { status: 500, statusText: 'Error' });
     await fixture.whenStable();

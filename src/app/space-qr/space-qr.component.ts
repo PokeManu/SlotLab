@@ -11,12 +11,13 @@ import { create } from 'qrcode';
       <path [attr.d]="path" fill="black"/>
     </svg>
     <p>Scansiona il QR con la fotocamera del telefono e apri il collegamento.</p>
-    <a [routerLink]="['/check-in', spaceId]">Apri check-in di questo spazio</a>
+    @if (showCheckInLink) { <a [routerLink]="['/check-in', spaceId]">Apri check-in di questo spazio</a> }
   }`,
   styles: [':host { display: block; text-align: center; } svg { display: block; width: 240px; max-width: 100%; height: auto; margin: 16px auto; shape-rendering: crispEdges; } a { color: var(--slot-primary-soft); }'],
 })
 export class SpaceQrComponent implements OnChanges {
   @Input({ required: true }) spaceId: string | number = '';
+  @Input() showCheckInLink = true;
   path = '';
   viewBox = '';
   ngOnChanges(): void {

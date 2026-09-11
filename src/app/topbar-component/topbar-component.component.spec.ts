@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { TopbarComponent } from './topbar-component.component';
+import { NotificationState } from '../notifications/notification-state';
 
 describe('TopbarComponent', () => {
   let component: TopbarComponent;
@@ -29,5 +30,11 @@ describe('TopbarComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('mostra il numero delle notifiche non lette', () => {
+    TestBed.inject(NotificationState).set(3);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.topbar__notification-badge')?.textContent).toContain('3');
   });
 });

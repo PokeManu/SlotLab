@@ -27,7 +27,18 @@ export class SpaceListItemComponent {
   space!: SpaceSummary;
 
   @Input()
-  availability = 'Disponibile ora';
+  availability = '';
+
+  get availabilityLabel(): string {
+    if (this.availability) return this.availability;
+    if (this.space.status === 'maintenance') return 'Spazio in manutenzione';
+    if (this.space.status === 'deactivated') return 'Spazio disattivato';
+    return 'Disponibilità da verificare';
+  }
+
+  get unavailable(): boolean {
+    return this.space.status === 'maintenance' || this.space.status === 'deactivated';
+  }
 
   @Input()
   favorite = false;

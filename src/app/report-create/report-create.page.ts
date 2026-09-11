@@ -46,6 +46,8 @@ export class ReportCreatePage implements OnInit {
   photo?: File;
 
   submitted = false;
+  sending = false;
+  error = '';
 
   constructor(
     private readonly activatedRoute: ActivatedRoute,
@@ -76,6 +78,8 @@ export class ReportCreatePage implements OnInit {
   }
 
   submitReport(): void {
+    if (this.sending) return;
+    this.error = '';
     if (
       !this.category ||
       this.description.trim().length < 10
@@ -83,18 +87,27 @@ export class ReportCreatePage implements OnInit {
       return;
     }
 
-    if (!this.spaceId || !/^\d+$/.test(this.spaceId)) { this.submitted = true; return; }
+    if (!this.spaceId || !/^\d+$/.test(this.spaceId)) { this.error = 'Lo spazio selezionato non è valido.'; return; }
     const form = new FormData();
     form.append('category', this.category === 'equipment' ? 'technical' : this.category);
     form.append('description', this.description.trim());
     if (this.photo) form.append('photo', this.photo, this.photo.name);
-    this.http.post(`${environment.apiUrl}/spaces/${this.spaceId}/reports`, form).subscribe({ next: () => { this.submitted = true; this.changeDetector.markForCheck(); } });
+    this.sending = true;
+    this.http.post(`${environment.apiUrl}/spaces/${this.spaceId}/reports`, form).subscribe({
+      next: () => { this.sending = false; this.submitted = true; this.changeDetector.markForCheck(); },
+      error: () => { this.sending = false; this.error = 'Invio non riuscito. Controlla la connessione e riprova.'; this.changeDetector.markForCheck(); },
+    });
   }
 
   selectPhoto(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return;
+    if (file.size > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      this.photo = undefined;
+      this.error = 'La foto deve essere JPEG, PNG o WebP e non superare 5 MB.';
+      return;
+    }
+    this.error = '';
     this.photo = file;
   }
 }

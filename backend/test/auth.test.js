@@ -281,6 +281,24 @@ test('foto segnalazione: solo admin, contenuto e file mancante', async () => {
     const own = await fetch(userUrl, { headers: { Authorization: `Bearer ${user.accessToken}` } });
     assert.equal(own.status, 200);
     assert.deepEqual(Buffer.from(await own.arrayBuffer()), data);
+    const form = new FormData();
+    form.append('category', 'other');
+    form.append('description', 'Fotografia salvata nel database di test.');
+    form.append('photo', new Blob([data], { type: 'image/png' }), 'test.png');
+    const created = await fetch(`${baseUrl}/api/v1/spaces/${space.id}/reports`, {
+      method: 'POST', headers: { Authorization: `Bearer ${user.accessToken}` }, body: form,
+    });
+    assert.equal(created.status, 201);
+    const databaseReport = (await created.json()).data;
+    assert.equal(databaseReport.photo, 'available');
+    const stored = await get('SELECT photo_path AS photoPath, photo_data AS photoData, photo_type AS photoType FROM reports WHERE id=?', [databaseReport.id]);
+    assert.equal(stored.photoPath, null);
+    assert.equal(stored.photoType, 'image/png');
+    assert.deepEqual(stored.photoData, data);
+    const databasePhoto = await fetch(`${baseUrl}/api/v1/reports/${databaseReport.id}/photo`, { headers: { Authorization: `Bearer ${user.accessToken}` } });
+    assert.equal(databasePhoto.status, 200);
+    assert.equal(databasePhoto.headers.get('content-type'), 'image/png');
+    assert.deepEqual(Buffer.from(await databasePhoto.arrayBuffer()), data);
     const otherAccount = { ...account, email: 'photo-other@example.test' };
     await post('register', otherAccount);
     const other = await post('login', otherAccount);
@@ -303,6 +321,12 @@ test('avvisi globali: autorizzazione, destinatari e rollback atomico', async () 
   });
   assert.equal((await publish(null)).status, 401);
   assert.equal((await publish(user.accessToken)).status, 403);
+  assert.equal((await publish(admin.accessToken, { title: 'Troppo lungo', message: 'x'.repeat(1001) })).status, 400);
+  const search = await fetch(`${baseUrl}/api/v1/admin/users?search=%20Auth%20%20Test%20`, {
+    headers: { Authorization: `Bearer ${admin.accessToken}` },
+  });
+  assert.equal(search.status, 200);
+  assert.ok((await search.json()).data.some(found => found.email === account.email));
   for (const body of [{}, { title: ' ', message: 'test' }, { title: 'test', message: 2 }, { title: 'test', message: 'test', userId: 1 }]) {
     assert.equal((await publish(admin.accessToken, body)).status, 400);
   }

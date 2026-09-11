@@ -115,6 +115,23 @@ test('nuova fascia: cancella future incompatibili ritirate con notifica e conser
   assert.ok(catalog.body.data.some(item => item.id === spaceId));
 });
 
+test('riutilizzo fascia: sostituisce la ritirata senza duplicarla e conserva le prenotazioni compatibili', async () => {
+  const date = day(4);
+  const weekday = new Date(`${date}T12:00:00Z`).getUTCDay() || 7;
+  const spaceId = await space('Riutilizzo fixture');
+  const old = await availability(spaceId, date, '10:00', '12:00', 1);
+  const bookingId = await booking(spaceId, old, date);
+  const result = await request(`/admin/spaces/${spaceId}/availability/${old}/reuse`, 'POST', {
+    validFrom: date, validUntil: date, weekday, startTime: '10:00', endTime: '12:00',
+  });
+  assert.equal(result.status, 201);
+  const replacement = result.body.data.availabilityId;
+  assert.equal((await db.get('SELECT availability_id AS id FROM bookings WHERE id=?', [bookingId])).id, replacement);
+  assert.equal((await db.get('SELECT superseded_by_id AS id FROM availabilities WHERE id=?', [old])).id, replacement);
+  const visible = await request(`/admin/spaces/${spaceId}/availability`);
+  assert.deepEqual(visible.body.data.map(item => item.availabilityId), [replacement]);
+});
+
 test('modifica fascia: rollback conserva prenotazioni se la notifica fallisce', async () => {
   const date = day(3);
   const spaceId = await space('Rollback fixture');

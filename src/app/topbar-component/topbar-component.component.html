@@ -64,6 +64,7 @@
     aria-label="Apri le notifiche"
   >
     <ion-icon name="notifications-outline"></ion-icon>
+    @if (notificationState.unreadCount() > 0) { <span class="topbar__notification-badge" aria-label="Notifiche non lette">{{ notificationState.unreadCount() > 99 ? '99+' : notificationState.unreadCount() }}</span> }
   </a>
   }
 

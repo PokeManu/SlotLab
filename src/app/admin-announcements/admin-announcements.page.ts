@@ -12,6 +12,7 @@ import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
   imports: [IonContent, AdminSidebarComponent, FormsModule],
 })
 export class AdminAnnouncementsPage {
+  readonly maxMessageLength = 1000;
   private readonly http = inject(HttpClient);
   title = '';
   message = '';
@@ -27,6 +28,10 @@ export class AdminAnnouncementsPage {
     const message = this.message.trim();
     if (!title || !message) {
       this.error.set('Inserisci titolo e messaggio dell’avviso.');
+      return;
+    }
+    if (message.length > this.maxMessageLength) {
+      this.error.set(`Il messaggio non può superare ${this.maxMessageLength} caratteri.`);
       return;
     }
     this.sending.set(true);

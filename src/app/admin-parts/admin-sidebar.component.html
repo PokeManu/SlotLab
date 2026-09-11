@@ -21,7 +21,9 @@
           class="administrator__avatar"
           routerLink="/profile"
           [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
-        >{{ auth.initials }}</a>
+        >
+          @if (profilePhoto.url()) { <img [src]="profilePhoto.url()" alt=""> } @else { {{ auth.initials }} }
+        </a>
         <span class="administrator__information">
           <strong>{{ auth.user()?.firstName }}</strong>
           <small>Amministratore</small>

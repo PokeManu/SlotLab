@@ -31,7 +31,7 @@ describe('AdminAvailabilityPage', () => {
     expect(fixture.componentInstance.form).toEqual({ validFrom: '2026-10-01', validUntil: '2026-10-31', weekday: 2, startTime: '12:00', endTime: '13:00' });
     expect(fixture.nativeElement.querySelector('[aria-label="Indisponibilità"]').textContent).toContain('Manutenzione programmata');
     fixture.componentInstance.create();
-    http.expectOne('/api/v1/admin/spaces/1/availability').flush({}, { status: 409, statusText: 'Conflict' });
+    http.expectOne('/api/v1/admin/spaces/1/availability/2/reuse').flush({}, { status: 409, statusText: 'Conflict' });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('sovrappone');
     http.verify();

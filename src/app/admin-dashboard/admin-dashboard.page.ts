@@ -70,7 +70,10 @@ export class AdminDashboardPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    if (this.hasEntered) this.loadSummary();
+    if (this.hasEntered) {
+      this.loadSummary();
+      this.loadBookings();
+    }
     this.hasEntered = true;
   }
 

@@ -81,6 +81,10 @@
   font-weight: 500;
 }
 
+.space-list-item__availability--unavailable {
+  color: var(--slot-warning);
+}
+
 .space-list-item__favorite {
   position: absolute;
   z-index: 2;

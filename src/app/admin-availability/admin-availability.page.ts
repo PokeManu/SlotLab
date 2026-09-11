@@ -13,6 +13,7 @@ export class AdminAvailabilityPage implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly http = inject(HttpClient); spaces: Space[] = []; rows: Availability[] = []; unavailabilities: Unavailability[] = []; spaceId = 0; error = '';
   editingId: number | null = null;
+  reusingId: number | null = null;
   showRetired = false;
   reuseMessage = '';
   form = { validFrom: romeDate(), validUntil: '2099-12-31', weekday: 1, startTime: '08:00', endTime: '20:00' };
@@ -20,15 +21,16 @@ export class AdminAvailabilityPage implements OnInit {
   get visibleRows(): Availability[] { return this.showRetired ? this.rows : this.rows.filter(row => !row.isRetired); }
   get retiredCount(): number { return this.rows.filter(row => row.isRetired).length; }
   ngOnInit(): void { this.http.get<{ data: Space[] }>(`${environment.apiUrl}/admin/spaces`).subscribe({ next: response => { this.spaces = response.data; this.changeDetector.markForCheck(); if (this.spaces[0]) { this.spaceId = this.spaces[0].id; this.load(); } }, error: () => { this.error = 'Impossibile caricare gli spazi.'; this.changeDetector.markForCheck(); } }); }
-  load(): void { this.editingId = null; this.reuseMessage = ''; this.error = ''; this.changeDetector.markForCheck(); if (!this.spaceId) { this.rows = []; this.unavailabilities = []; return; } this.http.get<{ data: Availability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/availability`).subscribe({ next: response => { this.rows = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le disponibilità.'; this.changeDetector.markForCheck(); } }); this.http.get<{ data: Unavailability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/unavailability`).subscribe({ next: response => { this.unavailabilities = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le indisponibilità.'; this.changeDetector.markForCheck(); } }); }
+  load(): void { this.editingId = null; this.reusingId = null; this.reuseMessage = ''; this.error = ''; this.changeDetector.markForCheck(); if (!this.spaceId) { this.rows = []; this.unavailabilities = []; return; } this.http.get<{ data: Availability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/availability`).subscribe({ next: response => { this.rows = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le disponibilità.'; this.changeDetector.markForCheck(); } }); this.http.get<{ data: Unavailability[] }>(`${environment.apiUrl}/admin/spaces/${this.spaceId}/unavailability`).subscribe({ next: response => { this.unavailabilities = response.data; this.changeDetector.markForCheck(); }, error: () => { this.error = 'Impossibile caricare le indisponibilità.'; this.changeDetector.markForCheck(); } }); }
   edit(row: Availability): void { this.reuseMessage = ''; this.editingId = row.availabilityId; this.form = { validFrom: row.validFrom, validUntil: row.validUntil, weekday: row.weekday, startTime: row.startTime, endTime: row.endTime }; }
   reuse(row: Availability): void {
     this.editingId = null;
+    this.reusingId = row.availabilityId;
     this.error = '';
     this.form = { validFrom: row.validFrom, validUntil: row.validUntil, weekday: row.weekday, startTime: row.startTime, endTime: row.endTime };
-    this.reuseMessage = 'Dati copiati nel modulo. Controlla il periodo e premi “Aggiungi fascia”.';
+    this.reuseMessage = 'Dati copiati nel modulo. Controlla il periodo e premi “Riattiva fascia”.';
   }
-  create(): void { const url = `${environment.apiUrl}/admin/spaces/${this.spaceId}/availability`; const request = this.editingId === null ? this.http.post(url, this.form) : this.http.patch(`${url}/${this.editingId}`, this.form); request.subscribe({ next: () => { this.editingId = null; this.load(); }, error: () => { this.error = 'La fascia non è valida o si sovrappone a una esistente.'; this.changeDetector.markForCheck(); } }); }
+  create(): void { const url = `${environment.apiUrl}/admin/spaces/${this.spaceId}/availability`; const request = this.reusingId !== null ? this.http.post(`${url}/${this.reusingId}/reuse`, this.form) : this.editingId === null ? this.http.post(url, this.form) : this.http.patch(`${url}/${this.editingId}`, this.form); request.subscribe({ next: () => { this.editingId = null; this.reusingId = null; this.load(); }, error: () => { this.error = 'La fascia non è valida o si sovrappone a una esistente.'; this.changeDetector.markForCheck(); } }); }
   retire(row: Availability): void { this.http.delete(`${environment.apiUrl}/admin/spaces/${this.spaceId}/availability/${row.availabilityId}`).subscribe({ next: () => this.load(), error: () => { this.error = 'Impossibile ritirare la fascia.'; this.changeDetector.markForCheck(); } }); }
   createException(): void { this.http.post(`${environment.apiUrl}/admin/spaces/${this.spaceId}/unavailability`, this.exception).subscribe({ next: () => { this.exception.reason = ''; this.changeDetector.markForCheck(); this.load(); }, error: () => { this.error = 'Indisponibilità non valida.'; this.changeDetector.markForCheck(); } }); }
   removeException(row: Unavailability): void { this.http.delete(`${environment.apiUrl}/admin/spaces/${this.spaceId}/unavailability/${row.id}`).subscribe({ next: () => this.load(), error: () => { this.error = 'Impossibile rimuovere l’indisponibilità.'; this.changeDetector.markForCheck(); } }); }

@@ -58,6 +58,9 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
   availableTime = '';
   loadingAvailability = false;
   availabilityError = '';
+  spaceStatus: 'active' | 'maintenance' | 'deactivated' = 'active';
+  backPath = '/spaces';
+  backLabel = 'Torna agli spazi';
   private requests = new Subscription();
 
   ngOnDestroy(): void { this.requests.unsubscribe(); }
@@ -76,6 +79,15 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.paramMap.get('id');
 
     this.space = { id: spaceId ?? '', name: '', type: '', building: '', floor: 0, seats: 0, accessible: false, image: '', services: [] };
+
+    const origin = this.activatedRoute.snapshot.queryParamMap?.get('from');
+    if (origin === 'home') {
+      this.backPath = '/home';
+      this.backLabel = 'Torna alla home';
+    } else if (origin === 'favorites') {
+      this.backPath = '/favorites';
+      this.backLabel = 'Torna ai preferiti';
+    }
 
     addIcons({
       accessibilityOutline,
@@ -99,6 +111,7 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
     this.availableTime = '';
     this.availableToday = false;
     this.availabilityError = '';
+    this.spaceStatus = 'active';
     this.error = '';
     this.loadingAvailability = true;
     const id = this.activatedRoute.snapshot.paramMap.get('id');
@@ -111,6 +124,12 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
         type: value.type === 'study_room' ? 'Aula studio' : value.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
         building: value.building.name, floor: value.floor, seats: value.capacity,
         accessible: value.accessible, image: SPACE_PREVIEW_IMAGE, services: value.services };
+      this.spaceStatus = value.status === 'maintenance' || value.status === 'deactivated' ? value.status : 'active';
+      if (this.spaceStatus !== 'active') {
+        this.loadingAvailability = false;
+        this.changeDetector.markForCheck();
+        return;
+      }
       const today = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
       }).format(new Date());

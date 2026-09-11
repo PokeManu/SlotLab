@@ -50,6 +50,7 @@ import { addIcons } from 'ionicons';
 export class AdminSpacesPage implements OnInit{
   readonly services = [{ code: 'wifi', label: 'Wi-Fi' }, { code: 'power_outlets', label: 'Prese' }, { code: 'projector', label: 'Proiettore' }, { code: 'computer', label: 'Computer' }, { code: 'air_conditioning', label: 'Aria condizionata' }];
   toggleService(code: string): void { this.form.serviceCodes = this.form.serviceCodes.includes(code) ? this.form.serviceCodes.filter(item => item !== code) : [...this.form.serviceCodes, code]; }
+  onStatusChange(): void { if (this.form.status !== 'active') this.form.accessible = false; }
   qrSpaceId: number | null = null;
 
   readonly auth = inject(Auth);

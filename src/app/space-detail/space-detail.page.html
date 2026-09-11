@@ -4,8 +4,8 @@
     <header class="detail-header">
       <a
         class="back-button"
-        routerLink="/home"
-        aria-label="Torna alla home"
+        [routerLink]="backPath"
+        [attr.aria-label]="backLabel"
       >
         <ion-icon name="arrow-back-outline"></ion-icon>
       </a>
@@ -34,14 +34,18 @@
         <span>Capienza totale: {{ space.seats }} posti</span>
       </p>
 
-      @if (space.accessible) {
+      @if (spaceStatus === 'active' && space.accessible) {
         <p>
           <ion-icon name="accessibility-outline"></ion-icon>
           <span>Accessibile</span>
         </p>
       }
 
-      @if (loadingAvailability) {
+      @if (spaceStatus === 'maintenance') {
+        <p class="availability" role="status">Spazio temporaneamente in manutenzione.</p>
+      } @else if (spaceStatus === 'deactivated') {
+        <p class="availability" role="status">Spazio attualmente disattivato.</p>
+      } @else if (loadingAvailability) {
         <p role="status">Verifica dei posti disponibili…</p>
       } @else if (availabilityError) {
         <p role="alert">{{ availabilityError }}</p>
@@ -78,6 +82,7 @@
         class="primary-button"
         type="button"
         (click)="openBooking()"
+        [disabled]="spaceStatus !== 'active'"
       >
         Verifica disponibilità
       </button>

@@ -6,6 +6,7 @@ import { IonContent } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { environment } from '../../environments/environment';
+import { passwordValidationMessages } from './password-validation';
 
 @Component({
   selector: 'app-account', imports: [FormsModule, RouterLink, IonContent],
@@ -23,25 +24,25 @@ export class AccountPage {
   newPassword = '';
   confirmation = '';
   confirmed = false;
+  attemptedSubmit = false;
+  get passwordErrors(): string[] { return this.mode === 'password' ? passwordValidationMessages(this.newPassword) : []; }
   get title() { return this.mode === 'forgot' ? 'Recupera la password' : this.mode === 'delete' ? 'Elimina account' : 'Cambia password'; }
   ionViewWillEnter() {
     this.currentPassword = this.newPassword = this.confirmation = '';
     this.confirmed = false;
+    this.attemptedSubmit = false;
     this.error.set(''); this.sent.set(false);
   }
   submit() {
     if (this.busy() || this.auth.signingOut()) return;
     this.error.set('');
+    this.attemptedSubmit = this.mode === 'password';
     if (this.mode === 'forgot' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
       this.error.set('Inserisci un indirizzo email valido.'); return;
     }
     if (this.mode !== 'forgot' && !this.currentPassword) { this.error.set('Inserisci la password corrente.'); return; }
     if (this.mode === 'delete' && !this.confirmed) { this.error.set('Conferma la cancellazione definitiva.'); return; }
-    if (this.mode === 'password' && (this.newPassword !== this.confirmation ||
-        this.newPassword.length < 8 || this.newPassword.length > 64 || /\s/.test(this.newPassword) ||
-        !/[A-Z]/.test(this.newPassword) || !/[a-z]/.test(this.newPassword) || !/[0-9]/.test(this.newPassword) || !/[^A-Za-z0-9]/.test(this.newPassword))) {
-      this.error.set('Controlla i requisiti della nuova password e la sua conferma.'); return;
-    }
+    if (this.mode === 'password' && (this.newPassword !== this.confirmation || this.passwordErrors.length)) return;
     this.busy.set(true);
     const request = this.mode === 'forgot'
       ? this.http.post<void>(`${environment.apiUrl}/auth/forgot-password`, { email: this.email.trim().toLowerCase() })
