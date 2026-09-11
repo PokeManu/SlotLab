@@ -4,9 +4,16 @@
   --ion-background-color: var(--slot-background);
   --ion-text-color: var(--slot-text);
 }
+
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+
 .access {
+  flex: 1 0 auto;
+  width: 100%;
   min-height: 100%;
-  min-height: 100svh;
   box-sizing: border-box;
   padding: calc(40px + var(--slot-safe-area-top)) 20px
     calc(40px + var(--slot-safe-area-bottom));
