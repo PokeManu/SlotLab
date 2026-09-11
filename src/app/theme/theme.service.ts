@@ -1,18 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-
 export type AppTheme = 'dark' | 'light';
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly transitionDuration = 1000;
   private transitionTimer?: ReturnType<typeof setTimeout>;
   private readonly currentTheme = signal<AppTheme>(this.readStoredTheme());
   readonly theme = this.currentTheme.asReadonly();
-
   constructor() {
     this.apply(this.currentTheme());
   }
-
   toggle(): void {
     const theme: AppTheme = this.currentTheme() === 'dark' ? 'light' : 'dark';
     const changeTheme = () => {
@@ -20,16 +16,19 @@ export class ThemeService {
       this.apply(theme);
     };
     const prefersReducedMotion = this.prefersReducedMotion();
-
-    if (!prefersReducedMotion && typeof document.startViewTransition === 'function') {
+    if (
+      !prefersReducedMotion &&
+      typeof document.startViewTransition === 'function'
+    ) {
       document.startViewTransition(changeTheme);
     } else {
       if (!prefersReducedMotion) this.startTransition();
       changeTheme();
     }
-    try { localStorage.setItem('slotlab-theme', theme); } catch { /* Preferenza non persistibile. */ }
+    try {
+      localStorage.setItem('slotlab-theme', theme);
+    } catch {}
   }
-
   private startTransition(): void {
     const root = document.documentElement;
     if (this.transitionTimer) clearTimeout(this.transitionTimer);
@@ -39,22 +38,24 @@ export class ThemeService {
       this.transitionTimer = undefined;
     }, this.transitionDuration);
   }
-
   private prefersReducedMotion(): boolean {
-    return typeof window.matchMedia === 'function'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
   }
-
   private readStoredTheme(): AppTheme {
     try {
       const stored = localStorage.getItem('slotlab-theme');
       if (stored === 'light' || stored === 'dark') return stored;
-    } catch { /* Si mantiene il tema scuro predefinito. */ }
+    } catch {}
     return 'dark';
   }
-
   private apply(theme: AppTheme): void {
     document.documentElement.dataset['theme'] = theme;
-    document.documentElement.classList.toggle('ion-palette-dark', theme === 'dark');
+    document.documentElement.classList.toggle(
+      'ion-palette-dark',
+      theme === 'dark',
+    );
   }
 }

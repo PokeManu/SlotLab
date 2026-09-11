@@ -1,9 +1,67 @@
-<ion-content [fullscreen]="true"><div class="admin-shell"><app-admin-sidebar></app-admin-sidebar><main class="users-page">
-  <header><h1>Gestione utenti</h1><p>Cerca gli account registrati ed elimina quelli non amministrativi.</p></header>
-  <form class="search" (submit)="$event.preventDefault(); onSearch()"><label for="user-search">Cerca per nome, cognome o email</label><input id="user-search" name="search" type="search" [(ngModel)]="search" (ngModelChange)="onSearch()" placeholder="Cerca utenti" /></form>
-  @if (error) { <p class="error" role="alert">{{ error }}</p> }
-  <section class="table" aria-label="Elenco utenti"><div class="row row--head"><span>Nome</span><span>Email</span><span>Ruolo</span><span>Azioni</span></div>
-    @for (user of users; track user.id) { <div class="row"><span><strong>{{ user.firstName }} {{ user.lastName }}</strong></span><span>{{ user.email }}</span><span>{{ user.role === 'admin' ? 'Amministratore' : 'Utente' }}</span><span><button type="button" [disabled]="user.role === 'admin'" (click)="remove(user)">Elimina</button></span></div> } @empty { <p class="empty">Nessun utente trovato.</p> }
-  </section>
-  <nav class="pagination" aria-label="Paginazione utenti"><button type="button" (click)="previousPage()" [disabled]="page === 1 || loading">Precedente</button><span>Pagina {{ page }} di {{ totalPages || 1 }}</span><button type="button" (click)="nextPage()" [disabled]="page >= totalPages || loading">Successiva</button></nav>
-</main></div></ion-content>
+<ion-content [fullscreen]="true"
+  ><div class="admin-shell">
+    <app-admin-sidebar></app-admin-sidebar>
+    <main class="users-page">
+      <header>
+        <h1>Gestione utenti</h1>
+        <p>
+          Cerca gli account registrati ed elimina quelli non amministrativi.
+        </p>
+      </header>
+      <form class="search" (submit)="$event.preventDefault(); onSearch()">
+        <label for="user-search">Cerca per nome, cognome o email</label
+        ><input
+          id="user-search"
+          name="search"
+          type="search"
+          [(ngModel)]="search"
+          (ngModelChange)="onSearch()"
+          placeholder="Cerca utenti"
+        />
+      </form>
+      @if (error) {
+      <p class="error" role="alert">{{ error }}</p>
+      }
+      <section class="table" aria-label="Elenco utenti">
+        <div class="row row--head">
+          <span>Nome</span><span>Email</span><span>Ruolo</span
+          ><span>Azioni</span>
+        </div>
+        @for (user of users; track user.id) {
+        <div class="row">
+          <span><strong>{{ user.firstName }} {{ user.lastName }}</strong></span
+          ><span>{{ user.email }}</span
+          ><span>{{ user.role === 'admin' ? 'Amministratore' : 'Utente' }}</span
+          ><span
+            ><button
+              type="button"
+              [disabled]="user.role === 'admin'"
+              (click)="remove(user)"
+            >
+              Elimina
+            </button></span
+          >
+        </div>
+        } @empty {
+        <p class="empty">Nessun utente trovato.</p>
+        }
+      </section>
+      <nav class="pagination" aria-label="Paginazione utenti">
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="page === 1 || loading"
+        >
+          Precedente</button
+        ><span>Pagina {{ page }} di {{ totalPages || 1 }}</span
+        ><button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="page >= totalPages || loading"
+        >
+          Successiva
+        </button>
+      </nav>
+    </main>
+  </div></ion-content
+>

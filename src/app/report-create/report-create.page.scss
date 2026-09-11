@@ -4,11 +4,7 @@
 
 ion-content {
   --background:
-    radial-gradient(
-      circle at 50% 20%,
-      rgb(54 82 128 / 20%),
-      transparent 42%
-    ),
+    radial-gradient(circle at 50% 20%, rgb(54 82 128 / 20%), transparent 42%),
     var(--slot-background);
 
   --color: var(--slot-text);
@@ -19,9 +15,7 @@ ion-content {
   width: min(100%, 680px);
   min-height: 100%;
   margin: 0 auto;
-  padding:
-    calc(28px + var(--slot-safe-area-top))
-    24px
+  padding: calc(28px + var(--slot-safe-area-top)) 24px
     calc(40px + var(--slot-safe-area-bottom));
 }
 
@@ -154,7 +148,7 @@ ion-content {
 
 .report-create-page__field select,
 .report-create-page__field textarea,
-.report-create-page__field input[type='file'] {
+.report-create-page__field input[type="file"] {
   box-sizing: border-box;
   width: 100%;
   border: 1px solid var(--slot-border);
@@ -166,13 +160,13 @@ ion-content {
   font-size: 16px;
 }
 
-.report-create-page__field input[type='file'] {
+.report-create-page__field input[type="file"] {
   min-height: 52px;
   padding: 8px;
   cursor: pointer;
 }
 
-.report-create-page__field input[type='file']::file-selector-button {
+.report-create-page__field input[type="file"]::file-selector-button {
   margin-right: 12px;
   padding: 9px 14px;
   border: 0;
@@ -201,7 +195,7 @@ ion-content {
 
 .report-create-page__field select:focus,
 .report-create-page__field textarea:focus,
-.report-create-page__field input[type='file']:focus-visible {
+.report-create-page__field input[type="file"]:focus-visible {
   border-color: var(--slot-primary);
   box-shadow: 0 0 0 3px rgb(79 127 255 / 16%);
 }

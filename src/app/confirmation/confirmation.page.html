@@ -1,23 +1,44 @@
 <ion-content [fullscreen]="true">
- <main class="confirmation-page">
-  @if (loading) { <p role="status">Caricamento prenotazione…</p> }
-  @if (error) { <p role="alert">{{ error }}</p> }
-  @if (booking; as item) {
-    <div class="success-icon" aria-hidden="true"><ion-icon name="checkmark-outline"></ion-icon></div>
-    <section class="confirmation-heading"><h1>Prenotazione confermata</h1><p>La tua prenotazione è stata registrata.</p></section>
+  <main class="confirmation-page">
+    @if (loading) {
+    <p role="status">Caricamento prenotazione…</p>
+    } @if (error) {
+    <p role="alert">{{ error }}</p>
+    } @if (booking; as item) {
+    <div class="success-icon" aria-hidden="true">
+      <ion-icon name="checkmark-outline"></ion-icon>
+    </div>
+    <section class="confirmation-heading">
+      <h1>Prenotazione confermata</h1>
+      <p>La tua prenotazione è stata registrata.</p>
+    </section>
     <section class="confirmation-card booking-summary">
       <div class="room-icon"><ion-icon name="book-outline"></ion-icon></div>
       <div class="booking-summary__content">
         <h2>{{ item.spaceName }}</h2>
-        <p><ion-icon name="time-outline"></ion-icon><span>{{ dateLabel }}, {{ item.startTime }}–{{ item.endTime }}</span></p>
-        <p><ion-icon name="location-outline"></ion-icon><span>{{ item.building }}, piano {{ item.floor }}</span></p>
-        <p><ion-icon name="people-outline"></ion-icon><span>{{ item.participants.length }} partecipanti</span></p>
+        <p>
+          <ion-icon name="time-outline"></ion-icon
+          ><span>{{ dateLabel }}, {{ item.startTime }}–{{ item.endTime }}</span>
+        </p>
+        <p>
+          <ion-icon name="location-outline"></ion-icon
+          ><span>{{ item.building }}, piano {{ item.floor }}</span>
+        </p>
+        <p>
+          <ion-icon name="people-outline"></ion-icon
+          ><span>{{ item.participants.length }} partecipanti</span>
+        </p>
       </div>
     </section>
-    <section class="confirmation-card booking-code"><span>Codice prenotazione</span><strong>{{ item.id }}</strong></section>
-    <p class="check-in-note">Per fare il check-in, scansiona con la fotocamera del telefono il codice QR affisso nell’aula.</p>
-  }
-  <a class="home-link" routerLink="/bookings">Vai alle prenotazioni</a>
-  <a class="home-link" routerLink="/home">Torna alla home</a>
- </main>
+    <section class="confirmation-card booking-code">
+      <span>Codice prenotazione</span><strong>{{ item.id }}</strong>
+    </section>
+    <p class="check-in-note">
+      Per fare il check-in, scansiona con la fotocamera del telefono il codice
+      QR affisso nell’aula.
+    </p>
+    }
+    <a class="home-link" routerLink="/bookings">Vai alle prenotazioni</a>
+    <a class="home-link" routerLink="/home">Torna alla home</a>
+  </main>
 </ion-content>

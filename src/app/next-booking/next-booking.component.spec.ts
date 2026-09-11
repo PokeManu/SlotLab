@@ -1,12 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { BookingSummary } from '../models/booking-summary.model';
 import { NextBookingComponent } from './next-booking.component';
-
 describe('NextBookingComponent', () => {
   let component: NextBookingComponent;
   let fixture: ComponentFixture<NextBookingComponent>;
-
   const testBooking: BookingSummary = {
     id: 'booking-test',
     spaceName: 'Aula di prova',
@@ -18,15 +15,12 @@ describe('NextBookingComponent', () => {
     floor: 2,
     participants: 1,
   };
-
   beforeEach(() => {
     fixture = TestBed.createComponent(NextBookingComponent);
     component = fixture.componentInstance;
-
     fixture.componentRef.setInput('booking', testBooking);
     fixture.detectChanges();
   });
-
   it('should create', () => {
     expect(component).toBeTruthy();
   });

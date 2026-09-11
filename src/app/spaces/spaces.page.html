@@ -4,18 +4,12 @@
   <main class="spaces">
     <section class="spaces__intro">
       <div>
-        <p class="spaces__greeting">
-          Ciao {{ auth.user()?.firstName }}
-        </p>
+        <p class="spaces__greeting">Ciao {{ auth.user()?.firstName }}</p>
 
         <h1>
-          <span class="spaces__title-desktop">
-            Esplora gli spazi
-          </span>
+          <span class="spaces__title-desktop"> Esplora gli spazi </span>
 
-          <span class="spaces__title-mobile">
-            Trova uno spazio
-          </span>
+          <span class="spaces__title-mobile"> Trova uno spazio </span>
         </h1>
       </div>
 
@@ -32,39 +26,50 @@
         (click)="openNotifications()"
       >
         <ion-icon name="notifications-outline"></ion-icon>
-        @if (notificationState.unreadCount() > 0) { <span class="spaces__notification-badge">{{ notificationState.unreadCount() > 99 ? '99+' : notificationState.unreadCount() }}</span> }
+        @if (notificationState.unreadCount() > 0) {
+        <span class="spaces__notification-badge"
+          >{{ notificationState.unreadCount() > 99 ? '99+' :
+          notificationState.unreadCount() }}</span
+        >
+        }
       </button>
     </section>
 
     <app-space-search (searchChange)="searchSpaces($event)"></app-space-search>
 
-    <app-quick-filters (filtersChange)="applyFilters($event)"></app-quick-filters>
+    <app-quick-filters
+      (filtersChange)="applyFilters($event)"
+    ></app-quick-filters>
 
     <section class="spaces__workspace" aria-label="Mappa ed elenco degli spazi">
-      <app-campus-map eyebrow="" heading="Mappa del campus" hint="Seleziona un edificio o uno spazio"></app-campus-map>
+      <app-campus-map
+        eyebrow=""
+        heading="Mappa del campus"
+        hint="Seleziona un edificio o uno spazio"
+      ></app-campus-map>
 
       <section class="spaces__results" aria-labelledby="spaces-results-title">
         <header class="spaces__results-header">
           <div>
-            <h2 id="spaces-results-title">
-              Spazi disponibili
-            </h2>
+            <h2 id="spaces-results-title">Spazi disponibili</h2>
 
             <p>
-              {{ spaces.length }}
-              {{ spaces.length === 1 ? 'risultato' : 'risultati' }}
+              {{ spaces.length }} {{ spaces.length === 1 ? 'risultato' :
+              'risultati' }}
             </p>
           </div>
         </header>
 
         <div class="spaces__results-list">
           @for (space of spaces; track space.id) {
-          <app-space-list-item [space]="space" [favorite]="favoriteSpaceIds.has(space.id)"
-            (spaceOpened)="openSpace($event)" (favoriteToggled)="toggleFavorite($event)"></app-space-list-item>
+          <app-space-list-item
+            [space]="space"
+            [favorite]="favoriteSpaceIds.has(space.id)"
+            (spaceOpened)="openSpace($event)"
+            (favoriteToggled)="toggleFavorite($event)"
+          ></app-space-list-item>
           } @empty {
-          <p class="spaces__empty">
-            Nessuno spazio disponibile.
-          </p>
+          <p class="spaces__empty">Nessuno spazio disponibile.</p>
           }
         </div>
       </section>

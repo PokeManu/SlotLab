@@ -1,8 +1,5 @@
 <article class="report-item">
-  <div
-    class="report-item__icon"
-    aria-hidden="true"
-  >
+  <div class="report-item__icon" aria-hidden="true">
     <ion-icon [name]="categoryIcon"></ion-icon>
   </div>
 
@@ -16,10 +13,7 @@
         <h2>{{ report.spaceName }}</h2>
       </div>
 
-      <span
-        class="report-item__status"
-        [attr.data-status]="report.status"
-      >
+      <span class="report-item__status" [attr.data-status]="report.status">
         {{ statusLabel }}
       </span>
     </header>
@@ -36,10 +30,18 @@
 
     @if (report.photo) {
       <section aria-label="Foto allegata">
-        @if (photoLoading) { <p role="status">Caricamento foto…</p> }
-        @if (photoError) { <p role="alert">{{ photoError }}</p> }
+        @if (photoLoading) {
+          <p role="status">Caricamento foto…</p>
+        }
+        @if (photoError) {
+          <p role="alert">{{ photoError }}</p>
+        }
         @if (photoUrl) {
-          <img class="report-item__photo" [src]="photoUrl" alt="Foto allegata alla segnalazione">
+          <img
+            class="report-item__photo"
+            [src]="photoUrl"
+            alt="Foto allegata alla segnalazione"
+          />
         }
       </section>
     }

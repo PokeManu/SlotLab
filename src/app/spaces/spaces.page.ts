@@ -8,9 +8,7 @@ import { Router } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { notificationsOutline } from 'ionicons/icons';
-
 import { SpaceSummary } from '../models/space-summary.model';
-
 import { CampusMapComponent } from '../campus-map/campus-map.component';
 import { QuickFiltersComponent } from '../quick-filters/quick-filters.component';
 import { SpaceListItemComponent } from '../space-list-item/space-list-item.component';
@@ -18,7 +16,6 @@ import { SpaceSearchComponent } from '../space-search/space-search.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 import { NotificationState } from '../notifications/notification-state';
-
 @Component({
   selector: 'app-spaces',
   templateUrl: './spaces.page.html',
@@ -46,23 +43,20 @@ export class SpacesPage implements OnInit {
   private accessible = false;
   private studyRooms = false;
   private minimumSeats = false;
-
   readonly favoriteSpaceIds = new Set<string>();
-
   constructor() {
     addIcons({ notificationsOutline });
   }
-
   ngOnInit(): void {
     this.loadSpaces();
   }
-
   ionViewDidEnter(): void {
     this.loadFavorites();
   }
-
-  searchSpaces(value: string): void { this.search = value.trim(); this.loadSpaces(); }
-
+  searchSpaces(value: string): void {
+    this.search = value.trim();
+    this.loadSpaces();
+  }
   applyFilters(filters: string[]): void {
     this.availableNow = filters.includes('available-now');
     this.accessible = filters.includes('accessible');
@@ -70,7 +64,6 @@ export class SpacesPage implements OnInit {
     this.minimumSeats = filters.includes('minimum-seats');
     this.loadSpaces();
   }
-
   private loadSpaces(): void {
     const params = new URLSearchParams();
     if (this.search) params.set('search', this.search);
@@ -79,51 +72,80 @@ export class SpacesPage implements OnInit {
     if (this.studyRooms) params.set('type', 'study_room');
     if (this.minimumSeats) params.set('minSeats', '10');
     const suffix = params.toString() ? `?${params}` : '';
-    allPages<{ id: number; name: string; type: string; building: { name: string }; floor: number; capacity: number; status: 'active' | 'maintenance' | 'deactivated' }>(this.http, `${environment.apiUrl}/spaces${suffix}`)
-      .subscribe({ next: response => {
-      this.spaces = response.data.map(space => ({
-        id: String(space.id), name: space.name,
-        type: space.type === 'study_room' ? 'Aula studio' : space.type === 'laboratory' ? 'Laboratorio' : 'Sala riunioni',
-        building: space.building.name, floor: space.floor, seats: space.capacity, image: SPACE_PREVIEW_IMAGE, status: space.status,
-      }));
-      this.changeDetector.markForCheck();
-    }, error: () => { this.spaces = []; this.changeDetector.markForCheck(); } });
+    allPages<{
+      id: number;
+      name: string;
+      type: string;
+      building: {
+        name: string;
+      };
+      floor: number;
+      capacity: number;
+      status: 'active' | 'maintenance' | 'deactivated';
+    }>(this.http, `${environment.apiUrl}/spaces${suffix}`).subscribe({
+      next: (response) => {
+        this.spaces = response.data.map((space) => ({
+          id: String(space.id),
+          name: space.name,
+          type:
+            space.type === 'study_room'
+              ? 'Aula studio'
+              : space.type === 'laboratory'
+                ? 'Laboratorio'
+                : 'Sala riunioni',
+          building: space.building.name,
+          floor: space.floor,
+          seats: space.capacity,
+          image: SPACE_PREVIEW_IMAGE,
+          status: space.status,
+        }));
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.spaces = [];
+        this.changeDetector.markForCheck();
+      },
+    });
   }
-
   openSpace(spaceId: string): void {
-    this.router.navigate([
-      '/spaces',
-      spaceId,
-    ], { queryParams: { from: 'spaces' } });
+    this.router.navigate(['/spaces', spaceId], {
+      queryParams: { from: 'spaces' },
+    });
   }
-
   openNotifications(): void {
     this.router.navigate(['/notifications']);
   }
-
   toggleFavorite(spaceId: string): void {
     if (this.favoriteSpaceIds.has(spaceId)) {
-      this.http.delete(`${environment.apiUrl}/favorites/${spaceId}`).subscribe({ next: () => {
-        this.favoriteSpaceIds.delete(spaceId);
-        this.changeDetector.markForCheck();
-      } });
+      this.http.delete(`${environment.apiUrl}/favorites/${spaceId}`).subscribe({
+        next: () => {
+          this.favoriteSpaceIds.delete(spaceId);
+          this.changeDetector.markForCheck();
+        },
+      });
       return;
     }
-    this.http.post(`${environment.apiUrl}/favorites/${spaceId}`, {}).subscribe({ next: () => {
-      this.favoriteSpaceIds.add(spaceId);
-      this.changeDetector.markForCheck();
-      } });
+    this.http.post(`${environment.apiUrl}/favorites/${spaceId}`, {}).subscribe({
+      next: () => {
+        this.favoriteSpaceIds.add(spaceId);
+        this.changeDetector.markForCheck();
+      },
+    });
   }
-
   private loadFavorites(): void {
-    allPages<{ id: number }>(this.http, `${environment.apiUrl}/favorites`)
-      .subscribe({ next: response => {
+    allPages<{
+      id: number;
+    }>(this.http, `${environment.apiUrl}/favorites`).subscribe({
+      next: (response) => {
         this.favoriteSpaceIds.clear();
-        for (const space of response.data) this.favoriteSpaceIds.add(String(space.id));
+        for (const space of response.data)
+          this.favoriteSpaceIds.add(String(space.id));
         this.changeDetector.markForCheck();
-      }, error: () => {
+      },
+      error: () => {
         this.favoriteSpaceIds.clear();
         this.changeDetector.markForCheck();
-      } });
+      },
+    });
   }
 }

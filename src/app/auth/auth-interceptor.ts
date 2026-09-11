@@ -6,42 +6,62 @@ import { environment } from '../../environments/environment';
 import { Auth } from './auth';
 import { SKIP_AUTH_REFRESH } from './http-context';
 import { loginDestination } from './return-url';
-
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
-  // Inviare il Bearer soltanto alle nostre API, mai a mappe o servizi esterni.
-  if (!request.url.startsWith(`${environment.apiUrl}/`) ||
-      request.url.startsWith(`${environment.apiUrl}/auth/`)) return next(request);
+  if (
+    !request.url.startsWith(`${environment.apiUrl}/`) ||
+    request.url.startsWith(`${environment.apiUrl}/auth/`)
+  )
+    return next(request);
   const auth = inject(Auth);
   const router = inject(Router);
   const token = auth.accessToken;
   const sessionVersion = auth.sessionVersion;
-  const authorized = (value: string | null) => value
-    ? request.clone({ setHeaders: { Authorization: `Bearer ${value}` } }) : request;
+  const authorized = (value: string | null) =>
+    value
+      ? request.clone({ setHeaders: { Authorization: `Bearer ${value}` } })
+      : request;
   if (request.context.get(SKIP_AUTH_REFRESH)) return next(request);
-
-  return next(authorized(token)).pipe(catchError(error => {
-    if (!(error instanceof HttpErrorResponse) || error.status !== 401 || auth.signingOut() ||
-        sessionVersion !== auth.sessionVersion) {
-      return throwError(() => error);
-    }
-    const retry = () => next(authorized(auth.accessToken)).pipe(catchError(retryError => {
-      if (retryError instanceof HttpErrorResponse && retryError.status === 401 &&
-          sessionVersion === auth.sessionVersion) {
-        auth.invalidate();
-        void router.navigateByUrl(loginDestination(router, router.url), { replaceUrl: true });
+  return next(authorized(token)).pipe(
+    catchError((error) => {
+      if (
+        !(error instanceof HttpErrorResponse) ||
+        error.status !== 401 ||
+        auth.signingOut() ||
+        sessionVersion !== auth.sessionVersion
+      ) {
+        return throwError(() => error);
       }
-      return throwError(() => retryError);
-    }));
-    // Una richiesta partita col vecchio token puo fallire dopo un rinnovo gia concluso.
-    if (auth.accessToken && auth.accessToken !== token) return retry();
-    return auth.recoverSession().pipe(
-      catchError(refreshError => {
-        if (refreshError instanceof HttpErrorResponse && refreshError.status === 401) {
-          void router.navigateByUrl(loginDestination(router, router.url), { replaceUrl: true });
-        }
-        return throwError(() => refreshError);
-      }),
-      switchMap(retry),
-    );
-  }));
+      const retry = () =>
+        next(authorized(auth.accessToken)).pipe(
+          catchError((retryError) => {
+            if (
+              retryError instanceof HttpErrorResponse &&
+              retryError.status === 401 &&
+              sessionVersion === auth.sessionVersion
+            ) {
+              auth.invalidate();
+              void router.navigateByUrl(loginDestination(router, router.url), {
+                replaceUrl: true,
+              });
+            }
+            return throwError(() => retryError);
+          }),
+        );
+      if (auth.accessToken && auth.accessToken !== token) return retry();
+      return auth.recoverSession().pipe(
+        catchError((refreshError) => {
+          if (
+            refreshError instanceof HttpErrorResponse &&
+            refreshError.status === 401
+          ) {
+            void router.navigateByUrl(loginDestination(router, router.url), {
+              replaceUrl: true,
+            });
+          }
+          return throwError(() => refreshError);
+        }),
+        switchMap(retry),
+      );
+    }),
+  );
 };

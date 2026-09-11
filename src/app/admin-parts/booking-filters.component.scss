@@ -1,138 +1,137 @@
-:host { display: contents; }
+:host {
+  display: contents;
+}
 
-
-  button,
+button,
 input,
 select {
-    font: inherit;
-  }
+  font: inherit;
+}
 
-  button,
+button,
 a,
 select {
-    -webkit-tap-highlight-color: transparent;
-  }
+  -webkit-tap-highlight-color: transparent;
+}
 
-  button,
+button,
 select {
-    cursor: pointer;
-  }
+  cursor: pointer;
+}
 
+.filters {
+  width: 100%;
+  margin-bottom: 17px;
+}
+
+.search-field,
+.select-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid var(--slot-border);
+  background: var(--slot-surface-translucent);
+  color: var(--slot-text-muted);
+}
+
+.search-field {
+  height: 55px;
+  border-radius: 11px;
+}
+
+.search-field:focus-within,
+.select-field:focus-within {
+  border-color: var(--slot-primary);
+  box-shadow: 0 0 0 2px var(--slot-primary-tint);
+}
+
+.search-field ion-icon {
+  flex: 0 0 22px;
+  margin-left: 19px;
+  font-size: 22px;
+}
+
+.search-field input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 18px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--slot-text);
+  font-size: 17px;
+}
+
+.search-field input::placeholder {
+  color: var(--slot-text-muted);
+  opacity: 1;
+}
+
+.search-field input::-webkit-search-cancel-button {
+  filter: invert(1);
+  opacity: 0.65;
+}
+
+.filters__selects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 15px;
+}
+
+.select-field {
+  height: 53px;
+  border-radius: 11px;
+}
+
+.select-field select {
+  width: 100%;
+  height: 100%;
+  padding: 0 46px 0 16px;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background: transparent;
+  color: var(--slot-text);
+  font-size: 17px;
+}
+
+.select-field ion-icon {
+  position: absolute;
+  right: 16px;
+  pointer-events: none;
+  color: var(--slot-text);
+  font-size: 18px;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1250px) {
   .filters {
     width: 100%;
-    margin-bottom: 17px;
   }
+}
 
-  .search-field,
-.select-field {
-    position: relative;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    border: 1px solid var(--slot-border);
-    background: var(--slot-surface-translucent);
-    color: var(--slot-text-muted);
-  }
-
-  .search-field {
-    height: 55px;
-    border-radius: 11px;
-  }
-
-  .search-field:focus-within,
-.select-field:focus-within {
-    border-color: var(--slot-primary);
-    box-shadow: 0 0 0 2px var(--slot-primary-tint);
-  }
-
-  .search-field ion-icon {
-    flex: 0 0 22px;
-    margin-left: 19px;
-    font-size: 22px;
-  }
-
-  .search-field input {
+@media (max-width: 1020px) {
+  .filters {
     width: 100%;
-    min-width: 0;
-    height: 100%;
-    padding: 0 18px;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--slot-text);
-    font-size: 17px;
   }
+}
 
-  .search-field input::placeholder {
-    color: var(--slot-text-muted);
-    opacity: 1;
-  }
-
-  .search-field input::-webkit-search-cancel-button {
-    filter: invert(1);
-    opacity: 0.65;
-  }
-
+@media (max-width: 760px) {
   .filters__selects {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 13px;
-    margin-top: 15px;
+    grid-template-columns: 1fr;
   }
-
-  .select-field {
-    height: 53px;
-    border-radius: 11px;
-  }
-
-  .select-field select {
-    width: 100%;
-    height: 100%;
-    padding: 0 46px 0 16px;
-    border: 0;
-    outline: 0;
-    appearance: none;
-    background: transparent;
-    color: var(--slot-text);
-    font-size: 17px;
-  }
-
-  .select-field ion-icon {
-    position: absolute;
-    right: 16px;
-    pointer-events: none;
-    color: var(--slot-text);
-    font-size: 18px;
-  }
-
-  .sr-only {
-    position: absolute;
-    overflow: hidden;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    border: 0;
-    margin: -1px;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
-
-  @media (max-width: 1250px) {
-
-    .filters {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 1020px) {
-    .filters {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 760px) {
-
-    .filters__selects {
-      grid-template-columns: 1fr;
-    }
-  }
+}

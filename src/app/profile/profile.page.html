@@ -11,35 +11,70 @@
         [attr.aria-label]="photoSaving ? 'Salvataggio immagine in corso' : 'Cambia immagine del profilo'"
       >
         @if (profilePhotoUrl) {
-          <img [src]="profilePhotoUrl" [alt]="'Foto profilo di ' + user.fullName">
+        <img
+          [src]="profilePhotoUrl"
+          [alt]="'Foto profilo di ' + user.fullName"
+        />
         } @else {
-          <span aria-hidden="true">{{user.initials}}</span>
+        <span aria-hidden="true">{{user.initials}}</span>
         }
-        <input class="profile__photo-input" type="file" accept="image/jpeg,image/png,image/webp" [disabled]="photoSaving" (change)="selectProfilePhoto($event)">
-        <span class="profile__photo-edit" aria-hidden="true"><ion-icon name="camera-outline"></ion-icon></span>
+        <input
+          class="profile__photo-input"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          [disabled]="photoSaving"
+          (change)="selectProfilePhoto($event)"
+        />
+        <span class="profile__photo-edit" aria-hidden="true"
+          ><ion-icon name="camera-outline"></ion-icon
+        ></span>
       </label>
       @if (profilePhotoUrl) {
-        <div class="profile__photo-actions">
-          <button class="profile__photo-remove" type="button" [disabled]="photoSaving" (click)="removeProfilePhoto()">Rimuovi</button>
-        </div>
+      <div class="profile__photo-actions">
+        <button
+          class="profile__photo-remove"
+          type="button"
+          [disabled]="photoSaving"
+          (click)="removeProfilePhoto()"
+        >
+          Rimuovi
+        </button>
+      </div>
       }
       <p class="profile__photo-hint">JPEG, PNG o WebP · massimo 2 MB</p>
-      @if (photoError) { <p class="profile__photo-error" role="alert">{{ photoError }}</p> }
+      @if (photoError) {
+      <p class="profile__photo-error" role="alert">{{ photoError }}</p>
+      }
       <h2 id="profile-user-name" class="profile__name">{{user.fullName}}</h2>
       <p class="profile__role">{{user.role}}</p>
-      <a class="profile__email" [href]="'mailto:' + user.email">{{user.email}}</a>
+      <a class="profile__email" [href]="'mailto:' + user.email"
+        >{{user.email}}</a
+      >
     </section>
 
     <nav class="profile-menu" aria-label="Impostazioni del profilo">
       <app-theme-toggle [showLabel]="true"></app-theme-toggle>
-      <a class="profile-menu__item" routerLink="/profile/password">Cambia password</a>
+      <a class="profile-menu__item" routerLink="/profile/password"
+        >Cambia password</a
+      >
       @if (!auth.isAdmin()) {
-        <a class="profile-menu__item" routerLink="/reports">Le mie segnalazioni</a>
-        <a class="profile-menu__item" routerLink="/profile/delete">Elimina account</a>
+      <a class="profile-menu__item" routerLink="/reports"
+        >Le mie segnalazioni</a
+      >
+      <a class="profile-menu__item" routerLink="/profile/delete"
+        >Elimina account</a
+      >
       }
     </nav>
 
-    <button class="profile__logout" type="button" (click)="logout()" [disabled]="auth.signingOut()">{{ auth.signingOut() ? 'Uscita in corso…' : 'Esci' }}</button>
+    <button
+      class="profile__logout"
+      type="button"
+      (click)="logout()"
+      [disabled]="auth.signingOut()"
+    >
+      {{ auth.signingOut() ? 'Uscita in corso…' : 'Esci' }}
+    </button>
   </main>
 </ion-content>
 

@@ -12,30 +12,31 @@
   <div class="booking-item__information">
     <h3>{{ booking.spaceName }}</h3>
 
-    <p>
-      {{ booking.building }} · piano {{ booking.floor }}
-    </p>
+    <p>{{ booking.building }} · piano {{ booking.floor }}</p>
 
     <p class="booking-item__participants">
       <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
       <span>
         {{ booking.participants }}
-        {{ booking.participants === 1 ? 'partecipante' : 'partecipanti' }}
+        {{ booking.participants === 1 ? "partecipante" : "partecipanti" }}
       </span>
     </p>
   </div>
 
-  <span
-    class="booking-item__status"
-    [attr.data-status]="booking.status"
-  >
+  <span class="booking-item__status" [attr.data-status]="booking.status">
     {{ statusLabel }}
   </span>
 
   <div class="booking-item__actions">
-    <a class="booking-item__check-in" [routerLink]="['/bookings', booking.id]">Dettaglio e partecipanti</a>
+    <a class="booking-item__check-in" [routerLink]="['/bookings', booking.id]"
+      >Dettaglio e partecipanti</a
+    >
 
-    <button class="booking-item__cancel" type="button" (click)="cancelBooking()">
+    <button
+      class="booking-item__cancel"
+      type="button"
+      (click)="cancelBooking()"
+    >
       Annulla
     </button>
   </div>

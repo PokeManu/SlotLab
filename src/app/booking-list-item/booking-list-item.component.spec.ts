@@ -1,17 +1,14 @@
 import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { BookingListItemComponent } from './booking-list-item.component';
-
 describe('BookingListItemComponent', () => {
   let component: BookingListItemComponent;
   let fixture: ComponentFixture<BookingListItemComponent>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BookingListItemComponent], providers: [provideRouter([])],
+      imports: [BookingListItemComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
-
     fixture = TestBed.createComponent(BookingListItemComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('booking', {
@@ -28,10 +25,11 @@ describe('BookingListItemComponent', () => {
     });
     fixture.detectChanges();
   });
-
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(fixture.nativeElement.textContent).not.toContain('Check-in');
-    expect(fixture.nativeElement.querySelector('a[href^="/check-in"]')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('a[href^="/check-in"]'),
+    ).toBeNull();
   });
 });

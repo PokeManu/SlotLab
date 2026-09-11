@@ -1,157 +1,149 @@
- <ion-content [fullscreen]="true">
-    <div class="admin-layout">
-      <app-admin-sidebar></app-admin-sidebar>
+<ion-content [fullscreen]="true">
+  <div class="admin-layout">
+    <app-admin-sidebar></app-admin-sidebar>
 
-      <main class="admin-main">
-        <header class="page-header">
-          <h1>Gestione prenotazioni</h1>
+    <main class="admin-main">
+      <header class="page-header">
+        <h1>Gestione prenotazioni</h1>
+      </header>
 
-        </header>
+      <app-booking-filters
+        [(searchTerm)]="searchTerm"
+        [(selectedDate)]="selectedDate"
+        [(selectedSpace)]="selectedSpace"
+        [(selectedStatus)]="selectedStatus"
+        [availableSpaces]="availableSpaces"
+        [availableDates]="availableDates"
+        (changed)="applyFilters()"
+      ></app-booking-filters>
 
-        <app-booking-filters [(searchTerm)]="searchTerm" [(selectedDate)]="selectedDate" [(selectedSpace)]="selectedSpace" [(selectedStatus)]="selectedStatus" [availableSpaces]="availableSpaces" [availableDates]="availableDates" (changed)="applyFilters()"></app-booking-filters>
+      <div class="booking-workspace">
+        <section class="booking-panel">
+          <div class="booking-panel__heading">
+            <h2>Prenotazioni</h2>
 
-        <div class="booking-workspace">
-          <section class="booking-panel">
-            <div class="booking-panel__heading">
-              <h2>Prenotazioni</h2>
+            @if ( searchTerm || selectedDate || selectedSpace || selectedStatus
+            ) {
+            <button
+              class="clear-filters"
+              type="button"
+              (click)="resetFilters()"
+            >
+              Azzera filtri
+            </button>
+            }
+          </div>
 
-              @if (
-                searchTerm ||
-                selectedDate ||
-                selectedSpace ||
-                selectedStatus
-              ) {
-                <button
-                  class="clear-filters"
-                  type="button"
-                  (click)="resetFilters()"
-                >
-                  Azzera filtri
-                </button>
-              }
-            </div>
+          <div class="booking-table-wrapper">
+            <table class="booking-table">
+              <thead>
+                <tr>
+                  <th>Orario</th>
+                  <th>Spazio</th>
+                  <th>Prenotato da</th>
+                  <th>Partecipanti</th>
+                  <th>Stato</th>
+                </tr>
+              </thead>
 
-            <div class="booking-table-wrapper">
-              <table class="booking-table">
-                <thead>
-                  <tr>
-                    <th>Orario</th>
-                    <th>Spazio</th>
-                    <th>Prenotato da</th>
-                    <th>Partecipanti</th>
-                    <th>Stato</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  @for (
-                    booking of visibleBookings;
-                    track booking.code
-                  ) {
-                    <tr
-                      tabindex="0"
-                      [class.booking-table__row--selected]="
+              <tbody>
+                @for ( booking of visibleBookings; track booking.code ) {
+                <tr
+                  tabindex="0"
+                  [class.booking-table__row--selected]="
                         selectedBooking?.code === booking.code
                       "
-                      (click)="selectBooking(booking)"
-                      (keydown.enter)="selectBooking(booking)"
-                    >
-                      <td data-label="Orario">
-                        {{ booking.startTime }}–{{ booking.endTime }}
-                      </td>
-
-                      <td data-label="Spazio">
-                        {{ booking.space }}
-                      </td>
-
-                      <td data-label="Prenotato da">
-                        {{ booking.bookedBy }}
-                      </td>
-
-                      <td data-label="Partecipanti">
-                        {{ booking.participants }}
-                      </td>
-
-                      <td data-label="Stato">
-                        <span
-                          class="booking-status"
-                          [ngClass]="statusModifier(booking.status)"
-                        >
-                          {{ booking.status }}
-                        </span>
-                      </td>
-
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td
-                        class="booking-table__empty"
-                        colspan="5"
-                      >
-                        @if (loading) { Caricamento prenotazioni… }
-                        @else if (errorMessage) {
-                          <p role="alert">{{ errorMessage }}</p>
-                          <button type="button" class="clear-filters" (click)="loadBookings()">Riprova</button>
-                        } @else { Nessuna prenotazione corrisponde ai filtri selezionati. }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <footer class="booking-panel__footer">
-              <p>
-                {{ firstVisibleBookingNumber }}–{{
-                  lastVisibleBookingNumber
-                }}
-                di {{ filteredBookings.length }} prenotazioni
-              </p>
-
-              <nav
-                class="pagination"
-                aria-label="Pagine delle prenotazioni"
-              >
-                <button
-                  type="button"
-                  aria-label="Pagina precedente"
-                  [disabled]="currentPage === 1"
-                  (click)="previousPage()"
+                  (click)="selectBooking(booking)"
+                  (keydown.enter)="selectBooking(booking)"
                 >
-                  <ion-icon name="chevron-back-outline"></ion-icon>
-                </button>
+                  <td data-label="Orario">
+                    {{ booking.startTime }}–{{ booking.endTime }}
+                  </td>
 
-                @for (page of pageNumbers; track page) {
-                  <button
-                    type="button"
-                    [class.pagination__page--active]="
+                  <td data-label="Spazio">{{ booking.space }}</td>
+
+                  <td data-label="Prenotato da">{{ booking.bookedBy }}</td>
+
+                  <td data-label="Partecipanti">{{ booking.participants }}</td>
+
+                  <td data-label="Stato">
+                    <span
+                      class="booking-status"
+                      [ngClass]="statusModifier(booking.status)"
+                    >
+                      {{ booking.status }}
+                    </span>
+                  </td>
+                </tr>
+                } @empty {
+                <tr>
+                  <td class="booking-table__empty" colspan="5">
+                    @if (loading) { Caricamento prenotazioni… } @else if
+                    (errorMessage) {
+                    <p role="alert">{{ errorMessage }}</p>
+                    <button
+                      type="button"
+                      class="clear-filters"
+                      (click)="loadBookings()"
+                    >
+                      Riprova
+                    </button>
+                    } @else { Nessuna prenotazione corrisponde ai filtri
+                    selezionati. }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="booking-panel__footer">
+            <p>
+              {{ firstVisibleBookingNumber }}–{{ lastVisibleBookingNumber }} di
+              {{ filteredBookings.length }} prenotazioni
+            </p>
+
+            <nav class="pagination" aria-label="Pagine delle prenotazioni">
+              <button
+                type="button"
+                aria-label="Pagina precedente"
+                [disabled]="currentPage === 1"
+                (click)="previousPage()"
+              >
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </button>
+
+              @for (page of pageNumbers; track page) {
+              <button
+                type="button"
+                [class.pagination__page--active]="
                       currentPage === page
                     "
-                    [attr.aria-current]="
+                [attr.aria-current]="
                       currentPage === page ? 'page' : null
                     "
-                    (click)="goToPage(page)"
-                  >
-                    {{ page }}
-                  </button>
-                }
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+              }
 
-                <button
-                  type="button"
-                  aria-label="Pagina successiva"
-                  [disabled]="currentPage === totalPages"
-                  (click)="nextPage()"
-                >
-                  <ion-icon name="chevron-forward-outline"></ion-icon>
-                </button>
-              </nav>
-            </footer>
-          </section>
+              <button
+                type="button"
+                aria-label="Pagina successiva"
+                [disabled]="currentPage === totalPages"
+                (click)="nextPage()"
+              >
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </nav>
+          </footer>
+        </section>
 
-          @if (selectedBooking; as booking) {
-            <app-booking-detail [selectedBooking]="booking"></app-booking-detail>
-          }
-        </div>
-      </main>
-    </div>
-  </ion-content>
+        @if (selectedBooking; as booking) {
+        <app-booking-detail [selectedBooking]="booking"></app-booking-detail>
+        }
+      </div>
+    </main>
+  </div>
+</ion-content>

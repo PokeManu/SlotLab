@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-
 interface QuickFilter {
   id: string;
   label: string;
@@ -7,7 +6,6 @@ interface QuickFilter {
   active: boolean;
   desktopOnly?: boolean;
 }
-
 @Component({
   selector: 'app-quick-filters',
   templateUrl: './quick-filters.component.html',
@@ -15,7 +13,8 @@ interface QuickFilter {
   imports: [],
 })
 export class QuickFiltersComponent {
-  @Output() filtersChange = new EventEmitter<string[]>();
+  @Output()
+  filtersChange = new EventEmitter<string[]>();
   filters: QuickFilter[] = [
     {
       id: 'available-now',
@@ -41,9 +40,10 @@ export class QuickFiltersComponent {
       desktopOnly: true,
     },
   ];
-
   toggleFilter(filter: QuickFilter): void {
     filter.active = !filter.active;
-    this.filtersChange.emit(this.filters.filter(item => item.active).map(item => item.id));
+    this.filtersChange.emit(
+      this.filters.filter((item) => item.active).map((item) => item.id),
+    );
   }
 }

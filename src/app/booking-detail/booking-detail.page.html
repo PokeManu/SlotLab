@@ -1,57 +1,107 @@
 <ion-content>
   <main class="booking-detail">
     <header class="detail-header">
-      <a class="back-button" routerLink="/bookings" aria-label="Torna alle prenotazioni"><span aria-hidden="true">←</span></a>
+      <a
+        class="back-button"
+        routerLink="/bookings"
+        aria-label="Torna alle prenotazioni"
+        ><span aria-hidden="true">←</span></a
+      >
       <h1>Dettaglio e partecipanti</h1>
     </header>
 
-    @if (error()) { <p class="error-message" role="alert">{{ error() }}</p><button class="secondary-button" type="button" [disabled]="busy()" (click)="load()">Ricarica prenotazione</button> }
-    @if (booking(); as item) {
-      <section class="detail-card" aria-labelledby="space-title">
-        <span class="eyebrow">Prenotazione #{{ item.id }}</span>
-        <h2 id="space-title">{{ item.spaceName }}</h2>
-        <dl class="booking-summary">
-          <div><dt>Data</dt><dd>{{ item.date }}</dd></div>
-          <div><dt>Fascia oraria</dt><dd>{{ item.startTime }}–{{ item.endTime }}</dd></div>
-          <div><dt>Partecipanti</dt><dd>{{ item.participants.length }}</dd></div>
-        </dl>
-      </section>
+    @if (error()) {
+    <p class="error-message" role="alert">{{ error() }}</p>
+    <button
+      class="secondary-button"
+      type="button"
+      [disabled]="busy()"
+      (click)="load()"
+    >
+      Ricarica prenotazione
+    </button>
+    } @if (booking(); as item) {
+    <section class="detail-card" aria-labelledby="space-title">
+      <span class="eyebrow">Prenotazione #{{ item.id }}</span>
+      <h2 id="space-title">{{ item.spaceName }}</h2>
+      <dl class="booking-summary">
+        <div>
+          <dt>Data</dt>
+          <dd>{{ item.date }}</dd>
+        </div>
+        <div>
+          <dt>Fascia oraria</dt>
+          <dd>{{ item.startTime }}–{{ item.endTime }}</dd>
+        </div>
+        <div>
+          <dt>Partecipanti</dt>
+          <dd>{{ item.participants.length }}</dd>
+        </div>
+      </dl>
+    </section>
 
-      <section class="detail-card" aria-labelledby="participants-title">
-        <h2 id="participants-title">Partecipanti</h2>
-        <ul class="participant-list">
-          @for (person of item.participants; track person.participantId) {
-            <li class="participant">
-              <div class="participant-info">
-                <strong>{{ person.firstName }} {{ person.lastName }}</strong>
-                <span class="participant-email">{{ person.email }}</span>
-                <div class="badges">
-                  @if (person.participantRole === 'organizer') { <span class="badge">Organizzatore</span> }
-                  @if (person.present) { <span class="badge badge--present">Check-in registrato</span> }
-                </div>
-              </div>
-              @if (person.participantRole !== 'organizer' && (isOrganizer() || person.id === auth.user()?.id)) {
-                <button class="secondary-button" type="button" [disabled]="busy()" (click)="remove(person)">{{ person.id === auth.user()?.id ? 'Abbandona prenotazione' : 'Rimuovi partecipante' }}</button>
-              }
-            </li>
-          }
-        </ul>
-      </section>
-
-      @if (isOrganizer()) {
-        <section class="detail-card">
-          <h2>Aggiungi partecipante</h2>
-          <form (ngSubmit)="add()">
-            <label for="participant-email">Email del partecipante</label>
-            <div class="email-row">
-              <input id="participant-email" name="email" type="email" required [(ngModel)]="email" [disabled]="busy()" placeholder="nome@esempio.it">
-              <button class="primary-button" type="submit" [disabled]="busy()">Aggiungi</button>
+    <section class="detail-card" aria-labelledby="participants-title">
+      <h2 id="participants-title">Partecipanti</h2>
+      <ul class="participant-list">
+        @for (person of item.participants; track person.participantId) {
+        <li class="participant">
+          <div class="participant-info">
+            <strong>{{ person.firstName }} {{ person.lastName }}</strong>
+            <span class="participant-email">{{ person.email }}</span>
+            <div class="badges">
+              @if (person.participantRole === 'organizer') {
+              <span class="badge">Organizzatore</span> } @if (person.present) {
+              <span class="badge badge--present">Check-in registrato</span> }
             </div>
-          </form>
-        </section>
-      }
-      <p class="detail-note">Le modifiche sono consentite fino a un’ora prima dell’inizio.</p>
-      <p class="detail-note">Per il check-in, scansiona con la fotocamera il QR affisso nell’aula.</p>
-    } @else if (!error()) { <p class="detail-card" role="status">Caricamento…</p> }
+          </div>
+          @if (person.participantRole !== 'organizer' && (isOrganizer() ||
+          person.id === auth.user()?.id)) {
+          <button
+            class="secondary-button"
+            type="button"
+            [disabled]="busy()"
+            (click)="remove(person)"
+          >
+            {{ person.id === auth.user()?.id ? 'Abbandona prenotazione' :
+            'Rimuovi partecipante' }}
+          </button>
+          }
+        </li>
+        }
+      </ul>
+    </section>
+
+    @if (isOrganizer()) {
+    <section class="detail-card">
+      <h2>Aggiungi partecipante</h2>
+      <form (ngSubmit)="add()">
+        <label for="participant-email">Email del partecipante</label>
+        <div class="email-row">
+          <input
+            id="participant-email"
+            name="email"
+            type="email"
+            required
+            [(ngModel)]="email"
+            [disabled]="busy()"
+            placeholder="nome@esempio.it"
+          />
+          <button class="primary-button" type="submit" [disabled]="busy()">
+            Aggiungi
+          </button>
+        </div>
+      </form>
+    </section>
+    }
+    <p class="detail-note">
+      Le modifiche sono consentite soltanto quando manca più di un’ora
+      all’inizio.
+    </p>
+    <p class="detail-note">
+      Per il check-in, scansiona con la fotocamera il QR affisso nell’aula.
+    </p>
+    } @else if (!error()) {
+    <p class="detail-card" role="status">Caricamento…</p>
+    }
   </main>
 </ion-content>

@@ -1,6 +1,8 @@
 <ion-content [fullscreen]="true">
   <main class="space-detail">
-    @if (error) { <p role="alert">{{ error }}</p> }
+    @if (error) {
+    <p role="alert">{{ error }}</p>
+    }
     <header class="detail-header">
       <a
         class="back-button"
@@ -35,30 +37,29 @@
       </p>
 
       @if (spaceStatus === 'active' && space.accessible) {
-        <p>
-          <ion-icon name="accessibility-outline"></ion-icon>
-          <span>Accessibile</span>
-        </p>
-      }
-
-      @if (spaceStatus === 'maintenance') {
-        <p class="availability" role="status">Spazio temporaneamente in manutenzione.</p>
+      <p>
+        <ion-icon name="accessibility-outline"></ion-icon>
+        <span>Accessibile</span>
+      </p>
+      } @if (spaceStatus === 'maintenance') {
+      <p class="availability" role="status">
+        Spazio temporaneamente in manutenzione.
+      </p>
       } @else if (spaceStatus === 'deactivated') {
-        <p class="availability" role="status">Spazio attualmente disattivato.</p>
+      <p class="availability" role="status">Spazio attualmente disattivato.</p>
       } @else if (loadingAvailability) {
-        <p role="status">Verifica dei posti disponibili…</p>
+      <p role="status">Verifica dei posti disponibili…</p>
       } @else if (availabilityError) {
-        <p role="alert">{{ availabilityError }}</p>
+      <p role="alert">{{ availabilityError }}</p>
       } @else if (!error) {
-        <p class="availability" role="status">
-          @if (availableToday) {
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            {{ availableSeats }} {{ availableSeats === 1 ? 'posto disponibile' : 'posti disponibili' }}
-            · oggi {{ availableTime }} (prima fascia prenotabile)
-          } @else {
-            Nessuna fascia prenotabile oggi. Verifica le altre date.
-          }
-        </p>
+      <p class="availability" role="status">
+        @if (availableToday) {
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        {{ availableSeats }} {{ availableSeats === 1 ? 'posto disponibile' :
+        'posti disponibili' }} · oggi {{ availableTime }} (prima fascia
+        prenotabile) } @else { Nessuna fascia prenotabile oggi. Verifica le
+        altre date. }
+      </p>
       }
     </section>
 
@@ -66,14 +67,13 @@
       <h3>Servizi inclusi</h3>
 
       <div class="services__grid">
-        @for (service of space.services; track service) {
-          @if (serviceDetails[service]; as detail) {
-            <article class="service-card">
-              <ion-icon [name]="detail.icon" aria-hidden="true"></ion-icon>
-              <span>{{ detail.label }}</span>
-            </article>
-          }
-        }
+        @for (service of space.services; track service) { @if
+        (serviceDetails[service]; as detail) {
+        <article class="service-card">
+          <ion-icon [name]="detail.icon" aria-hidden="true"></ion-icon>
+          <span>{{ detail.label }}</span>
+        </article>
+        } }
       </div>
     </section>
 
@@ -87,15 +87,8 @@
         Verifica disponibilità
       </button>
 
-      <button
-        class="secondary-button"
-        type="button"
-        (click)="openReport()"
-      >
-        <ion-icon
-          name="alert-circle-outline"
-          aria-hidden="true"
-        ></ion-icon>
+      <button class="secondary-button" type="button" (click)="openReport()">
+        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
 
         Segnala un problema
       </button>

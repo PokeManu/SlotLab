@@ -6,12 +6,9 @@
         [src]="space.image"
         [alt]="'Immagine rappresentativa dello spazio ' + space.name"
         loading="lazy"
-      >
+      />
     } @else {
-      <div
-        class="space-card__placeholder"
-        aria-hidden="true"
-      ></div>
+      <div class="space-card__placeholder" aria-hidden="true"></div>
     }
 
     <span class="space-card__type">
@@ -30,7 +27,7 @@
       piano {{ space.floor }}
       <span aria-hidden="true">·</span>
       {{ space.seats }}
-      {{ space.seats === 1 ? 'posto' : 'posti' }}
+      {{ space.seats === 1 ? "posto" : "posti" }}
     </p>
   </div>
 

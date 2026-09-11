@@ -1,4 +1,3 @@
--- Edifici del campus. L'id tecnico e il numero ufficiale UniPa sono distinti.
 CREATE TABLE buildings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   number INTEGER NOT NULL UNIQUE CHECK (number > 0),
@@ -8,7 +7,6 @@ CREATE TABLE buildings (
   longitude REAL NOT NULL CHECK (longitude BETWEEN -180 AND 180)
 );
 
--- Spazi prenotabili o visibili nel campus.
 CREATE TABLE spaces (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   building_id INTEGER NOT NULL,
@@ -25,7 +23,6 @@ CREATE TABLE spaces (
   FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE
 );
 
--- Catalogo fisso dei servizi disponibili negli spazi.
 CREATE TABLE services (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT NOT NULL UNIQUE CHECK (
@@ -40,7 +37,6 @@ CREATE TABLE services (
   name TEXT NOT NULL CHECK (length(trim(name)) > 0)
 );
 
--- Relazione molti-a-molti tra spazi e servizi.
 CREATE TABLE space_services (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -50,7 +46,6 @@ CREATE TABLE space_services (
   FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT
 );
 
--- Fasce settimanali ricorrenti, valide in un intervallo di date.
 CREATE TABLE availabilities (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -76,7 +71,6 @@ CREATE TABLE availabilities (
   FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE
 );
 
--- Indisponibilita eccezionali riferite a una data precisa.
 CREATE TABLE unavailabilities (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -96,7 +90,6 @@ CREATE TABLE unavailabilities (
   FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE
 );
 
--- Snapshot delle fasce concrete usato per le statistiche storiche.
 CREATE TABLE slot_occurrences (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -138,7 +131,6 @@ CREATE TABLE slot_occurrences (
   FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE
 );
 
--- Account normali e amministratori.
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   first_name TEXT NOT NULL CHECK (length(trim(first_name)) > 0),
@@ -152,7 +144,6 @@ CREATE TABLE users (
   created_at TEXT NOT NULL CHECK (length(trim(created_at)) > 0)
 );
 
--- Prenotazioni riferite a uno spazio e a una configurazione coerente.
 CREATE TABLE bookings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -170,7 +161,6 @@ CREATE TABLE bookings (
     ON DELETE CASCADE
 );
 
--- Persone associate alle prenotazioni, incluso l'organizzatore.
 CREATE TABLE booking_participants (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   booking_id INTEGER NOT NULL,
@@ -193,7 +183,6 @@ CREATE TABLE booking_participants (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Spazi salvati dagli utenti.
 CREATE TABLE favorites (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -204,7 +193,6 @@ CREATE TABLE favorites (
   FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE
 );
 
--- Segnalazioni degli utenti relative agli spazi.
 CREATE TABLE reports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -234,7 +222,6 @@ CREATE TABLE reports (
   FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE
 );
 
--- Avvisi globali pubblicati dagli amministratori.
 CREATE TABLE announcements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   author_id INTEGER NOT NULL,
@@ -244,7 +231,6 @@ CREATE TABLE announcements (
   FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
--- Notifiche personali, automatiche oppure generate da un avviso globale.
 CREATE TABLE notifications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -261,7 +247,6 @@ CREATE TABLE notifications (
     ON DELETE CASCADE
 );
 
--- Una sola sessione autenticata attiva per account.
 CREATE TABLE auth_sessions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL UNIQUE,
@@ -278,7 +263,6 @@ CREATE TABLE auth_sessions (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Richieste di prenotazione gia elaborate per garantire l'idempotenza.
 CREATE TABLE booking_requests (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -293,8 +277,6 @@ CREATE TABLE booking_requests (
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE SET NULL
 );
 
--- Una configurazione attiva non puo essere duplicata esattamente.
--- Le sovrapposizioni parziali richiedono il controllo transazionale del backend.
 CREATE UNIQUE INDEX uq_active_availability_exact
   ON availabilities (
     space_id,
@@ -306,8 +288,6 @@ CREATE UNIQUE INDEX uq_active_availability_exact
   )
   WHERE is_retired = 0;
 
--- Il database impedisce due organizzatori nella stessa prenotazione.
--- La presenza di almeno un organizzatore viene garantita dalla transazione backend.
 CREATE UNIQUE INDEX uq_booking_single_organizer
   ON booking_participants (booking_id)
   WHERE participant_role = 'organizer';

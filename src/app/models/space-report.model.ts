@@ -3,12 +3,7 @@ export type ReportCategory =
   | 'cleaning'
   | 'accessibility'
   | 'other';
-
-export type ReportStatus =
-  | 'submitted'
-  | 'in-progress'
-  | 'resolved';
-
+export type ReportStatus = 'submitted' | 'in-progress' | 'resolved';
 export interface SpaceReport {
   id: string;
   photo?: string | null;

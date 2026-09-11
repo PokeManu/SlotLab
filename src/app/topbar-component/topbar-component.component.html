@@ -1,72 +1,86 @@
 <header class="topbar" [class.topbar--admin]="auth.isAdmin()">
-  <div class="topbar__brand">
-    <span class="topbar__logo">
-      <ion-icon name="calendar-clear-outline"></ion-icon>
-    </span>
-
-    <span class="topbar__brand-name">
-      SlotLab
-    </span>
-  </div>
-
-  <nav
-    class="topbar__navigation"
-    aria-label="Navigazione principale"
+  <a
+    class="topbar__brand"
+    [routerLink]="auth.isAdmin() ? '/admin' : '/home'"
+    aria-label="Vai alla pagina principale di SlotLab"
   >
+    <img
+      class="topbar__brand-image"
+      src="assets/branding/slotlab-logo.png"
+      alt="SlotLab"
+    />
+  </a>
+
+  <nav class="topbar__navigation" aria-label="Navigazione principale">
     @if (auth.isAdmin()) {
       @for (item of adminNavigation; track item.route) {
-        <a class="topbar__link" [routerLink]="item.route" routerLinkActive="topbar__link--active"
-          [routerLinkActiveOptions]="{ exact: item.route === '/admin' }">{{ item.label }}</a>
+        <a
+          class="topbar__link"
+          [routerLink]="item.route"
+          routerLinkActive="topbar__link--active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+          >{{ item.label }}</a
+        >
       }
     } @else {
-    <a
-      class="topbar__link"
-      routerLink="/home"
-      routerLinkActive="topbar__link--active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      Home
-    </a>
+      <a
+        class="topbar__link"
+        routerLink="/home"
+        routerLinkActive="topbar__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Home
+      </a>
 
-    <a
-      class="topbar__link"
-      routerLink="/spaces"
-      routerLinkActive="topbar__link--active"
-    >
-      Spazi
-    </a>
+      <a
+        class="topbar__link"
+        routerLink="/spaces"
+        routerLinkActive="topbar__link--active"
+      >
+        Spazi
+      </a>
 
-    <a
-      class="topbar__link"
-      routerLink="/bookings"
-      routerLinkActive="topbar__link--active"
-    >
-      Prenotazioni
-    </a>
+      <a
+        class="topbar__link"
+        routerLink="/bookings"
+        routerLinkActive="topbar__link--active"
+      >
+        Prenotazioni
+      </a>
 
-    <a
-      class="topbar__link"
-      routerLink="/favorites"
-      routerLinkActive="topbar__link--active"
-    >
-      Preferiti
-    </a>
+      <a
+        class="topbar__link"
+        routerLink="/favorites"
+        routerLinkActive="topbar__link--active"
+      >
+        Preferiti
+      </a>
     }
   </nav>
 
   <div class="topbar__user">
-  <app-theme-toggle></app-theme-toggle>
-  @if (!auth.isAdmin()) {
-  <a
-    class="topbar__notification"
-    routerLink="/notifications"
-    routerLinkActive="topbar__notification--active"
-    aria-label="Apri le notifiche"
-  >
-    <ion-icon name="notifications-outline"></ion-icon>
-    @if (notificationState.unreadCount() > 0) { <span class="topbar__notification-badge" aria-label="Notifiche non lette">{{ notificationState.unreadCount() > 99 ? '99+' : notificationState.unreadCount() }}</span> }
-  </a>
-  }
+    <app-theme-toggle></app-theme-toggle>
+    @if (!auth.isAdmin()) {
+      <a
+        class="topbar__notification"
+        routerLink="/notifications"
+        routerLinkActive="topbar__notification--active"
+        aria-label="Apri le notifiche"
+      >
+        <ion-icon name="notifications-outline"></ion-icon>
+        @if (notificationState.unreadCount() > 0) {
+          <span
+            class="topbar__notification-badge"
+            aria-label="Notifiche non lette"
+            >{{
+              notificationState.unreadCount() > 99
+                ? "99+"
+                : notificationState.unreadCount()
+            }}</span
+          >
+        }
+      </a>
+    }
 
     <a
       class="topbar__profile"
@@ -76,7 +90,7 @@
     >
       <span class="topbar__avatar">
         @if (profilePhoto.url()) {
-          <img [src]="profilePhoto.url()" alt="">
+          <img [src]="profilePhoto.url()" alt="" />
         } @else {
           {{ auth.initials }}
         }

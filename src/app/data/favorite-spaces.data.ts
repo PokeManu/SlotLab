@@ -1,7 +1,5 @@
 import { FavoriteSpace } from '../models/favorite-space.model';
-
 import { findSpace } from './spaces.data';
-
 export const FAVORITE_SPACES: FavoriteSpace[] = [
   {
     ...findSpace('aula-studio-a1'),

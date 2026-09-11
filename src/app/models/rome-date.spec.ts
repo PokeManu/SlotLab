@@ -1,5 +1,4 @@
 import { romeDate } from './rome-date';
-
 describe('romeDate', () => {
   it('usa il giorno italiano oltre la mezzanotte invernale ed estiva', () => {
     expect(romeDate(new Date('2026-01-31T23:30:00Z'))).toBe('2026-02-01');

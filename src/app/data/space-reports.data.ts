@@ -1,11 +1,8 @@
 import { SpaceReport } from '../models/space-report.model';
-
 import { findSpace } from './spaces.data';
-
 const aulaStudio = findSpace('aula-studio-a1');
 const laboratorioReti = findSpace('laboratorio-reti');
 const salaRiunioni = findSpace('sala-riunioni-b');
-
 export const SPACE_REPORTS: readonly SpaceReport[] = [
   {
     id: 'report-001',

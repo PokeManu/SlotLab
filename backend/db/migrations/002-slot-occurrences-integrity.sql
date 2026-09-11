@@ -1,7 +1,3 @@
--- SQLite accetta un CHECK che restituisce NULL: nei casi consolidati
--- occorre richiedere esplicitamente capienza e stato non nulli.
--- La transazione e gestita da migrate.js. Dati preesistenti non validi
--- fanno fallire la copia e annullano l'intera migrazione.
 CREATE TABLE slot_occurrences_new (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   space_id INTEGER NOT NULL,
@@ -49,7 +45,6 @@ SELECT id, space_id, date, start_time, end_time,
        offered_capacity, was_offered, finalized_at
 FROM slot_occurrences;
 
--- Conserva anche gli ID di righe gia eliminate, per non riutilizzarli.
 UPDATE sqlite_sequence
 SET seq = MAX(seq, COALESCE(
   (SELECT seq FROM sqlite_sequence WHERE name = 'slot_occurrences'), 0

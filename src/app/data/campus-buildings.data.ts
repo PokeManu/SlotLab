@@ -1,5 +1,4 @@
 import { CampusBuilding } from '../models/campus-building.models';
-
 export const CAMPUS_BUILDINGS: CampusBuilding[] = [
   {
     id: 'building-02',
@@ -9,10 +8,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Centro Orientamento e Tutorato'],
     coordinates: {
       latitude: 38.1068248,
-      longitude: 13.352513
+      longitude: 13.352513,
     },
     aboveGroundFloors: 3,
-    basementFloors: 0
+    basementFloors: 0,
   },
   {
     id: 'building-03',
@@ -22,14 +21,14 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: [
       'Didattica e servizi agli studenti',
       'Post Lauream',
-      'Internazionalizzazione'
+      'Internazionalizzazione',
     ],
     coordinates: {
       latitude: 38.107172,
-      longitude: 13.3530283
+      longitude: 13.3530283,
     },
     aboveGroundFloors: 2,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-04',
@@ -39,10 +38,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Scienze agrarie, alimentari e forestali'],
     coordinates: {
       latitude: 38.1078889,
-      longitude: 13.3527173
+      longitude: 13.3527173,
     },
     aboveGroundFloors: 3,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-05',
@@ -52,10 +51,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Area agroalimentare'],
     coordinates: {
       latitude: 38.1075549,
-      longitude: 13.3512888
+      longitude: 13.3512888,
     },
     aboveGroundFloors: 3,
-    basementFloors: 0
+    basementFloors: 0,
   },
   {
     id: 'building-06',
@@ -65,10 +64,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Ingegneria', 'Amministrazione centrale'],
     coordinates: {
       latitude: 38.1059492,
-      longitude: 13.3504286
+      longitude: 13.3504286,
     },
     aboveGroundFloors: 4,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-07',
@@ -78,10 +77,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Ingegneria'],
     coordinates: {
       latitude: 38.1050554,
-      longitude: 13.3488747
+      longitude: 13.3488747,
     },
     aboveGroundFloors: 4,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-08',
@@ -91,10 +90,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Ingegneria', 'Architettura', 'Amministrazione centrale'],
     coordinates: {
       latitude: 38.1051682,
-      longitude: 13.3475838
+      longitude: 13.3475838,
     },
     aboveGroundFloors: 4,
-    basementFloors: null
+    basementFloors: null,
   },
   {
     id: 'building-09',
@@ -104,10 +103,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Ingegneria'],
     coordinates: {
       latitude: 38.1036268,
-      longitude: 13.3457991
+      longitude: 13.3457991,
     },
     aboveGroundFloors: 4,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-10',
@@ -117,10 +116,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Ingegneria'],
     coordinates: {
       latitude: 38.103955,
-      longitude: 13.345634
+      longitude: 13.345634,
     },
     aboveGroundFloors: 1,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-11',
@@ -130,10 +129,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Sistema Informativo di Ateneo'],
     coordinates: {
       latitude: 38.1029944,
-      longitude: 13.3453127
+      longitude: 13.3453127,
     },
     aboveGroundFloors: 2,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-12',
@@ -143,26 +142,23 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Scienze umanistiche'],
     coordinates: {
       latitude: 38.1025434,
-      longitude: 13.3460809
+      longitude: 13.3460809,
     },
     aboveGroundFloors: 8,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-13',
     buildingNumber: 13,
     name: 'Edificio 13',
     address: 'Viale delle Scienze, Edificio 13, Palermo',
-    uses: [
-      'Scienze economiche, aziendali e statistiche',
-      'Aula Magna'
-    ],
+    uses: ['Scienze economiche, aziendali e statistiche', 'Aula Magna'],
     coordinates: {
       latitude: 38.102846,
-      longitude: 13.3483073
+      longitude: 13.3483073,
     },
     aboveGroundFloors: 6,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-14',
@@ -172,10 +168,10 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Architettura'],
     coordinates: {
       latitude: 38.1017179,
-      longitude: 13.3471544
+      longitude: 13.3471544,
     },
     aboveGroundFloors: 5,
-    basementFloors: 0
+    basementFloors: 0,
   },
   {
     id: 'building-15',
@@ -185,14 +181,14 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: [
       'Scienze psicologiche, pedagogiche e della formazione',
       'Scienze dell’esercizio fisico',
-      'Amministrazione centrale'
+      'Amministrazione centrale',
     ],
     coordinates: {
       latitude: 38.1019604,
-      longitude: 13.3449954
+      longitude: 13.3449954,
     },
     aboveGroundFloors: 9,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-16',
@@ -202,14 +198,14 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: [
       'Scienze biologiche, chimiche e farmaceutiche',
       'Culture e società',
-      'Amministrazione centrale'
+      'Amministrazione centrale',
     ],
     coordinates: {
       latitude: 38.1004189,
-      longitude: 13.3449737
+      longitude: 13.3449737,
     },
     aboveGroundFloors: 3,
-    basementFloors: 3
+    basementFloors: 3,
   },
   {
     id: 'building-17',
@@ -219,26 +215,23 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Fisica e chimica'],
     coordinates: {
       latitude: 38.0993237,
-      longitude: 13.3443788
+      longitude: 13.3443788,
     },
     aboveGroundFloors: 3,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-18',
     buildingNumber: 18,
     name: 'Edificio 18',
     address: 'Viale delle Scienze, Edificio 18, Palermo',
-    uses: [
-      'Fisica e chimica',
-      'Area tecnica e patrimonio immobiliare'
-    ],
+    uses: ['Fisica e chimica', 'Area tecnica e patrimonio immobiliare'],
     coordinates: {
       latitude: 38.0985535,
-      longitude: 13.3436033
+      longitude: 13.3436033,
     },
     aboveGroundFloors: 9,
-    basementFloors: 1
+    basementFloors: 1,
   },
   {
     id: 'building-19',
@@ -248,9 +241,9 @@ export const CAMPUS_BUILDINGS: CampusBuilding[] = [
     uses: ['Polo didattico', 'Aule multimediali'],
     coordinates: {
       latitude: 38.1041405,
-      longitude: 13.3496401
+      longitude: 13.3496401,
     },
     aboveGroundFloors: null,
-    basementFloors: null
-  }
+    basementFloors: null,
+  },
 ];

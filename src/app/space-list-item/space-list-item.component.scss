@@ -39,12 +39,7 @@
 }
 
 .space-list-item__placeholder {
-  background:
-    linear-gradient(
-      135deg,
-      var(--slot-border),
-      var(--slot-surface)
-    );
+  background: linear-gradient(135deg, var(--slot-border), var(--slot-surface));
 }
 
 .space-list-item__content {

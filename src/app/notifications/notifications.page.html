@@ -3,56 +3,91 @@
   <main class="notifications">
     <header class="notifications__header">
       <h1>Notifiche</h1>
-      <button class="notifications__mark-all" type="button" [disabled]="saving || loading || !notificationGroups.length" (click)="markAllAsRead()">Segna tutte come lette</button>
+      <button
+        class="notifications__mark-all"
+        type="button"
+        [disabled]="saving || loading || !notificationGroups.length"
+        (click)="markAllAsRead()"
+      >
+        Segna tutte come lette
+      </button>
     </header>
 
-    @if (loading) { <p role="status">Caricamento notifiche…</p> }
-    @if (error) { <p role="alert">{{ error }}</p><button type="button" class="notifications__mark-all" [disabled]="loading || saving" (click)="loadNotifications()">Ricarica notifiche</button> }
-    @if (!loading && !error && !notificationGroups.length) { <p role="status">Nessuna notifica presente.</p> }
+    @if (loading) {
+    <p role="status">Caricamento notifiche…</p>
+    } @if (error) {
+    <p role="alert">{{ error }}</p>
+    <button
+      type="button"
+      class="notifications__mark-all"
+      [disabled]="loading || saving"
+      (click)="loadNotifications()"
+    >
+      Ricarica notifiche
+    </button>
+    } @if (!loading && !error && !notificationGroups.length) {
+    <p role="status">Nessuna notifica presente.</p>
+    }
     <div class="notifications__groups">
-      @for(
-        group of notificationGroups; track group.label
-      ){
-        <section class="notification-group" [attr.aria-labelledby]="'notification-group-' + $index">
-          <h2 class="notification-group__title" [id]="'notification-group-' + $index">{{group.label}}</h2>
-          <div class="notification-group__list">
-            @for(notification of group.notifications; track notification.id){
-              <button class="notification-card" type="button" [disabled]="saving || loading" [class.notification-card--read]="notification.read" (click)="markAsRead(notification)">
-                <span
-                  class="notification-card__icon"
-                  [class.notification-card__icon--primary]="notification.variant === 'primary'"
-                  [class.notification-card__icon--success]="notification.variant === 'success'"
-                  [class.notification-card__icon--warning]="notification.variant === 'warning'"
-                  [class.notification-card__icon--neutral]="notification.variant === 'neutral'"
-                  aria-hidden="true">  
-                  <ion-icon [name]="notification.icon"></ion-icon>
-                </span>
+      @for( group of notificationGroups; track group.label ){
+      <section
+        class="notification-group"
+        [attr.aria-labelledby]="'notification-group-' + $index"
+      >
+        <h2
+          class="notification-group__title"
+          [id]="'notification-group-' + $index"
+        >
+          {{group.label}}
+        </h2>
+        <div class="notification-group__list">
+          @for(notification of group.notifications; track notification.id){
+          <button
+            class="notification-card"
+            type="button"
+            [disabled]="saving || loading"
+            [class.notification-card--read]="notification.read"
+            (click)="markAsRead(notification)"
+          >
+            <span
+              class="notification-card__icon"
+              [class.notification-card__icon--primary]="notification.variant === 'primary'"
+              [class.notification-card__icon--success]="notification.variant === 'success'"
+              [class.notification-card__icon--warning]="notification.variant === 'warning'"
+              [class.notification-card__icon--neutral]="notification.variant === 'neutral'"
+              aria-hidden="true"
+            >
+              <ion-icon [name]="notification.icon"></ion-icon>
+            </span>
 
-                <span class="notification-card__content">
-                  <span class="notification-card__title">
-                    {{notification.title}}
-                  </span>
-                  <span class="notification-card__context">
-                    {{notification.context}}
-                  </span>
-                  <span class="notification-card__message">
-                    {{notification.message}}
-                  </span>
-                </span>
+            <span class="notification-card__content">
+              <span class="notification-card__title">
+                {{notification.title}}
+              </span>
+              <span class="notification-card__context">
+                {{notification.context}}
+              </span>
+              <span class="notification-card__message">
+                {{notification.message}}
+              </span>
+            </span>
 
-                <span class="notification-card__aside">
-                  <span class="notification-card__time">
-                    {{notification.time}}
-                  </span>
+            <span class="notification-card__aside">
+              <span class="notification-card__time">
+                {{notification.time}}
+              </span>
 
-                  @if (!notification.read){
-                    <span class="notification-card__unread" aria-label="Notifica non letta"></span>
-                  }
-                </span>
-              </button>
-            }
-          </div>
-        </section>
+              @if (!notification.read){
+              <span
+                class="notification-card__unread"
+                aria-label="Notifica non letta"
+              ></span>
+              }
+            </span>
+          </button>
+          }
+        </div>
+      </section>
       }
     </div>
   </main>

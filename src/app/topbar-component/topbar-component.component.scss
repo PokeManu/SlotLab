@@ -16,27 +16,18 @@
 .topbar__brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 15px;
+  background: #ffffff;
+  text-decoration: none;
+  overflow: hidden;
 }
 
-.topbar__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: var(--slot-primary);
-}
-
-.topbar__logo ion-icon {
-  color: white;
-  font-size: 26px;
-}
-
-.topbar__brand-name {
-  font-size: 28px;
-  font-weight: 500;
+.topbar__brand-image {
+  display: block;
+  width: 168px;
+  height: auto;
 }
 
 .topbar__navigation {
@@ -163,7 +154,6 @@
   outline-offset: 3px;
 }
 
-// La navigazione admin ha più voci e deve lasciare spazio al profilo.
 .topbar--admin {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -190,9 +180,14 @@
     white-space: nowrap;
   }
 
-  .topbar__user { margin-left: 0; justify-self: end; }
-  .topbar__logo,
-  .topbar__avatar { flex-shrink: 0; }
+  .topbar__user {
+    margin-left: 0;
+    justify-self: end;
+  }
+  .topbar__brand,
+  .topbar__avatar {
+    flex-shrink: 0;
+  }
   .topbar__username {
     max-width: 120px;
     overflow: hidden;
@@ -204,33 +199,34 @@
 @media (min-width: 701px) and (max-width: 1500px) {
   .topbar--admin {
     grid-template-columns: minmax(0, 1fr) auto;
-    .topbar__brand { grid-column: 1; grid-row: 1; }
-    .topbar__user { grid-column: 2; grid-row: 1; }
-    .topbar__navigation { grid-column: 1 / -1; grid-row: 2; }
+    .topbar__brand {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .topbar__user {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .topbar__navigation {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
   }
 }
 
 @media (max-width: 700px) {
   .topbar {
     min-height: calc(76px + var(--slot-safe-area-top));
-    padding:
-      calc(16px + var(--slot-safe-area-top))
-      20px
-      16px;
+    padding: calc(16px + var(--slot-safe-area-top)) 20px 16px;
   }
 
-  .topbar__logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 13px;
+  .topbar__brand {
+    padding: 4px 7px;
+    border-radius: 12px;
   }
 
-  .topbar__logo ion-icon {
-    font-size: 23px;
-  }
-
-  .topbar__brand-name {
-    font-size: 24px;
+  .topbar__brand-image {
+    width: 132px;
   }
 
   .topbar__username {

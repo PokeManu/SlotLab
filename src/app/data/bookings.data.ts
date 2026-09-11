@@ -1,5 +1,4 @@
 import { BookingGroup } from '../models/booking-list-item.model';
-
 export const UPCOMING_BOOKING_GROUPS: readonly BookingGroup[] = [
   {
     dateLabel: 'Oggi',

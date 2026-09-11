@@ -4,9 +4,7 @@
   <main class="reports-page">
     <header class="reports-page__header">
       <div>
-        <p class="reports-page__eyebrow">
-          IL TUO PROFILO
-        </p>
+        <p class="reports-page__eyebrow">IL TUO PROFILO</p>
 
         <h1>Le mie segnalazioni</h1>
 
@@ -20,22 +18,15 @@
       </p>
     </header>
 
-    <section
-      class="reports-page__list"
-      aria-label="Storico delle segnalazioni"
-    >
+    <section class="reports-page__list" aria-label="Storico delle segnalazioni">
       @for (report of reports; track report.id) {
-        <app-report-list-item
-          [report]="report"
-        ></app-report-list-item>
+      <app-report-list-item [report]="report"></app-report-list-item>
       } @empty {
-        <div class="reports-page__empty">
-          <h2>Nessuna segnalazione</h2>
+      <div class="reports-page__empty">
+        <h2>Nessuna segnalazione</h2>
 
-          <p>
-            Le segnalazioni inviate compariranno qui.
-          </p>
-        </div>
+        <p>Le segnalazioni inviate compariranno qui.</p>
+      </div>
       }
     </section>
   </main>

@@ -16,7 +16,13 @@
         <label class="admin-search">
           <ion-icon name="search-outline"></ion-icon>
           <span class="sr-only">Cerca</span>
-          <input type="search" placeholder="Cerca spazi" aria-label="Cerca spazi" [(ngModel)]="searchTerm" (keydown.enter)="searchAdmin()"/>
+          <input
+            type="search"
+            placeholder="Cerca spazi"
+            aria-label="Cerca spazi"
+            [(ngModel)]="searchTerm"
+            (keydown.enter)="searchAdmin()"
+          />
         </label>
       </header>
 
@@ -27,7 +33,9 @@
             <ion-icon name="calendar-clear-outline"></ion-icon>
           </div>
           <strong class="metric-card__value">{{ bookingCount }}</strong>
-          <small class="metric-card__trend metric-card__trend--positive">dati aggiornati dal server</small>
+          <small class="metric-card__trend metric-card__trend--positive"
+            >dati aggiornati dal server</small
+          >
         </article>
 
         <article class="metric-card">
@@ -37,9 +45,11 @@
           </div>
 
           <strong class="metric-card__value">{{ availableSpaceCount }}</strong>
-          <small class="metric-card__trend metric-card__trend--positive">su {{ spaceCount }} totali</small>
-        </article>  
-        
+          <small class="metric-card__trend metric-card__trend--positive"
+            >su {{ spaceCount }} totali</small
+          >
+        </article>
+
         <article class="metric-card">
           <div class="metric-card__heading">
             <span>Segnalazioni aperte</span>
@@ -47,7 +57,9 @@
           </div>
 
           <strong class="metric-card__value">{{ openReportCount }}</strong>
-          <small class="metric-card__trend metric-card__trend--warning">non risolte</small>
+          <small class="metric-card__trend metric-card__trend--warning"
+            >non risolte</small
+          >
         </article>
       </section>
 
@@ -55,24 +67,22 @@
         <article class="panel bookings-panel">
           <header class="panel-header">
             <h2>Prossime prenotazioni</h2>
-            <button type="button" (click)="openBookings()">Vedi calendario</button>
+            <button type="button" (click)="openBookings()">
+              Vedi calendario
+            </button>
           </header>
 
           <div class="booking-list">
             @for (booking of bookings; track booking.time){
-              <div class="booking-row">
-                <time>{{booking.time}}</time>
-                <div class="booking-row__description">
-                  <strong>{{booking.name}}</strong>
-                  <span>
-                    {{booking.details}}
-                  </span>
-                </div>
-
-                <span class="status-pill">
-                  {{booking.status}}
-                </span>
+            <div class="booking-row">
+              <time>{{booking.time}}</time>
+              <div class="booking-row__description">
+                <strong>{{booking.name}}</strong>
+                <span> {{booking.details}} </span>
               </div>
+
+              <span class="status-pill"> {{booking.status}} </span>
+            </div>
             }
           </div>
         </article>
@@ -85,17 +95,21 @@
 
           <div class="space-status-list">
             @for(space of spaceStatuses; track space.name){
-              <div class="space-status">
-                <span class="space-status__icon">
-                  <ion-icon [name]="space.icon"></ion-icon>
-                </span>
+            <div class="space-status">
+              <span class="space-status__icon">
+                <ion-icon [name]="space.icon"></ion-icon>
+              </span>
 
-                <span class="space-status__description">
-                  <strong>{{space.name}}</strong>
-                  <small>{{space.details}}</small>
-                </span>
-                <span class="space-status__dot" [class.space-status__dot-warning]="space.tone === 'warning'" aria-hidden="true"></span>
-              </div>
+              <span class="space-status__description">
+                <strong>{{space.name}}</strong>
+                <small>{{space.details}}</small>
+              </span>
+              <span
+                class="space-status__dot"
+                [class.space-status__dot-warning]="space.tone === 'warning'"
+                aria-hidden="true"
+              ></span>
+            </div>
             }
           </div>
         </article>

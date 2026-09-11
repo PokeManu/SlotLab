@@ -1,8 +1,5 @@
 <article class="favorite-space-card">
-  <div
-    class="favorite-space-card__icon"
-    aria-hidden="true"
-  >
+  <div class="favorite-space-card__icon" aria-hidden="true">
     <ion-icon [name]="iconName"></ion-icon>
   </div>
 
@@ -20,11 +17,7 @@
     <p class="favorite-space-card__capacity">
       Capacità:
       {{ space.seats }}
-      {{
-        space.type === 'Laboratorio'
-          ? 'postazioni'
-          : 'posti'
-      }}
+      {{ space.type === "Laboratorio" ? "postazioni" : "posti" }}
     </p>
 
     <p
@@ -33,10 +26,7 @@
         space.availabilityTone === 'warning'
       "
     >
-      <span
-        class="favorite-space-card__status-dot"
-        aria-hidden="true"
-      ></span>
+      <span class="favorite-space-card__status-dot" aria-hidden="true"></span>
 
       {{ space.availability }}
     </p>
@@ -49,10 +39,7 @@
     aria-pressed="true"
     (click)="removeFavorite()"
   >
-    <ion-icon
-      name="heart"
-      aria-hidden="true"
-    ></ion-icon>
+    <ion-icon name="heart" aria-hidden="true"></ion-icon>
   </button>
 
   <button

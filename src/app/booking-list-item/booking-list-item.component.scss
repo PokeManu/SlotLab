@@ -7,8 +7,8 @@
   display: grid;
   grid-template-columns: 90px 72px minmax(0, 1fr) auto;
   grid-template-areas:
-    'time icon information status'
-    'time icon information actions';
+    "time icon information status"
+    "time icon information actions";
   min-height: 190px;
   align-items: center;
   gap: 16px 24px;
@@ -86,7 +86,7 @@
   font-size: 14px;
 }
 
-.booking-item__status[data-status='cancelled'] {
+.booking-item__status[data-status="cancelled"] {
   background: var(--slot-danger-surface);
   color: var(--slot-danger);
 }
@@ -142,8 +142,8 @@
   .booking-item {
     grid-template-columns: 62px 52px minmax(0, 1fr) auto;
     grid-template-areas:
-      'time icon information status'
-      'actions actions actions actions';
+      "time icon information status"
+      "actions actions actions actions";
     min-height: 0;
     gap: 18px 14px;
     padding: 18px 14px 16px;
@@ -212,9 +212,9 @@
   .booking-item {
     grid-template-columns: 62px 52px minmax(0, 1fr);
     grid-template-areas:
-      'time icon information'
-      'time icon status'
-      'actions actions actions';
+      "time icon information"
+      "time icon status"
+      "actions actions actions";
   }
 
   .booking-item__status {

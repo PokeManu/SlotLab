@@ -1,401 +1,401 @@
 :host {
-    display: block;
-  }
+  display: block;
+}
 
-  ion-content {
-    --background:
-      radial-gradient(
-        circle at 50% 22%,
-        var(--slot-page-glow),
-        transparent 42%
-      ),
-      var(--slot-background);
+ion-content {
+  --background:
+    radial-gradient(circle at 50% 22%, var(--slot-page-glow), transparent 42%),
+    var(--slot-background);
 
-    --color: var(--slot-text);
-  }
+  --color: var(--slot-text);
+}
 
+.booking-page {
+  box-sizing: border-box;
+  width: min(100%, 500px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: calc(24px + var(--slot-safe-area-top)) 24px
+    calc(32px + var(--slot-safe-area-bottom));
+}
+
+.booking-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.booking-header h1 {
+  margin: 0;
+  color: var(--slot-text);
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.back-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border: 1px solid var(--slot-border);
+  border-radius: 50%;
+  background: var(--slot-surface-translucent);
+  color: var(--slot-text);
+  text-decoration: none;
+}
+
+.back-button ion-icon {
+  font-size: 22px;
+}
+
+.back-button:hover {
+  border-color: var(--slot-primary);
+}
+
+.booking-card {
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--slot-border);
+  border-radius: 15px;
+  background: var(--slot-surface-translucent);
+}
+
+.room-summary {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+
+.summary-icon {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  flex: 0 0 82px;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--slot-surface-raised);
+  color: var(--slot-text-muted);
+}
+
+.summary-icon ion-icon {
+  font-size: 34px;
+}
+
+.summary-content h2 {
+  margin: 0 0 8px;
+  color: var(--slot-text);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.summary-content p {
+  margin: 6px 0;
+  color: var(--slot-text-muted);
+  font-size: 15px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.field-icon {
+  display: block;
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  color: var(--slot-text-muted);
+  font-size: 24px;
+}
+
+.field-content {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--slot-text);
+}
+
+.field-label {
+  color: var(--slot-text-muted);
+  font-size: 14px;
+}
+
+.field-content strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.field-content select,
+.participant-emails input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--slot-border);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--slot-input);
+  color: var(--slot-text);
+  font: inherit;
+}
+
+.date-field {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.booking-date-value {
+  color: var(--slot-text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.booking-date-input {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  opacity: 0.001;
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.date-field:focus-visible {
+  outline: 3px solid var(--slot-primary-soft);
+  outline-offset: 3px;
+}
+
+.participant-emails {
+  display: grid;
+  gap: 8px;
+}
+
+.participant-emails label {
+  color: var(--slot-text-muted);
+  font-size: 14px;
+}
+
+.participant-emails input {
+  min-width: 0;
+}
+
+.field-arrow {
+  flex: 0 0 auto;
+  color: var(--slot-text-muted);
+  font-size: 18px;
+}
+
+.time-section h2 {
+  margin: 0 0 13px;
+  color: var(--slot-text);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.time-slot {
+  min-width: 0;
+  padding: 10px 4px;
+  border: 1px solid var(--slot-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--slot-text-muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.time-slot:hover {
+  border-color: var(--slot-primary);
+}
+
+.time-slot--selected {
+  border-color: #6a8fff;
+  background: var(--slot-primary);
+  color: white;
+}
+
+.participants {
+  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.participants__label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--slot-text);
+}
+
+.participants__label ion-icon {
+  color: var(--slot-text-muted);
+  font-size: 24px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.counter strong {
+  min-width: 24px;
+  color: var(--slot-text);
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.counter button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--slot-surface-raised);
+  color: var(--slot-text);
+  cursor: pointer;
+}
+
+.counter button ion-icon {
+  font-size: 21px;
+}
+
+.counter button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+}
+
+select option {
+  background: var(--slot-surface);
+  color: var(--slot-text);
+}
+
+.duration {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.duration div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--slot-text-muted);
+}
+
+.duration ion-icon {
+  font-size: 24px;
+}
+
+.duration strong {
+  color: var(--slot-text);
+  font-weight: 500;
+}
+
+.primary-button {
+  width: 100%;
+  min-height: 66px;
+  margin-top: 6px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    var(--slot-primary),
+    var(--slot-primary-gradient-end)
+  );
+  color: white;
+  font: inherit;
+  font-size: 19px;
+  cursor: pointer;
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.primary-button:hover {
+  filter: brightness(1.08);
+}
+
+.primary-button:active {
+  transform: scale(0.99);
+}
+
+.back-button:focus-visible,
+.time-slot:focus-visible,
+.counter button:focus-visible,
+.field-content input:focus-visible,
+select:focus-visible,
+.participant-emails input:focus-visible,
+.primary-button:focus-visible {
+  outline: 3px solid #8da8ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 380px) {
   .booking-page {
-    box-sizing: border-box;
-    width: min(100%, 500px);
-    min-height: 100%;
-    margin: 0 auto;
-    padding:
-      calc(24px + var(--slot-safe-area-top))
-      24px
-      calc(32px + var(--slot-safe-area-bottom));
-  }
-
-  .booking-header {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-bottom: 20px;
-  }
-
-  .booking-header h1 {
-    margin: 0;
-    color: var(--slot-text);
-    font-size: 21px;
-    font-weight: 500;
-  }
-
-  .back-button {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
-    place-items: center;
-    border: 1px solid var(--slot-border);
-    border-radius: 50%;
-    background: var(--slot-surface-translucent);
-    color: var(--slot-text);
-    text-decoration: none;
-  }
-
-  .back-button ion-icon {
-    font-size: 22px;
-  }
-
-  .back-button:hover {
-    border-color: var(--slot-primary);
+    padding-right: 16px;
+    padding-left: 16px;
   }
 
   .booking-card {
-    box-sizing: border-box;
-    margin-bottom: 16px;
-    padding: 18px;
-    border: 1px solid var(--slot-border);
-    border-radius: 15px;
-    background: var(--slot-surface-translucent);
-  }
-
-  .room-summary {
-    display: flex;
-    align-items: center;
-    gap: 17px;
+    padding: 15px;
   }
 
   .summary-icon {
-    display: grid;
-    width: 82px;
-    height: 82px;
-    flex: 0 0 82px;
-    place-items: center;
-    border-radius: 13px;
-    background: var(--slot-surface-raised);
-    color: var(--slot-text-muted);
-  }
-
-  .summary-icon ion-icon {
-    font-size: 34px;
-  }
-
-  .summary-content h2 {
-    margin: 0 0 8px;
-    color: var(--slot-text);
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .summary-content p {
-    margin: 6px 0;
-    color: var(--slot-text-muted);
-    font-size: 15px;
-  }
-
-  .field-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .field-icon {
-    display: block;
-    align-self: center;
-    width: 24px;
-    height: 24px;
-    flex: 0 0 auto;
-    color: var(--slot-text-muted);
-    font-size: 24px;
-  }
-
-  .field-content {
-    display: flex;
-    min-width: 0;
-    flex: 1;
-    flex-direction: column;
-    gap: 5px;
-    color: var(--slot-text);
-  }
-
-  .field-label {
-    color: var(--slot-text-muted);
-    font-size: 14px;
-  }
-
-  .field-content strong {
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .field-content select,
-  .participant-emails input {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 42px;
-    padding: 9px 11px;
-    border: 1px solid var(--slot-border);
-    border-radius: 9px;
-    outline: 0;
-    background: var(--slot-input);
-    color: var(--slot-text);
-    font: inherit;
-  }
-
-  .date-field {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .booking-date-value {
-    color: var(--slot-text);
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.35;
-  }
-
-  .booking-date-input {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    border: 0;
-    opacity: 0.001;
-    pointer-events: none;
-    cursor: pointer;
-  }
-
-  .date-field:focus-visible {
-    outline: 3px solid var(--slot-primary-soft);
-    outline-offset: 3px;
-  }
-
-  .participant-emails {
-    display: grid;
-    gap: 8px;
-  }
-
-  .participant-emails label {
-    color: var(--slot-text-muted);
-    font-size: 14px;
-  }
-
-  .participant-emails input {
-    min-width: 0;
-  }
-
-  .field-arrow {
-    flex: 0 0 auto;
-    color: var(--slot-text-muted);
-    font-size: 18px;
-  }
-
-  .time-section h2 {
-    margin: 0 0 13px;
-    color: var(--slot-text);
-    font-size: 17px;
-    font-weight: 500;
-  }
-
-  .time-slots {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 9px;
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
   }
 
   .time-slot {
-    min-width: 0;
-    padding: 10px 4px;
-    border: 1px solid var(--slot-border);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--slot-text-muted);
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    transition:
-      border-color 150ms ease,
-      background 150ms ease,
-      color 150ms ease;
-  }
-
-  .time-slot:hover {
-    border-color: var(--slot-primary);
-  }
-
-  .time-slot--selected {
-    border-color: #6a8fff;
-    background: var(--slot-primary);
-    color: white;
-  }
-
-  .participants {
-    flex-wrap: wrap;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  .participants__label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--slot-text);
-  }
-
-  .participants__label ion-icon {
-    color: var(--slot-text-muted);
-    font-size: 24px;
+    font-size: 12px;
   }
 
   .counter {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .counter strong {
-    min-width: 24px;
-    color: var(--slot-text);
-    font-size: 20px;
-    font-weight: 500;
-    text-align: center;
-  }
-
-  .counter button {
-    display: grid;
-    width: 42px;
-    height: 42px;
-    place-items: center;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: var(--slot-surface-raised);
-    color: var(--slot-text);
-    cursor: pointer;
-  }
-
-  .counter button ion-icon {
-    font-size: 21px;
-  }
-
-  .counter button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  select {
-    appearance: none;
-    cursor: pointer;
-  }
-
-  select option {
-    background: var(--slot-surface);
-    color: var(--slot-text);
-  }
-
-  .duration {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .duration div {
-    display: flex;
-    align-items: center;
     gap: 12px;
-    color: var(--slot-text-muted);
   }
+}
 
-  .duration ion-icon {
-    font-size: 24px;
-  }
-
-  .duration strong {
-    color: var(--slot-text);
-    font-weight: 500;
-  }
-
-  .primary-button {
-    width: 100%;
-    min-height: 66px;
-    margin-top: 6px;
-    padding: 14px 20px;
-    border: 0;
-    border-radius: 14px;
-    background:
-      linear-gradient(
-        135deg,
-        var(--slot-primary),
-        var(--slot-primary-gradient-end)
-      );
-    color: white;
-    font: inherit;
-    font-size: 19px;
-    cursor: pointer;
-    transition:
-      filter 160ms ease,
-      transform 160ms ease;
-  }
-
-  .primary-button:hover {
-    filter: brightness(1.08);
-  }
-
-  .primary-button:active {
-    transform: scale(0.99);
-  }
-
-  .back-button:focus-visible,
-  .time-slot:focus-visible,
-  .counter button:focus-visible,
-  .field-content input:focus-visible,
-  select:focus-visible,
-  .participant-emails input:focus-visible,
-  .primary-button:focus-visible {
-    outline: 3px solid #8da8ff;
-    outline-offset: 3px;
-  }
-
-  @media (max-width: 380px) {
-    .booking-page {
-      padding-right: 16px;
-      padding-left: 16px;
-    }
-
-    .booking-card {
-      padding: 15px;
-    }
-
-    .summary-icon {
-      width: 68px;
-      height: 68px;
-      flex-basis: 68px;
-    }
-
-    .time-slot {
-      font-size: 12px;
-    }
-
-    .counter {
-      gap: 12px;
-    }
-  }
-
-.participant-emails p { margin: 0 0 8px; color: var(--slot-text-muted); }
-.email-error { color: #ffb8c2; }
-.participant-emails input[aria-invalid="true"] { border-color: #ffb8c2; }
+.participant-emails p {
+  margin: 0 0 8px;
+  color: var(--slot-text-muted);
+}
+.email-error {
+  color: #ffb8c2;
+}
+.participant-emails input[aria-invalid="true"] {
+  border-color: #ffb8c2;
+}

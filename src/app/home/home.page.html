@@ -20,35 +20,37 @@
       aria-labelledby="recommended-spaces-title"
     >
       <header class="recommended-spaces__header">
-        <h2 id="recommended-spaces-title">
-          Spazi consigliati
-        </h2>
+        <h2 id="recommended-spaces-title">Spazi consigliati</h2>
 
-        <button class="recommended-spaces__all" type="button" (click)="openAllSpaces()">
+        <button
+          class="recommended-spaces__all"
+          type="button"
+          (click)="openAllSpaces()"
+        >
           Vedi tutti
         </button>
       </header>
 
       <div class="recommended-spaces__grid">
         @for (space of recommendedSpaces; track space.id) {
-          <app-space-card
-            [space]="space"
-            (spaceOpened)="openSpace($event)"
-          ></app-space-card>
+        <app-space-card
+          [space]="space"
+          (spaceOpened)="openSpace($event)"
+        ></app-space-card>
         }
       </div>
     </section>
 
-    <section
-      class="home__overview"
-      aria-label="Mappa e prossima prenotazione"
-    >
+    <section class="home__overview" aria-label="Mappa e prossima prenotazione">
       <app-campus-map></app-campus-map>
 
       @if (nextBooking) {
-        <app-next-booking [booking]="nextBooking" (bookingOpened)="openBooking($event)"></app-next-booking>
+      <app-next-booking
+        [booking]="nextBooking"
+        (bookingOpened)="openBooking($event)"
+      ></app-next-booking>
       } @else {
-        <p>Nessuna prenotazione imminente.</p>
+      <p>Nessuna prenotazione imminente.</p>
       }
     </section>
   </main>

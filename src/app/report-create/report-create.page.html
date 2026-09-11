@@ -6,164 +6,137 @@
         [routerLink]="['/spaces', space.id]"
         aria-label="Torna al dettaglio dello spazio"
       >
-        <ion-icon
-          name="arrow-back-outline"
-          aria-hidden="true"
-        ></ion-icon>
+        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
       </a>
 
       <h1>Segnala un problema</h1>
     </header>
 
     @if (!submitted) {
-      <section class="report-create-page__intro">
-        <h2>Come possiamo aiutarti?</h2>
+    <section class="report-create-page__intro">
+      <h2>Come possiamo aiutarti?</h2>
 
-        <p>
-          Descrivi il problema riscontrato nello spazio.
-          La segnalazione verrà inviata al personale responsabile.
+      <p>
+        Descrivi il problema riscontrato nello spazio. La segnalazione verrà
+        inviata al personale responsabile.
+      </p>
+    </section>
+
+    <section class="report-create-page__space">
+      <div class="report-create-page__space-icon" aria-hidden="true">
+        <ion-icon name="location-outline"></ion-icon>
+      </div>
+
+      <div>
+        <p>SPAZIO SELEZIONATO</p>
+        <h2>{{ space.name }}</h2>
+
+        <span> {{ space.building }} · piano {{ space.floor }} </span>
+      </div>
+    </section>
+
+    <form
+      class="report-create-page__form"
+      #reportForm="ngForm"
+      (ngSubmit)="submitReport()"
+    >
+      <div class="report-create-page__field">
+        <label for="report-category"> Tipologia del problema </label>
+
+        <select
+          id="report-category"
+          name="reportCategory"
+          required
+          [(ngModel)]="category"
+        >
+          <option value="" disabled>Seleziona una tipologia</option>
+
+          <option value="equipment">Attrezzatura</option>
+
+          <option value="cleaning">Pulizia</option>
+
+          <option value="accessibility">Accessibilità</option>
+
+          <option value="other">Altro</option>
+        </select>
+      </div>
+
+      <div class="report-create-page__field">
+        <label for="report-description"> Descrizione </label>
+
+        <textarea
+          id="report-description"
+          name="reportDescription"
+          rows="6"
+          required
+          minlength="10"
+          maxlength="500"
+          placeholder="Descrivi il problema riscontrato..."
+          [(ngModel)]="description"
+          #descriptionControl="ngModel"
+        ></textarea>
+
+        <div class="report-create-page__field-info">
+          <span>Minimo 10 caratteri</span>
+          <span>{{ description.length }}/500</span>
+        </div>
+
+        @if ( descriptionControl.invalid && descriptionControl.touched ) {
+        <p class="report-create-page__error">
+          Inserisci una descrizione di almeno 10 caratteri.
         </p>
-      </section>
+        }
+      </div>
 
-      <section class="report-create-page__space">
-        <div
-          class="report-create-page__space-icon"
-          aria-hidden="true"
-        >
-          <ion-icon name="location-outline"></ion-icon>
-        </div>
+      <div class="report-create-page__field">
+        <label for="report-photo">Foto (opzionale)</label>
+        <input
+          id="report-photo"
+          name="reportPhoto"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="selectPhoto($event)"
+        />
+        <small>JPEG, PNG o WebP, massimo 5 MB.</small>
+      </div>
 
-        <div>
-          <p>SPAZIO SELEZIONATO</p>
-          <h2>{{ space.name }}</h2>
+      @if (error) {
+      <p class="report-create-page__error" role="alert">{{ error }}</p>
+      }
 
-          <span>
-            {{ space.building }}
-            · piano {{ space.floor }}
-          </span>
-        </div>
-      </section>
-
-      <form
-        class="report-create-page__form"
-        #reportForm="ngForm"
-        (ngSubmit)="submitReport()"
+      <button
+        class="report-create-page__submit"
+        type="submit"
+        [disabled]="reportForm.invalid || sending"
       >
-        <div class="report-create-page__field">
-          <label for="report-category">
-            Tipologia del problema
-          </label>
-
-          <select
-            id="report-category"
-            name="reportCategory"
-            required
-            [(ngModel)]="category"
-          >
-            <option value="" disabled>
-              Seleziona una tipologia
-            </option>
-
-            <option value="equipment">
-              Attrezzatura
-            </option>
-
-            <option value="cleaning">
-              Pulizia
-            </option>
-
-            <option value="accessibility">
-              Accessibilità
-            </option>
-
-            <option value="other">
-              Altro
-            </option>
-          </select>
-        </div>
-
-        <div class="report-create-page__field">
-          <label for="report-description">
-            Descrizione
-          </label>
-
-          <textarea
-            id="report-description"
-            name="reportDescription"
-            rows="6"
-            required
-            minlength="10"
-            maxlength="500"
-            placeholder="Descrivi il problema riscontrato..."
-            [(ngModel)]="description"
-            #descriptionControl="ngModel"
-          ></textarea>
-
-          <div class="report-create-page__field-info">
-            <span>Minimo 10 caratteri</span>
-            <span>{{ description.length }}/500</span>
-          </div>
-
-          @if (
-            descriptionControl.invalid &&
-            descriptionControl.touched
-          ) {
-            <p class="report-create-page__error">
-              Inserisci una descrizione di almeno 10 caratteri.
-            </p>
-          }
-        </div>
-
-        <div class="report-create-page__field">
-          <label for="report-photo">Foto (opzionale)</label>
-          <input id="report-photo" name="reportPhoto" type="file" accept="image/jpeg,image/png,image/webp" (change)="selectPhoto($event)">
-          <small>JPEG, PNG o WebP, massimo 5 MB.</small>
-        </div>
-
-        @if (error) { <p class="report-create-page__error" role="alert">{{ error }}</p> }
-
-        <button
-          class="report-create-page__submit"
-          type="submit"
-          [disabled]="reportForm.invalid || sending"
-        >
-          {{ sending ? 'Invio in corso…' : 'Invia segnalazione' }}
-        </button>
-      </form>
+        {{ sending ? 'Invio in corso…' : 'Invia segnalazione' }}
+      </button>
+    </form>
     } @else {
-      <section
-        class="report-create-page__success"
-        role="status"
+    <section class="report-create-page__success" role="status">
+      <div class="report-create-page__success-icon" aria-hidden="true">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+
+      <h2>Segnalazione inviata</h2>
+
+      <p>
+        La segnalazione relativa a
+        <strong>{{ space.name }}</strong>
+        è stata inviata correttamente.
+      </p>
+
+      <a class="report-create-page__primary-link" routerLink="/reports">
+        Vedi le mie segnalazioni
+      </a>
+
+      <a
+        class="report-create-page__secondary-link"
+        [routerLink]="['/spaces', space.id]"
       >
-        <div
-          class="report-create-page__success-icon"
-          aria-hidden="true"
-        >
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-        </div>
-
-        <h2>Segnalazione inviata</h2>
-
-        <p>
-          La segnalazione relativa a
-          <strong>{{ space.name }}</strong>
-          è stata inviata correttamente.
-        </p>
-
-        <a
-          class="report-create-page__primary-link"
-          routerLink="/reports"
-        >
-          Vedi le mie segnalazioni
-        </a>
-
-        <a
-          class="report-create-page__secondary-link"
-          [routerLink]="['/spaces', space.id]"
-        >
-          Torna allo spazio
-        </a>
-      </section>
+        Torna allo spazio
+      </a>
+    </section>
     }
   </main>
 </ion-content>

@@ -1,7 +1,4 @@
-<section
-  class="campus-map"
-  aria-labelledby="campus-map-title"
->
+<section class="campus-map" aria-labelledby="campus-map-title">
   <header class="campus-map__header">
     <div>
       @if (eyebrow) {
@@ -23,7 +20,9 @@
   @if (loading) {
     <p class="campus-map__state" role="status">Caricamento edifici…</p>
   } @else if (error) {
-    <p class="campus-map__state campus-map__state--error" role="alert">{{ error }}</p>
+    <p class="campus-map__state campus-map__state--error" role="alert">
+      {{ error }}
+    </p>
   } @else if (!buildings.length) {
     <p class="campus-map__state" role="status">Nessun edificio disponibile.</p>
   }

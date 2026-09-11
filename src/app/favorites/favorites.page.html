@@ -15,27 +15,23 @@
       </p>
     </header>
 
-    <app-space-search
-      placeholder="Cerca tra i preferiti"
-    ></app-space-search>
+    <app-space-search placeholder="Cerca tra i preferiti"></app-space-search>
 
     <section
       class="favorites-page__grid"
       aria-label="Elenco degli spazi preferiti"
     >
       @for (space of favoriteSpaces; track space.id) {
-        <app-favorite-space-card
-          [space]="space"
-          (spaceOpened)="openSpace($event)"
-          (favoriteRemoved)="removeFavorite($event)"
-        ></app-favorite-space-card>
+      <app-favorite-space-card
+        [space]="space"
+        (spaceOpened)="openSpace($event)"
+        (favoriteRemoved)="removeFavorite($event)"
+      ></app-favorite-space-card>
       } @empty {
-        <div class="favorites-page__empty">
-          <h2>Nessuno spazio preferito</h2>
-          <p>
-            Gli spazi aggiunti ai preferiti compariranno qui.
-          </p>
-        </div>
+      <div class="favorites-page__empty">
+        <h2>Nessuno spazio preferito</h2>
+        <p>Gli spazi aggiunti ai preferiti compariranno qui.</p>
+      </div>
       }
     </section>
   </main>

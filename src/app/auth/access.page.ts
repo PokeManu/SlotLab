@@ -3,12 +3,18 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { eyeOffOutline, eyeOutline, idCardOutline, lockClosedOutline, mailOutline, personOutline } from 'ionicons/icons';
+import {
+  eyeOffOutline,
+  eyeOutline,
+  idCardOutline,
+  lockClosedOutline,
+  mailOutline,
+  personOutline,
+} from 'ionicons/icons';
 import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { returnDestination } from './return-url';
 import { passwordValidationMessages } from './password-validation';
-
 @Component({
   selector: 'app-access',
   imports: [FormsModule, RouterLink, IonContent, IonIcon],
@@ -22,7 +28,9 @@ export class AccessPage {
   readonly registering = this.route.snapshot.data['mode'] === 'register';
   readonly busy = signal(false);
   readonly error = signal('');
-  registered() { return this.queryParams.get('registered') === '1'; }
+  registered() {
+    return this.queryParams.get('registered') === '1';
+  }
   firstName = '';
   lastName = '';
   email = '';
@@ -33,19 +41,28 @@ export class AccessPage {
   attemptedSubmit = false;
   showPassword = false;
   showPasswordConfirmation = false;
-
   constructor() {
-    addIcons({ eyeOffOutline, eyeOutline, idCardOutline, lockClosedOutline, mailOutline, personOutline });
+    addIcons({
+      eyeOffOutline,
+      eyeOutline,
+      idCardOutline,
+      lockClosedOutline,
+      mailOutline,
+      personOutline,
+    });
   }
-
-  // Ionic conserva i form: l'URL attuale e autorevole anche dopo Indietro.
-  private get queryParams() { return this.router.parseUrl(this.router.url).queryParamMap; }
-
+  private get queryParams() {
+    return this.router.parseUrl(this.router.url).queryParamMap;
+  }
   get returnQuery() {
-    const destination = returnDestination(this.router, this.queryParams.get('returnUrl'));
-    return destination ? { returnUrl: this.router.serializeUrl(destination) } : {};
+    const destination = returnDestination(
+      this.router,
+      this.queryParams.get('returnUrl'),
+    );
+    return destination
+      ? { returnUrl: this.router.serializeUrl(destination) }
+      : {};
   }
-
   ionViewWillEnter(): void {
     this.password = '';
     this.passwordConfirmation = '';
@@ -56,31 +73,43 @@ export class AccessPage {
     this.showPasswordConfirmation = false;
     this.error.set('');
   }
-
   get passwordErrors(): string[] {
     if (!this.registering) return [];
-
     return passwordValidationMessages(this.password);
   }
-
   get showPasswordErrors(): boolean {
-    return this.registering && this.passwordErrors.length > 0
-      && (this.password.length > 0 || this.passwordTouched || this.attemptedSubmit);
+    return (
+      this.registering &&
+      this.passwordErrors.length > 0 &&
+      (this.password.length > 0 || this.passwordTouched || this.attemptedSubmit)
+    );
   }
-
   get confirmationError(): string {
-    if (!this.registering || (!this.passwordConfirmation && !this.confirmationTouched && !this.attemptedSubmit)) return '';
+    if (
+      !this.registering ||
+      (!this.passwordConfirmation &&
+        !this.confirmationTouched &&
+        !this.attemptedSubmit)
+    )
+      return '';
     if (!this.passwordConfirmation) return 'Conferma la password.';
-    if (this.passwordConfirmation !== this.password) return 'Le password non coincidono.';
+    if (this.passwordConfirmation !== this.password)
+      return 'Le password non coincidono.';
     return '';
   }
-
   submit(): void {
     if (this.busy()) return;
     this.error.set('');
     this.attemptedSubmit = this.registering;
     const email = this.email.trim().toLowerCase();
-    if (!email || !this.password || (this.registering && (!this.firstName.trim() || !this.lastName.trim() || !this.passwordConfirmation))) {
+    if (
+      !email ||
+      !this.password ||
+      (this.registering &&
+        (!this.firstName.trim() ||
+          !this.lastName.trim() ||
+          !this.passwordConfirmation))
+    ) {
       this.error.set('Compila tutti i campi.');
       return;
     }
@@ -96,30 +125,49 @@ export class AccessPage {
     }
     this.busy.set(true);
     const request = this.registering
-      ? this.auth.register({ firstName: this.firstName.trim(), lastName: this.lastName.trim(), email, password: this.password })
+      ? this.auth.register({
+          firstName: this.firstName.trim(),
+          lastName: this.lastName.trim(),
+          email,
+          password: this.password,
+        })
       : this.auth.login({ email, password: this.password });
     request.pipe(finalize(() => this.busy.set(false))).subscribe({
       next: () => {
         this.password = '';
         this.passwordConfirmation = '';
-        if (this.registering) void this.router.navigate(['/login'], {
-          queryParams: { ...this.returnQuery, registered: '1' }, replaceUrl: true,
-        });
+        if (this.registering)
+          void this.router.navigate(['/login'], {
+            queryParams: { ...this.returnQuery, registered: '1' },
+            replaceUrl: true,
+          });
         else {
-          const destination = returnDestination(this.router, this.queryParams.get('returnUrl'), this.auth.role);
-          void this.router.navigateByUrl(destination ?? this.auth.homePath, { replaceUrl: true });
+          const destination = returnDestination(
+            this.router,
+            this.queryParams.get('returnUrl'),
+            this.auth.role,
+          );
+          void this.router.navigateByUrl(destination ?? this.auth.homePath, {
+            replaceUrl: true,
+          });
         }
       },
-      error: error => {
+      error: (error) => {
         const messages: Record<string, string> = {
           INVALID_CREDENTIALS: 'Email o password non corrette.',
-          EMAIL_ALREADY_EXISTS: 'Esiste già un account con questa email. Accedi oppure usa un altro indirizzo.',
+          EMAIL_ALREADY_EXISTS:
+            'Esiste già un account con questa email. Accedi oppure usa un altro indirizzo.',
           INVALID_EMAIL: 'Inserisci un indirizzo email valido.',
-          INVALID_PASSWORD_FORMAT: 'La password non rispetta i requisiti indicati.',
+          INVALID_PASSWORD_FORMAT:
+            'La password non rispetta i requisiti indicati.',
           VALIDATION_ERROR: 'Controlla i campi e riprova.',
         };
-        this.error.set(error.status === 0 ? 'Impossibile contattare il server. Controlla la connessione e riprova.'
-          : messages[error.error?.error?.code] ?? 'Operazione non completata. Riprova tra poco.');
+        this.error.set(
+          error.status === 0
+            ? 'Impossibile contattare il server. Controlla la connessione e riprova.'
+            : (messages[error.error?.error?.code] ??
+                'Operazione non completata. Riprova tra poco.'),
+        );
       },
     });
   }

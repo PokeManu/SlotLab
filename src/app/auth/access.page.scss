@@ -1,36 +1,230 @@
-:host { display: block; height: 100%; --ion-background-color: var(--slot-background); --ion-text-color: var(--slot-text); }
-.access { min-height: 100%; min-height: 100svh; box-sizing: border-box; padding: calc(40px + var(--slot-safe-area-top)) 20px calc(40px + var(--slot-safe-area-bottom)); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--slot-text); }
-.access__brand { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 600; margin-bottom: 28px; }
-.access__brand span { display: grid; place-items: center; background: var(--slot-primary); width: 42px; height: 42px; border-radius: 12px; }
-.access__card { width: 100%; max-width: 460px; padding: 32px; box-sizing: border-box; background: var(--slot-surface); border: 1px solid var(--slot-border); border-radius: 20px; }
-h1 { font-size: 30px; margin: 8px 0 12px; font-weight: 650; }
-.access__eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--slot-primary-soft); margin: 0; }
-.access__intro, .access__footer { color: var(--slot-text-muted); line-height: 1.5; }
-.access__intro { margin: 0 0 24px; }
-fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
-label { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; font-size: 14px; }
-.access__input-wrap { display: block; position: relative; }
-.access__field-icon { position: absolute; z-index: 1; left: 14px; top: 50%; transform: translateY(-50%); color: var(--slot-text-muted); font-size: 19px; pointer-events: none; }
-input { width: 100%; box-sizing: border-box; min-width: 0; border: 1px solid var(--slot-border); border-radius: 10px; background: var(--slot-background); color: var(--slot-text); padding: 13px 13px 13px 43px; font: inherit; font-size: 16px; }
-.access__input-wrap--password input { padding-right: 52px; }
-input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--slot-primary-soft); outline-offset: 3px; }
-.access__names { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-button { border: 0; border-radius: 10px; background: var(--slot-primary); color: white; font: inherit; font-weight: 600; width: 100%; min-height: 48px; padding: 12px; cursor: pointer; }
-.access__password-toggle { position: absolute; z-index: 2; top: 50%; right: 5px; display: grid; place-items: center; width: 40px; min-height: 40px; padding: 0; transform: translateY(-50%); border-radius: 8px; background: transparent; color: var(--slot-text-muted); }
-.access__password-toggle:hover { background: var(--slot-primary-tint); color: var(--slot-primary-soft); }
-.access__password-toggle ion-icon { font-size: 20px; pointer-events: none; }
-fieldset:disabled { opacity: .7; }
-.access__footer { font-size: 12px; }
-.access__input--invalid { border-color: var(--slot-danger); }
-.access__input--invalid:focus-visible { outline-color: var(--slot-danger); }
-.access__requirements { margin: -1px 0 0; padding-left: 22px; color: var(--slot-danger); font-size: 13px; line-height: 1.5; }
-.access__field-error { margin-top: -1px; color: var(--slot-danger); font-size: 13px; line-height: 1.5; }
-.access__confirmation { flex-direction: row; align-items: flex-start; gap: 10px; }
-.access__confirmation input { flex: 0 0 auto; width: 24px; height: 24px; padding: 0; }
-.access__error { color: #ffb8b8; line-height: 1.5; }
-.access__success { color: #9de3c2; line-height: 1.5; }
-.access__message { color: #ffe0a0; line-height: 1.5; }
-.access__switch { margin: 24px 0 0; text-align: center; font-size: 14px; }
-a { color: var(--slot-primary-soft); font-weight: 600; }
-.access__footer { text-align: center; margin: 24px 0 0; }
-@media (max-width: 420px) { .access { padding: calc(24px + var(--slot-safe-area-top)) 16px calc(24px + var(--slot-safe-area-bottom)); } .access__card { padding: 24px 20px; } .access__names { grid-template-columns: 1fr; gap: 0; } h1 { font-size: 26px; } }
+:host {
+  display: block;
+  height: 100%;
+  --ion-background-color: var(--slot-background);
+  --ion-text-color: var(--slot-text);
+}
+.access {
+  min-height: 100%;
+  min-height: 100svh;
+  box-sizing: border-box;
+  padding: calc(40px + var(--slot-safe-area-top)) 20px
+    calc(40px + var(--slot-safe-area-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--slot-text);
+}
+.access__brand {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.access__brand img {
+  display: block;
+  width: 190px;
+  height: auto;
+}
+.access__card {
+  width: 100%;
+  max-width: 460px;
+  padding: 32px;
+  box-sizing: border-box;
+  background: var(--slot-surface);
+  border: 1px solid var(--slot-border);
+  border-radius: 20px;
+}
+h1 {
+  font-size: 30px;
+  margin: 8px 0 12px;
+  font-weight: 650;
+}
+.access__eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slot-primary-soft);
+  margin: 0;
+}
+.access__intro,
+.access__footer {
+  color: var(--slot-text-muted);
+  line-height: 1.5;
+}
+.access__intro {
+  margin: 0 0 24px;
+}
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+.access__input-wrap {
+  display: block;
+  position: relative;
+}
+.access__field-icon {
+  position: absolute;
+  z-index: 1;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--slot-text-muted);
+  font-size: 19px;
+  pointer-events: none;
+}
+input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--slot-border);
+  border-radius: 10px;
+  background: var(--slot-background);
+  color: var(--slot-text);
+  padding: 13px 13px 13px 43px;
+  font: inherit;
+  font-size: 16px;
+}
+.access__input-wrap--password input {
+  padding-right: 52px;
+}
+input:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--slot-primary-soft);
+  outline-offset: 3px;
+}
+.access__names {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+button {
+  border: 0;
+  border-radius: 10px;
+  background: var(--slot-primary);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  cursor: pointer;
+}
+.access__password-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 5px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  transform: translateY(-50%);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--slot-text-muted);
+}
+.access__password-toggle:hover {
+  background: var(--slot-primary-tint);
+  color: var(--slot-primary-soft);
+}
+.access__password-toggle ion-icon {
+  font-size: 20px;
+  pointer-events: none;
+}
+fieldset:disabled {
+  opacity: 0.7;
+}
+.access__footer {
+  font-size: 12px;
+}
+.access__input--invalid {
+  border-color: var(--slot-danger);
+}
+.access__input--invalid:focus-visible {
+  outline-color: var(--slot-danger);
+}
+.access__requirements {
+  margin: -1px 0 0;
+  padding-left: 22px;
+  color: var(--slot-danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.access__field-error {
+  margin-top: -1px;
+  color: var(--slot-danger);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.access__confirmation {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+.access__confirmation input {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+.access__error {
+  color: #ffb8b8;
+  line-height: 1.5;
+}
+.access__success {
+  color: #9de3c2;
+  line-height: 1.5;
+}
+.access__message {
+  color: #ffe0a0;
+  line-height: 1.5;
+}
+.access__switch {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 14px;
+}
+a {
+  color: var(--slot-primary-soft);
+  font-weight: 600;
+}
+.access__footer {
+  text-align: center;
+  margin: 24px 0 0;
+}
+@media (max-width: 420px) {
+  .access {
+    padding: calc(24px + var(--slot-safe-area-top)) 16px
+      calc(24px + var(--slot-safe-area-bottom));
+  }
+  .access__card {
+    padding: 24px 20px;
+  }
+  .access__names {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  h1 {
+    font-size: 26px;
+  }
+
+  .access__brand img {
+    width: 160px;
+  }
+}

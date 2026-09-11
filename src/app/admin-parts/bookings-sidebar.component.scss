@@ -1,259 +1,249 @@
-:host { display: contents; }
+:host {
+  display: contents;
+}
 
-
-  button,
+button,
 input,
 select {
-    font: inherit;
-  }
+  font: inherit;
+}
 
-  button,
+button,
 a,
 select {
-    -webkit-tap-highlight-color: transparent;
-  }
+  -webkit-tap-highlight-color: transparent;
+}
 
-  button,
+button,
 select {
-    cursor: pointer;
-  }
+  cursor: pointer;
+}
 
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 232px;
+  height: 100vh;
+  padding: 34px 11px 30px;
+  background: linear-gradient(180deg, rgb(5 18 34 / 96%), rgb(7 22 40 / 98%));
+  border-right: 1px solid rgb(49 71 100 / 16%);
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 7px;
+  padding: 5px 8px;
+  border-radius: 14px;
+  background: #ffffff;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.sidebar__brand-logo {
+  display: block;
+  width: 174px;
+  height: auto;
+}
+
+.sidebar__navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 36px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 11px;
+  color: #d9e1f1;
+  font-size: 19px;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.sidebar__link ion-icon {
+  flex: 0 0 23px;
+  font-size: 23px;
+}
+
+.sidebar__link:hover {
+  background: var(--slot-hover);
+  color: #ffffff;
+}
+
+.sidebar__link--active {
+  background: linear-gradient(90deg, rgb(71 85 107 / 75%), rgb(61 75 96 / 78%));
+  color: #ffffff;
+}
+
+.sidebar__profile {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 30px 7px 0;
+  border-top: 1px solid #263a55;
+}
+
+.sidebar__avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf3ff;
+  color: #294675;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sidebar__user {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__user strong {
+  overflow: hidden;
+  color: #f4f7ff;
+  font-size: 16px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__user span {
+  overflow: hidden;
+  color: #d2daea;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__logout {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a5c2;
+}
+
+.sidebar__logout:hover {
+  background: var(--slot-hover);
+  color: #f4f7ff;
+}
+
+@media (max-width: 1250px) {
   .sidebar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    width: 232px;
-    height: 100vh;
-    padding: 34px 11px 30px;
-    background:
-      linear-gradient(
-        180deg,
-        rgb(5 18 34 / 96%),
-        rgb(7 22 40 / 98%)
-      );
-    border-right: 1px solid rgb(49 71 100 / 16%);
+    width: 88px;
+    padding-right: 10px;
+    padding-left: 10px;
   }
 
   .sidebar__brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 0 7px;
-    color: #f4f7ff;
-    font-size: 29px;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .sidebar__brand-icon {
-    display: grid;
-    flex: 0 0 48px;
+    justify-content: center;
     width: 48px;
     height: 48px;
-    place-items: center;
-    border-radius: 13px;
-    background:
-      linear-gradient(
-        145deg,
-        #6e9dff,
-        #3567f7
-      );
-    box-shadow: 0 10px 25px rgb(50 103 247 / 22%);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0;
   }
 
-  .sidebar__brand-icon ion-icon {
-    font-size: 25px;
+  .sidebar__link span,
+  .sidebar__user,
+  .sidebar__logout {
+    display: none;
+  }
+
+  .sidebar__brand-logo {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    height: 48px;
   }
 
   .sidebar__navigation {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 36px;
+    align-items: center;
   }
 
   .sidebar__link {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    min-height: 52px;
-    padding: 0 16px;
-    border-radius: 11px;
-    color: #d9e1f1;
-    font-size: 19px;
-    text-decoration: none;
-    transition:
-      background-color 160ms ease,
-      color 160ms ease;
-  }
-
-  .sidebar__link ion-icon {
-    flex: 0 0 23px;
-    font-size: 23px;
-  }
-
-  .sidebar__link:hover {
-    background: var(--slot-hover);
-    color: #ffffff;
-  }
-
-  .sidebar__link--active {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(71 85 107 / 75%),
-        rgb(61 75 96 / 78%)
-      );
-    color: #ffffff;
+    width: 52px;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0;
   }
 
   .sidebar__profile {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
-    padding: 30px 7px 0;
-    border-top: 1px solid #263a55;
-  }
-
-  .sidebar__avatar {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    place-items: center;
-    border-radius: 50%;
-    background: #edf3ff;
-    color: #294675;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .sidebar__user {
     display: flex;
-    min-width: 0;
-    flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 16px;
+    border-right: 0;
+    border-bottom: 1px solid #263a55;
   }
 
-  .sidebar__user strong {
-    overflow: hidden;
-    color: #f4f7ff;
-    font-size: 16px;
-    font-weight: 500;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .sidebar__brand {
+    justify-content: flex-start;
+    width: fit-content;
+    height: auto;
+    margin: 0;
+    padding: 4px 7px;
   }
 
-  .sidebar__user span {
-    overflow: hidden;
-    color: #d2daea;
-    font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .sidebar__brand-logo {
+    width: 148px;
+    height: auto;
   }
 
-  .sidebar__logout {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    place-items: center;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: #94a5c2;
+  .sidebar__navigation {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    margin-top: 16px;
+    overflow-x: auto;
   }
 
-  .sidebar__logout:hover {
-    background: var(--slot-hover);
-    color: #f4f7ff;
+  .sidebar__link {
+    width: auto;
+    min-width: 48px;
+    flex: 0 0 auto;
+    padding: 0 14px;
   }
 
-  @media (max-width: 1250px) {
-
-    .sidebar {
-      width: 88px;
-      padding-right: 10px;
-      padding-left: 10px;
-    }
-
-    .sidebar__brand {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .sidebar__brand > span:last-child,
-.sidebar__link span,
-.sidebar__user,
-.sidebar__logout {
-      display: none;
-    }
-
-    .sidebar__navigation {
-      align-items: center;
-    }
-
-    .sidebar__link {
-      width: 52px;
-      justify-content: center;
-      box-sizing: border-box;
-      padding: 0;
-    }
-
-    .sidebar__profile {
-      display: flex;
-      justify-content: center;
-      padding-right: 0;
-      padding-left: 0;
-    }
+  .sidebar__profile {
+    display: none;
   }
+}
 
-  @media (max-width: 760px) {
-
-    .sidebar {
-      position: relative;
-      width: 100%;
-      height: auto;
-      padding: 16px;
-      border-right: 0;
-      border-bottom: 1px solid #263a55;
-    }
-
-    .sidebar__brand {
-      justify-content: flex-start;
-    }
-
-    .sidebar__brand > span:last-child {
-      display: inline;
-    }
-
-    .sidebar__brand-icon {
-      flex-basis: 42px;
-      width: 42px;
-      height: 42px;
-    }
-
-    .sidebar__navigation {
-      flex-direction: row;
-      align-items: stretch;
-      gap: 6px;
-      margin-top: 16px;
-      overflow-x: auto;
-    }
-
-    .sidebar__link {
-      width: auto;
-      min-width: 48px;
-      flex: 0 0 auto;
-      padding: 0 14px;
-    }
-
-    .sidebar__profile {
-      display: none;
-    }
-  }
-
-.account-link { display: block; padding: 14px 0; color: var(--slot-primary-soft); text-align: center; }
+.account-link {
+  display: block;
+  padding: 14px 0;
+  color: var(--slot-primary-soft);
+  text-align: center;
+}

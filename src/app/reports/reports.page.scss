@@ -85,9 +85,7 @@ ion-content {
   }
 
   .reports-page {
-    padding:
-      calc(32px + var(--slot-safe-area-top))
-      20px
+    padding: calc(32px + var(--slot-safe-area-top)) 20px
       calc(100px + var(--slot-safe-area-bottom));
   }
 

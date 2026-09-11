@@ -38,11 +38,11 @@
   font-size: 16px;
 }
 
-.next-booking__status[data-status='confirmed'] {
+.next-booking__status[data-status="confirmed"] {
   color: var(--slot-success);
 }
 
-.next-booking__status[data-status='cancelled'] {
+.next-booking__status[data-status="cancelled"] {
   color: var(--slot-danger);
 }
 

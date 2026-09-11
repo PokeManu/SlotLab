@@ -1,40 +1,17 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
-
-/* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.class.css';
+@import "@ionic/angular/css/palettes/dark.class.css";
 
 html,
 body,
@@ -48,20 +25,20 @@ ion-content {
   --color: var(--slot-text);
 }
 
-/* La schermata vecchia e quella nuova dissolvono insieme, senza ritardi fra i colori. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 1s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Attiva una dissolvenza dei soli colori mentre l'utente cambia tema. */
 html.slotlab-theme-transition,
 html.slotlab-theme-transition body,
 html.slotlab-theme-transition body *,
 html.slotlab-theme-transition body *::before,
 html.slotlab-theme-transition body *::after {
-  transition-property: background-color, border-color, color, outline-color, box-shadow, fill, stroke;
+  transition-property:
+    background-color, border-color, color, outline-color, box-shadow, fill,
+    stroke;
   transition-duration: 1s;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -80,8 +57,6 @@ html.slotlab-theme-transition body *::after {
     transition: none !important;
   }
 }
-
-/* Personalizzazione della mappa Leaflet */
 
 .campus-map__canvas .leaflet-control-zoom {
   overflow: hidden;
@@ -236,7 +211,7 @@ html.slotlab-theme-transition body *::after {
 }
 
 .campus-popup li a::after {
-  content: '›';
+  content: "›";
   flex-shrink: 0;
   color: var(--slot-primary-soft);
   font-size: 22px;
@@ -254,37 +229,123 @@ html.slotlab-theme-transition body *::after {
   outline-offset: 2px;
 }
 
-/* Checkbox del modulo di gestione spazi. */
 app-admin-spaces {
-  .space-create-form .checkbox { cursor: pointer; }
-  .space-create-form input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; margin: 0; padding: 0; accent-color: var(--slot-primary); cursor: pointer; }
-  .space-create-form input[type="checkbox"]:focus-visible { outline: 2px solid var(--slot-primary); outline-offset: 3px; }
+  .space-create-form .checkbox {
+    cursor: pointer;
+  }
+  .space-create-form input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--slot-primary);
+    cursor: pointer;
+  }
+  .space-create-form input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--slot-primary);
+    outline-offset: 3px;
+  }
 }
 
 app-admin-spaces {
-  .space-create-form { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 12px; align-items: end; margin: 24px 0; padding: 18px; border: 1px solid var(--slot-border); border-radius: 13px; background: var(--slot-surface); }
-  .space-create-form label { display: grid; gap: 6px; color: var(--slot-text-muted); font-size: 14px; }
-  .space-create-form input:not([type="checkbox"]), .space-create-form select { min-height: 40px; padding: 0 10px; border: 1px solid var(--slot-border); border-radius: 8px; background: var(--slot-input); color: var(--slot-text); font: inherit; }
-  .space-create-form .checkbox { display: flex; align-items: center; gap: 8px; min-height: 40px; }
-  .space-create-form button { min-height: 40px; border: 0; border-radius: 8px; background: var(--slot-primary); color: white; cursor: pointer; }
-  .space-create-form__options { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; min-width: 0; margin: 2px 0 0; padding: 14px; border: 1px solid var(--slot-border); border-radius: 12px; background: var(--slot-surface-translucent); }
-  .space-create-form__options legend { padding: 0 6px; color: var(--slot-text); font-size: 14px; font-weight: 500; }
-  .space-create-form__options .checkbox { box-sizing: border-box; min-height: 48px; padding: 0 12px; border: 1px solid var(--slot-border); border-radius: 9px; background: var(--slot-input); color: var(--slot-text); }
-  .space-create-form__options .checkbox:hover { border-color: var(--slot-primary-soft); }
-  .space-create-form__options .checkbox:has(input:checked) { border-color: var(--slot-primary); background: rgb(79 127 255 / 12%); }
+  .space-create-form {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(110px, 1fr));
+    gap: 12px;
+    align-items: end;
+    margin: 24px 0;
+    padding: 18px;
+    border: 1px solid var(--slot-border);
+    border-radius: 13px;
+    background: var(--slot-surface);
+  }
+  .space-create-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--slot-text-muted);
+    font-size: 14px;
+  }
+  .space-create-form input:not([type="checkbox"]),
+  .space-create-form select {
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--slot-border);
+    border-radius: 8px;
+    background: var(--slot-input);
+    color: var(--slot-text);
+    font: inherit;
+  }
+  .space-create-form .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+  }
+  .space-create-form button {
+    min-height: 40px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--slot-primary);
+    color: white;
+    cursor: pointer;
+  }
+  .space-create-form__options {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    min-width: 0;
+    margin: 2px 0 0;
+    padding: 14px;
+    border: 1px solid var(--slot-border);
+    border-radius: 12px;
+    background: var(--slot-surface-translucent);
+  }
+  .space-create-form__options legend {
+    padding: 0 6px;
+    color: var(--slot-text);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .space-create-form__options .checkbox {
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--slot-border);
+    border-radius: 9px;
+    background: var(--slot-input);
+    color: var(--slot-text);
+  }
+  .space-create-form__options .checkbox:hover {
+    border-color: var(--slot-primary-soft);
+  }
+  .space-create-form__options .checkbox:has(input:checked) {
+    border-color: var(--slot-primary);
+    background: rgb(79 127 255 / 12%);
+  }
 }
 
-/* Azione di eliminazione nella gestione spazi. */
 app-admin-spaces {
-  .icon-button.icon-button { cursor: pointer; }
-  .icon-button.icon-button--danger { color: var(--slot-danger); }
-  .icon-button.icon-button--danger:is(:hover, :focus-visible) { background: var(--slot-danger-surface); color: var(--slot-danger); }
-  .icon-button.icon-button:focus-visible { outline: 3px solid var(--slot-primary-soft); outline-offset: 2px; }
-  .icon-button.icon-button--danger:focus-visible { outline-color: var(--slot-danger); }
+  .icon-button.icon-button {
+    cursor: pointer;
+  }
+  .icon-button.icon-button--danger {
+    color: var(--slot-danger);
+  }
+  .icon-button.icon-button--danger:is(:hover, :focus-visible) {
+    background: var(--slot-danger-surface);
+    color: var(--slot-danger);
+  }
+  .icon-button.icon-button:focus-visible {
+    outline: 3px solid var(--slot-primary-soft);
+    outline-offset: 2px;
+  }
+  .icon-button.icon-button--danger:focus-visible {
+    outline-color: var(--slot-danger);
+  }
 }
 
-/* Layout condiviso delle aree amministrative, incluse le pagine legacy. */
-/* Campi e testi dinamici devono poter restringersi nelle griglie. */
 main {
   overflow-wrap: anywhere;
 }
@@ -301,13 +362,21 @@ app-admin-statistics .date-field.date-field > span {
 }
 
 :is(app-admin-buildings, app-admin-availability, app-admin-users) {
-  .form > label, .row > *, .search { min-width: 0; }
-  .row { overflow-wrap: anywhere; }
+  .form > label,
+  .row > *,
+  .search {
+    min-width: 0;
+  }
+  .row {
+    overflow-wrap: anywhere;
+  }
 }
 
 app-admin-spaces .space-create-form {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
-  label { min-width: 0; }
+  label {
+    min-width: 0;
+  }
 }
 
 app-admin-availability .form,
@@ -323,7 +392,9 @@ app-admin-buildings .form {
     gap: 8px;
     padding: 16px;
   }
-  :is(app-admin-availability, app-admin-buildings, app-admin-users) .row--head { display: none; }
+  :is(app-admin-availability, app-admin-buildings, app-admin-users) .row--head {
+    display: none;
+  }
 }
 
 @media (min-width: 701px) and (max-width: 1180px) {
@@ -331,32 +402,72 @@ app-admin-buildings .form {
     flex-wrap: wrap;
     gap: 16px;
     padding: 20px 24px;
-    .topbar__navigation { order: 3; width: 100%; margin-left: 0; flex-wrap: wrap; justify-content: center; }
-    .topbar__user { margin-left: auto; }
+    .topbar__navigation {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .topbar__user {
+      margin-left: auto;
+    }
   }
   app-booking-list-item .booking-item {
     grid-template-columns: 80px 60px minmax(0, 1fr);
-    grid-template-areas: 'time icon information' 'time icon status' 'actions actions actions';
-    .booking-item__status { justify-self: start; }
+    grid-template-areas: "time icon information" "time icon status" "actions actions actions";
+    .booking-item__status {
+      justify-self: start;
+    }
   }
 }
 
 @media (max-width: 480px) {
-  app-space-detail .services__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  app-space-list-item .space-list-item { grid-template-columns: minmax(0, 1fr); }
-  app-space-list-item .space-list-item__media { height: 150px; }
-  app-booking-list-item .booking-item__actions { flex-wrap: wrap; gap: 12px; }
-  app-booking-list-item .booking-item__check-in { flex-basis: 100%; }
-  app-admin-statistics .data-list li { grid-template-columns: minmax(0, 1fr); }
-  app-admin-statistics .date-controls.date-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  app-admin-statistics .date-field.date-field { display: grid; grid-template-columns: auto minmax(0, 1fr); min-width: 0; gap: 6px; padding-inline: 9px; }
-  app-admin-statistics .date-field.date-field input { font-size: 13px; }
-  app-admin-statistics .apply-button.apply-button { grid-column: 1 / -1; }
-  app-admin-spaces .space-create-form__options { grid-template-columns: 1fr; }
+  app-space-detail .services__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  app-space-list-item .space-list-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  app-space-list-item .space-list-item__media {
+    height: 150px;
+  }
+  app-booking-list-item .booking-item__actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  app-booking-list-item .booking-item__check-in {
+    flex-basis: 100%;
+  }
+  app-admin-statistics .data-list li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  app-admin-statistics .date-controls.date-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  app-admin-statistics .date-field.date-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    min-width: 0;
+    gap: 6px;
+    padding-inline: 9px;
+  }
+  app-admin-statistics .date-field.date-field input {
+    font-size: 13px;
+  }
+  app-admin-statistics .apply-button.apply-button {
+    grid-column: 1 / -1;
+  }
+  app-admin-spaces .space-create-form__options {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 481px) and (max-width: 900px) {
-  app-admin-spaces .space-create-form__options { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  app-admin-spaces .space-create-form__options {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -365,16 +476,27 @@ app-admin-buildings .form {
     align-items: stretch;
   }
   app-admin-spaces .space-create-form > :is(label, fieldset, button),
-  app-admin-spaces .space-create-form > label > :is(input:not([type="checkbox"]), select) {
+  app-admin-spaces
+    .space-create-form
+    > label
+    > :is(input:not([type="checkbox"]), select) {
     box-sizing: border-box;
     width: 100%;
   }
-  app-admin-spaces .space-create-form > label > :is(input:not([type="checkbox"]), select),
+  app-admin-spaces
+    .space-create-form
+    > label
+    > :is(input:not([type="checkbox"]), select),
   app-admin-spaces .space-create-form > button {
     min-height: 46px;
   }
-  app-admin-spaces .space-row__actions.space-row__actions { gap: 8px; }
-  app-admin-spaces .icon-button.icon-button { width: 46px; height: 46px; }
+  app-admin-spaces .space-row__actions.space-row__actions {
+    gap: 8px;
+  }
+  app-admin-spaces .icon-button.icon-button {
+    width: 46px;
+    height: 46px;
+  }
 }
 
 body :is(.admin-shell.admin-shell, .admin-layout.admin-layout) {

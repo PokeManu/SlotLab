@@ -1,101 +1,174 @@
 <ion-content [fullscreen]="true">
- <main class="booking-page">
-  <header class="booking-header">
-    <a class="back-button" [routerLink]="['/spaces', space.id]" aria-label="Torna al dettaglio dello spazio">
-      <ion-icon name="arrow-back-outline"></ion-icon>
-    </a>
-    <h1>Nuova prenotazione</h1>
-  </header>
+  <main class="booking-page">
+    <header class="booking-header">
+      <a
+        class="back-button"
+        [routerLink]="['/spaces', space.id]"
+        aria-label="Torna al dettaglio dello spazio"
+      >
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </a>
+      <h1>Nuova prenotazione</h1>
+    </header>
 
-  <section class="booking-card room-summary">
-    <div class="summary-icon">
-      <ion-icon name="book-outline"></ion-icon>
-    </div>
+    <section class="booking-card room-summary">
+      <div class="summary-icon">
+        <ion-icon name="book-outline"></ion-icon>
+      </div>
 
-    <div class="summary-content">
-      <h2>{{space.name}}</h2>
-      <p>{{space.building}}, piano {{space.floor}}</p>
-      <p>{{space.seats}} posti
-        @if (space.accessible){
+      <div class="summary-content">
+        <h2>{{space.name}}</h2>
+        <p>{{space.building}}, piano {{space.floor}}</p>
+        <p>
+          {{space.seats}} posti @if (space.accessible){
           <span> · Accessibile</span>
-        }
-      </p>
+          }
+        </p>
+      </div>
+    </section>
+
+    <div
+      class="booking-card field-row date-field"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'Scegli la data della prenotazione. Data selezionata: ' + selectedDateLabel"
+      (click)="openDatePicker(dateInput)"
+      (keydown)="openDatePickerFromKeyboard(dateInput, $event)"
+    >
+      <ion-icon
+        class="field-icon"
+        name="calendar-outline"
+        aria-hidden="true"
+      ></ion-icon>
+      <div class="field-content">
+        <span class="field-label">Data</span>
+        <span class="booking-date-value">{{ selectedDateLabel }}</span>
+      </div>
+
+      <ion-icon
+        class="field-arrow"
+        name="chevron-down-outline"
+        aria-hidden="true"
+      ></ion-icon>
+      <input
+        #dateInput
+        class="booking-date-input"
+        type="date"
+        tabindex="-1"
+        [(ngModel)]="selectedDate"
+        (change)="changeDate()"
+        aria-label="Data della prenotazione"
+      />
     </div>
-  </section>
 
-  <div class="booking-card field-row date-field"
-       role="button" tabindex="0"
-       [attr.aria-label]="'Scegli la data della prenotazione. Data selezionata: ' + selectedDateLabel"
-       (click)="openDatePicker(dateInput)"
-       (keydown)="openDatePickerFromKeyboard(dateInput, $event)">
-    <ion-icon class="field-icon" name="calendar-outline" aria-hidden="true"></ion-icon>
-    <div class="field-content">
-      <span class="field-label">Data</span>
-      <span class="booking-date-value">{{ selectedDateLabel }}</span>
-    </div>
-
-    <ion-icon class="field-arrow" name="chevron-down-outline" aria-hidden="true"></ion-icon>
-    <input #dateInput class="booking-date-input" type="date" tabindex="-1"
-           [(ngModel)]="selectedDate" (change)="changeDate()"
-           aria-label="Data della prenotazione">
-  </div>
-
-
-
-  <section class="booking-card time-section">
-    <h2>Fascia oraria</h2>
-    @if (loadingAvailability) {
+    <section class="booking-card time-section">
+      <h2>Fascia oraria</h2>
+      @if (loadingAvailability) {
       <p role="status">Caricamento fasce orarie…</p>
-    } @else if (availabilityError) {
+      } @else if (availabilityError) {
       <p role="alert">{{ availabilityError }}</p>
-    } @else if (!timeSlots.length) {
-      <p role="status">Nessuna fascia prenotabile per questa data. Verifica il giorno scelto: le fasce devono essere attive e iniziare con almeno un’ora di anticipo.</p>
-    }
-    <div class="time-slots">
-      @for (time of timeSlots; track time.id){
-        <button
-        type="button"
-        class="time-slot"
-        [class.time-slot--selected]="selectedTime === time.label"
-        [attr.aria-pressed]="selectedTime === time.label"
-        (click)="selectTime(time)">{{time.label}}</button>
+      } @else if (!timeSlots.length) {
+      <p role="status">
+        Nessuna fascia prenotabile per questa data. Verifica il giorno scelto:
+        le fasce devono essere attive e iniziare con più di un’ora di anticipo.
+      </p>
       }
-    </div>
-  </section>
+      <div class="time-slots">
+        @for (time of timeSlots; track time.id){
+        <button
+          type="button"
+          class="time-slot"
+          [class.time-slot--selected]="selectedTime === time.label"
+          [attr.aria-pressed]="selectedTime === time.label"
+          (click)="selectTime(time)"
+        >
+          {{time.label}}
+        </button>
+        }
+      </div>
+    </section>
 
-  <section class="booking-card participants">
-    <div class="participants__label">
-      <ion-icon name="people-outline"></ion-icon>
-      <span>Partecipanti</span>
-    </div>
+    <section class="booking-card participants">
+      <div class="participants__label">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Partecipanti</span>
+      </div>
 
-    <div class="counter">
-      <button type="button" aria-label="Diminuisci partecipanti" [disabled]="participants <= 1 || submitting" (click)="decreaseParticipants()"><ion-icon name="remove-outline"></ion-icon></button>
-      <strong aria-live="polite">{{ participants }}</strong>
-      <button type="button" aria-label="Aumenta partecipanti" [disabled]="participants >= participantLimit || loadingAvailability || submitting" (click)="increaseParticipants()"><ion-icon name="add-outline"></ion-icon></button>
-    </div>
-  </section>
+      <div class="counter">
+        <button
+          type="button"
+          aria-label="Diminuisci partecipanti"
+          [disabled]="participants <= 1 || submitting"
+          (click)="decreaseParticipants()"
+        >
+          <ion-icon name="remove-outline"></ion-icon>
+        </button>
+        <strong aria-live="polite">{{ participants }}</strong>
+        <button
+          type="button"
+          aria-label="Aumenta partecipanti"
+          [disabled]="participants >= participantLimit || loadingAvailability || submitting"
+          (click)="increaseParticipants()"
+        >
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
+      </div>
+    </section>
 
-  <section class="booking-card participant-emails">
-    <p>Sei già incluso: {{ participants }} {{ participants === 1 ? 'posto nominativo' : 'posti nominativi' }}, organizzatore incluso.</p>
-    @if (selectedAvailabilityId) { <p>Posti disponibili nella fascia: {{ participantLimit }}</p> }
-    @if (participants > participantLimit && selectedAvailabilityId) { <p role="alert">Il gruppo supera i posti disponibili. Riduci i partecipanti o cambia fascia.</p> }
-    @for (email of participantEmails; track $index; let index = $index) {
-      <label [for]="'participant-email-' + index">Email partecipante {{ index + 2 }}</label>
-      <input type="email" [id]="'participant-email-' + index" [name]="'participant-email-' + index" [(ngModel)]="participantEmails[index]" (blur)="emailTouched[index] = true" [disabled]="submitting" required autocomplete="off" placeholder="nome@esempio.it" [attr.aria-invalid]="(emailTouched[index] || attemptedSubmit) && !!emailError(index)" [attr.aria-describedby]="(emailTouched[index] || attemptedSubmit) && emailError(index) ? 'email-error-' + index : null">
-      @if ((emailTouched[index] || attemptedSubmit) && emailError(index)) { <small class="email-error" [id]="'email-error-' + index" role="alert">{{ emailError(index) }}</small> }
+    <section class="booking-card participant-emails">
+      <p>
+        Sei già incluso: {{ participants }} {{ participants === 1 ? 'posto
+        nominativo' : 'posti nominativi' }}, organizzatore incluso.
+      </p>
+      @if (selectedAvailabilityId) {
+      <p>Posti disponibili nella fascia: {{ participantLimit }}</p>
+      } @if (participants > participantLimit && selectedAvailabilityId) {
+      <p role="alert">
+        Il gruppo supera i posti disponibili. Riduci i partecipanti o cambia
+        fascia.
+      </p>
+      } @for (email of participantEmails; track $index; let index = $index) {
+      <label [for]="'participant-email-' + index"
+        >Email partecipante {{ index + 2 }}</label
+      >
+      <input
+        type="email"
+        [id]="'participant-email-' + index"
+        [name]="'participant-email-' + index"
+        [(ngModel)]="participantEmails[index]"
+        (blur)="emailTouched[index] = true"
+        [disabled]="submitting"
+        required
+        autocomplete="off"
+        placeholder="nome@esempio.it"
+        [attr.aria-invalid]="(emailTouched[index] || attemptedSubmit) && !!emailError(index)"
+        [attr.aria-describedby]="(emailTouched[index] || attemptedSubmit) && emailError(index) ? 'email-error-' + index : null"
+      />
+      @if ((emailTouched[index] || attemptedSubmit) && emailError(index)) {
+      <small class="email-error" [id]="'email-error-' + index" role="alert"
+        >{{ emailError(index) }}</small
+      >
+      } }
+    </section>
+
+    <section class="booking-card duration">
+      <div>
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Durata</span>
+      </div>
+      <strong>{{ durationLabel }}</strong>
+    </section>
+
+    @if (errorMessage) {
+    <p class="booking-error" role="alert">{{ errorMessage }}</p>
     }
-  </section>
-
-  <section class="booking-card duration">
-    <div>
-      <ion-icon name="time-outline"></ion-icon>
-      <span>Durata</span>
-    </div>
-    <strong>{{ durationLabel }}</strong>
-  </section>
-
-  @if (errorMessage) { <p class="booking-error" role="alert">{{ errorMessage }}</p> }
-  <button class="primary-button" type="button" [disabled]="submitting || !selectedAvailabilityId || loadingAvailability" (click)="confirmBooking()">{{ submitting ? 'Invio in corso…' : 'Conferma prenotazione' }}</button>
- </main>
+    <button
+      class="primary-button"
+      type="button"
+      [disabled]="submitting || !selectedAvailabilityId || loadingAvailability"
+      (click)="confirmBooking()"
+    >
+      {{ submitting ? 'Invio in corso…' : 'Conferma prenotazione' }}
+    </button>
+  </main>
 </ion-content>

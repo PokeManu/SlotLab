@@ -8,19 +8,35 @@
       </header>
 
       <nav class="report-filters" aria-label="Filtra le segnalazioni">
-        <button type="button" [class.report-filter--active] = "activeFilter === 'all'" (click)="setFilter('all')">
+        <button
+          type="button"
+          [class.report-filter--active]="activeFilter === 'all'"
+          (click)="setFilter('all')"
+        >
           Tutte
         </button>
 
-        <button type="button" [class.report-filter--active]="activeFilter === 'open'" (click)="setFilter('open')">
+        <button
+          type="button"
+          [class.report-filter--active]="activeFilter === 'open'"
+          (click)="setFilter('open')"
+        >
           Aperte
         </button>
 
-        <button type="button" [class.report-filter--active]="activeFilter === 'in-progress'" (click)="setFilter('in-progress')">
+        <button
+          type="button"
+          [class.report-filter--active]="activeFilter === 'in-progress'"
+          (click)="setFilter('in-progress')"
+        >
           In lavorazione
         </button>
 
-        <button type="button" [class.report-filter--active]="activeFilter === 'resolved'" (click)="setFilter('resolved')">
+        <button
+          type="button"
+          [class.report-filter--active]="activeFilter === 'resolved'"
+          (click)="setFilter('resolved')"
+        >
           Risolte
         </button>
       </nav>
@@ -28,50 +44,63 @@
       <section class="reports-layout">
         <div class="reports-list" aria-label="Elenco delle segnalazioni">
           @for (report of filteredReports; track report.id){
-            <button type="button"
-                    class="report-item"
-                    [class.report-item--selected]="selectedReport?.id === report.id"
-                    (click)="selectReport(report)">
-              <span class="report-item__icon"
-                    [class.report-item__icon--high]="report.priority === 'high'"
-                    [class.report-item__icon--medium]="report.priority === 'medium'"
-                    [class.report-item__icon--low]="report.priority === 'low'">
-                <ion-icon [name]="report.icon"></ion-icon>
+          <button
+            type="button"
+            class="report-item"
+            [class.report-item--selected]="selectedReport?.id === report.id"
+            (click)="selectReport(report)"
+          >
+            <span
+              class="report-item__icon"
+              [class.report-item__icon--high]="report.priority === 'high'"
+              [class.report-item__icon--medium]="report.priority === 'medium'"
+              [class.report-item__icon--low]="report.priority === 'low'"
+            >
+              <ion-icon [name]="report.icon"></ion-icon>
+            </span>
+
+            <span class="report-item__information">
+              <strong>{{report.title}}</strong>
+              <small>{{report.space}}</small>
+              <small>{{report.date}}</small>
+            </span>
+
+            <span class="report-item__badges">
+              <span
+                class="priority-pill"
+                [class.priority-pill--high]="report.priority === 'high'"
+                [class.priority-pill--medium]="report.priority === 'medium'"
+                [class.priority-pill--low]="report.priority === 'low'"
+              >
+                Priorità: {{ report.priorityLabel }}
               </span>
 
-              <span class="report-item__information">
-                <strong>{{report.title}}</strong>
-                <small>{{report.space}}</small>
-                <small>{{report.date}}</small>
+              <span class="status-pill" [attr.data-status]="report.status">
+                Stato: {{ report.statusLabel }}
               </span>
-
-              <span class="report-item__badges">
-                <span class="priority-pill"
-                      [class.priority-pill--high]="report.priority === 'high'"
-                      [class.priority-pill--medium]="report.priority === 'medium'"
-                      [class.priority-pill--low]="report.priority === 'low'">
-                  Priorità: {{ report.priorityLabel }}
-                </span>
-
-                <span class="status-pill" [attr.data-status]="report.status">
-                  Stato: {{ report.statusLabel }}
-                </span>
-              </span>
-            </button>
+            </span>
+          </button>
           } @empty{
-            <p class="empty-reports">
-              {{ errorMessage || 'Non sono presenti segnalazioni per questo filtro' }}
-            </p>
+          <p class="empty-reports">
+            {{ errorMessage || 'Non sono presenti segnalazioni per questo
+            filtro' }}
+          </p>
           }
         </div>
 
         @if (selectedReport; as report) {
-          <app-report-detail [selectedReport]="report" (statusChange)="updateStatus($event)"></app-report-detail>
-          @if (statusMessage || statusError) {
-            <p class="empty-reports" role="status">{{ statusMessage || statusError }}</p>
-          }
-        } @else {
-          <p class="empty-reports">Seleziona una segnalazione per visualizzarne i dettagli.</p>
+        <app-report-detail
+          [selectedReport]="report"
+          (statusChange)="updateStatus($event)"
+        ></app-report-detail>
+        @if (statusMessage || statusError) {
+        <p class="empty-reports" role="status">
+          {{ statusMessage || statusError }}
+        </p>
+        } } @else {
+        <p class="empty-reports">
+          Seleziona una segnalazione per visualizzarne i dettagli.
+        </p>
         }
       </section>
     </main>

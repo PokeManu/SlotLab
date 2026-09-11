@@ -66,12 +66,12 @@
   font-size: 14px;
 }
 
-.report-item__status[data-status='in-progress'] {
+.report-item__status[data-status="in-progress"] {
   background: var(--slot-warning-surface);
   color: var(--slot-warning);
 }
 
-.report-item__status[data-status='resolved'] {
+.report-item__status[data-status="resolved"] {
   background: var(--slot-success-surface);
   color: var(--slot-success);
 }
@@ -139,4 +139,11 @@
     gap: 6px;
   }
 }
-.report-item__photo { display: block; width: 100%; max-height: 300px; object-fit: contain; margin: 12px 0; border-radius: 10px; }
+.report-item__photo {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin: 12px 0;
+  border-radius: 10px;
+}

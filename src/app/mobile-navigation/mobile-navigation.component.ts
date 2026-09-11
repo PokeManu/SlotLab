@@ -10,23 +10,19 @@ import {
   homeOutline,
   personOutline,
   searchOutline,
-  flagOutline, megaphoneOutline,
+  flagOutline,
+  megaphoneOutline,
   barChartOutline,
   businessOutline,
   gridOutline,
   peopleOutline,
   timeOutline,
 } from 'ionicons/icons';
-
 @Component({
   selector: 'app-mobile-navigation',
   templateUrl: './mobile-navigation.component.html',
   styleUrls: ['./mobile-navigation.component.scss'],
-  imports: [
-    IonIcon,
-    RouterLink,
-    RouterLinkActive,
-  ],
+  imports: [IonIcon, RouterLink, RouterLinkActive],
 })
 export class MobileNavigationComponent {
   readonly auth = inject(Auth);
@@ -38,7 +34,8 @@ export class MobileNavigationComponent {
       homeOutline,
       personOutline,
       searchOutline,
-      flagOutline, megaphoneOutline,
+      flagOutline,
+      megaphoneOutline,
       barChartOutline,
       businessOutline,
       gridOutline,

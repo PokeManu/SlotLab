@@ -1,18 +1,24 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { IonContent, IonIcon} from '@ionic/angular';
+import { IonContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
- import {
-    accessibilityOutline,
-    cameraOutline,
-    chevronForwardOutline,
-    flagOutline,
-    notificationsOutline,
-    personOutline,
-    shieldCheckmarkOutline,
-  } from 'ionicons/icons';
+import {
+  accessibilityOutline,
+  cameraOutline,
+  chevronForwardOutline,
+  flagOutline,
+  notificationsOutline,
+  personOutline,
+  shieldCheckmarkOutline,
+} from 'ionicons/icons';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { Auth } from '../auth/auth';
@@ -20,11 +26,10 @@ import { environment } from '../../environments/environment';
 import { finalize } from 'rxjs';
 import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 import { ProfilePhoto } from './profile-photo';
-interface ProfileMenuItem{
+interface ProfileMenuItem {
   label: string;
-  icon:string;
+  icon: string;
 }
-
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -39,7 +44,6 @@ interface ProfileMenuItem{
   ],
 })
 export class ProfilePage implements OnInit {
-
   readonly auth = inject(Auth);
   private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -47,7 +51,9 @@ export class ProfilePage implements OnInit {
   private readonly profilePhoto = inject(ProfilePhoto);
   readonly maximumPhotoBytes = 2 * 1024 * 1024;
   readonly acceptedPhotoTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  get profilePhotoUrl() { return this.profilePhoto.url(); }
+  get profilePhotoUrl() {
+    return this.profilePhoto.url();
+  }
   photoError = '';
   photoSaving = false;
   get user() {
@@ -59,7 +65,6 @@ export class ProfilePage implements OnInit {
       email: account?.email ?? '',
     };
   }
-
   readonly menuItems: ProfileMenuItem[] = [
     {
       label: 'Dati personali',
@@ -74,23 +79,20 @@ export class ProfilePage implements OnInit {
       icon: 'flag-outline',
     },
   ];
-
-  constructor(){
-      addIcons({
-        accessibilityOutline,
-        cameraOutline,
-        chevronForwardOutline,
-        flagOutline,
-        notificationsOutline,
-        personOutline,
-        shieldCheckmarkOutline,
-      });
+  constructor() {
+    addIcons({
+      accessibilityOutline,
+      cameraOutline,
+      chevronForwardOutline,
+      flagOutline,
+      notificationsOutline,
+      personOutline,
+      shieldCheckmarkOutline,
+    });
   }
-
   ngOnInit(): void {
     this.loadProfilePhoto();
   }
-
   selectProfilePhoto(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -104,60 +106,75 @@ export class ProfilePage implements OnInit {
       this.photoError = 'L’immagine deve avere una dimensione massima di 2 MB.';
       return;
     }
-
     this.photoSaving = true;
     this.photoError = '';
-    this.http.put<void>(`${environment.apiUrl}/users/me/photo`, file, {
-      headers: { 'Content-Type': file.type },
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => { this.photoSaving = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: () => {
-        const userId = this.auth.user()?.id;
-        if (userId) this.profilePhoto.update(userId, file);
-        this.changeDetector.markForCheck();
-      },
-      error: error => {
-        this.photoError = error instanceof HttpErrorResponse && error.status === 413
-          ? 'L’immagine supera il limite di 2 MB.'
-          : 'Non è stato possibile salvare l’immagine. Verifica formato e dimensione.';
-      },
-    });
+    this.http
+      .put<void>(`${environment.apiUrl}/users/me/photo`, file, {
+        headers: { 'Content-Type': file.type },
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.photoSaving = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          const userId = this.auth.user()?.id;
+          if (userId) this.profilePhoto.update(userId, file);
+          this.changeDetector.markForCheck();
+        },
+        error: (error) => {
+          this.photoError =
+            error instanceof HttpErrorResponse && error.status === 413
+              ? 'L’immagine supera il limite di 2 MB.'
+              : 'Non è stato possibile salvare l’immagine. Verifica formato e dimensione.';
+        },
+      });
   }
-
   removeProfilePhoto(): void {
     if (!this.profilePhotoUrl || this.photoSaving) return;
     this.photoSaving = true;
     this.photoError = '';
-    this.http.delete<void>(`${environment.apiUrl}/users/me/photo`).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => { this.photoSaving = false; this.changeDetector.markForCheck(); }),
-    ).subscribe({
-      next: () => {
-        const userId = this.auth.user()?.id;
-        if (userId) this.profilePhoto.remove(userId);
-        this.changeDetector.markForCheck();
-      },
-      error: () => { this.photoError = 'Non è stato possibile rimuovere l’immagine.'; },
-    });
+    this.http
+      .delete<void>(`${environment.apiUrl}/users/me/photo`)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.photoSaving = false;
+          this.changeDetector.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          const userId = this.auth.user()?.id;
+          if (userId) this.profilePhoto.remove(userId);
+          this.changeDetector.markForCheck();
+        },
+        error: () => {
+          this.photoError = 'Non è stato possibile rimuovere l’immagine.';
+        },
+      });
   }
-
   private loadProfilePhoto(): void {
     const userId = this.auth.user()?.id;
     if (!userId) return;
-    this.profilePhoto.load(userId).pipe(
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: () => { this.changeDetector.markForCheck(); },
-      error: () => {
-        this.photoError = 'Non è stato possibile caricare l’immagine del profilo.';
-        this.changeDetector.markForCheck();
-      },
-    });
+    this.profilePhoto
+      .load(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.changeDetector.markForCheck();
+        },
+        error: () => {
+          this.photoError =
+            'Non è stato possibile caricare l’immagine del profilo.';
+          this.changeDetector.markForCheck();
+        },
+      });
   }
-
-  logout(): void{
+  logout(): void {
     this.auth.logout().subscribe({ error: () => {} });
   }
 }

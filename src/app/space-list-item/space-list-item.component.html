@@ -6,12 +6,9 @@
         [src]="space.image"
         [alt]="'Foto di ' + space.name"
         loading="lazy"
-      >
+      />
     } @else {
-      <div
-        class="space-list-item__placeholder"
-        aria-hidden="true"
-      ></div>
+      <div class="space-list-item__placeholder" aria-hidden="true"></div>
     }
   </div>
 
@@ -30,10 +27,13 @@
       piano {{ space.floor }}
       <span aria-hidden="true">·</span>
       {{ space.seats }}
-      {{ space.seats === 1 ? 'posto' : 'posti' }}
+      {{ space.seats === 1 ? "posto" : "posti" }}
     </p>
 
-    <p class="space-list-item__availability" [class.space-list-item__availability--unavailable]="unavailable">
+    <p
+      class="space-list-item__availability"
+      [class.space-list-item__availability--unavailable]="unavailable"
+    >
       {{ availabilityLabel }}
     </p>
   </div>

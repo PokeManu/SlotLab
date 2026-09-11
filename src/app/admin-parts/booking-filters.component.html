@@ -1,60 +1,65 @@
-<section
-          class="filters"
-          aria-label="Filtri delle prenotazioni"
-        >
-          <label class="search-field">
-            <ion-icon name="search-outline"></ion-icon>
+<section class="filters" aria-label="Filtri delle prenotazioni">
+  <label class="search-field">
+    <ion-icon name="search-outline"></ion-icon>
 
-            <input
-              type="search"
-              placeholder="Cerca per spazio o utente"
-              aria-label="Cerca per spazio, utente o codice"
-              [ngModel]="searchTerm" (ngModelChange)="searchTermChange.emit($event); changed.emit()"
-            />
-          </label>
+    <input
+      type="search"
+      placeholder="Cerca per spazio o utente"
+      aria-label="Cerca per spazio, utente o codice"
+      [ngModel]="searchTerm"
+      (ngModelChange)="searchTermChange.emit($event); changed.emit()"
+    />
+  </label>
 
-          <div class="filters__selects">
-            <label class="select-field">
-              <span class="sr-only">Filtra per data</span>
+  <div class="filters__selects">
+    <label class="select-field">
+      <span class="sr-only">Filtra per data</span>
 
-              <select
-                [ngModel]="selectedDate" (ngModelChange)="selectedDateChange.emit($event); changed.emit()"
-              >
-                <option value="">Data</option>
-                @for (date of availableDates; track date) { <option [value]="date">{{ date.split('-').reverse().join('/') }}</option> }
-              </select>
+      <select
+        [ngModel]="selectedDate"
+        (ngModelChange)="selectedDateChange.emit($event); changed.emit()"
+      >
+        <option value="">Data</option>
+        @for (date of availableDates; track date) {
+          <option [value]="date">
+            {{ date.split("-").reverse().join("/") }}
+          </option>
+        }
+      </select>
 
-              <ion-icon name="chevron-down-outline"></ion-icon>
-            </label>
+      <ion-icon name="chevron-down-outline"></ion-icon>
+    </label>
 
-            <label class="select-field">
-              <span class="sr-only">Filtra per spazio</span>
+    <label class="select-field">
+      <span class="sr-only">Filtra per spazio</span>
 
-              <select
-                [ngModel]="selectedSpace" (ngModelChange)="selectedSpaceChange.emit($event); changed.emit()"
-              >
-                <option value="">Spazio</option>
+      <select
+        [ngModel]="selectedSpace"
+        (ngModelChange)="selectedSpaceChange.emit($event); changed.emit()"
+      >
+        <option value="">Spazio</option>
 
-                @for (space of availableSpaces; track space) {
-                  <option [value]="space">{{ space }}</option>
-                }
-              </select>
+        @for (space of availableSpaces; track space) {
+          <option [value]="space">{{ space }}</option>
+        }
+      </select>
 
-              <ion-icon name="chevron-down-outline"></ion-icon>
-            </label>
+      <ion-icon name="chevron-down-outline"></ion-icon>
+    </label>
 
-            <label class="select-field">
-              <span class="sr-only">Filtra per stato</span>
+    <label class="select-field">
+      <span class="sr-only">Filtra per stato</span>
 
-              <select
-                [ngModel]="selectedStatus" (ngModelChange)="selectedStatusChange.emit($event); changed.emit()"
-              >
-                <option value="">Stato</option>
-                <option value="Confermata">Confermata</option>
-                <option value="Completata">Completata</option>
-              </select>
+      <select
+        [ngModel]="selectedStatus"
+        (ngModelChange)="selectedStatusChange.emit($event); changed.emit()"
+      >
+        <option value="">Stato</option>
+        <option value="Confermata">Confermata</option>
+        <option value="Completata">Completata</option>
+      </select>
 
-              <ion-icon name="chevron-down-outline"></ion-icon>
-            </label>
-          </div>
-        </section>
+      <ion-icon name="chevron-down-outline"></ion-icon>
+    </label>
+  </div>
+</section>
