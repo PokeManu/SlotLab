@@ -5,9 +5,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import { notificationsOutline } from 'ionicons/icons';
+import { IonContent } from '@ionic/angular';
 import { SpaceSummary } from '../models/space-summary.model';
 import { CampusMapComponent } from '../campus-map/campus-map.component';
 import { QuickFiltersComponent } from '../quick-filters/quick-filters.component';
@@ -15,14 +13,12 @@ import { SpaceListItemComponent } from '../space-list-item/space-list-item.compo
 import { SpaceSearchComponent } from '../space-search/space-search.component';
 import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
-import { NotificationState } from '../notifications/notification-state';
 @Component({
   selector: 'app-spaces',
   templateUrl: './spaces.page.html',
   styleUrls: ['./spaces.page.scss'],
   imports: [
     IonContent,
-    IonIcon,
     TopbarComponent,
     SpaceSearchComponent,
     QuickFiltersComponent,
@@ -36,7 +32,6 @@ export class SpacesPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  readonly notificationState = inject(NotificationState);
   spaces: SpaceSummary[] = [];
   private search = '';
   private availableNow = false;
@@ -44,9 +39,6 @@ export class SpacesPage implements OnInit {
   private studyRooms = false;
   private minimumSeats = false;
   readonly favoriteSpaceIds = new Set<string>();
-  constructor() {
-    addIcons({ notificationsOutline });
-  }
   ngOnInit(): void {
     this.loadSpaces();
   }
@@ -111,9 +103,6 @@ export class SpacesPage implements OnInit {
     this.router.navigate(['/spaces', spaceId], {
       queryParams: { from: 'spaces' },
     });
-  }
-  openNotifications(): void {
-    this.router.navigate(['/notifications']);
   }
   toggleFavorite(spaceId: string): void {
     if (this.favoriteSpaceIds.has(spaceId)) {

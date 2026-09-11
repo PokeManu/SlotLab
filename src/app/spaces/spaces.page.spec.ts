@@ -45,14 +45,11 @@ describe('SpacesPage', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Aula test');
   });
-  it('apre le notifiche dal pulsante mobile', () => {
-    const router = TestBed.inject(Router);
-    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      '.spaces__mobile-notification',
-    );
-    button.click();
-    expect(navigate).toHaveBeenCalledWith(['/notifications']);
+  it('usa la topbar condivisa anche nella pagina di ricerca', () => {
+    expect(fixture.nativeElement.querySelectorAll('app-topbar')).toHaveLength(1);
+    expect(
+      fixture.nativeElement.querySelector('.spaces__mobile-notification'),
+    ).toBeNull();
   });
   it('mantiene più spazi nei preferiti', () => {
     component.toggleFavorite('1');
