@@ -55,6 +55,12 @@ export class CampusMapComponent implements OnInit, AfterViewInit, OnDestroy {
     viewChild<ElementRef<HTMLDivElement>>('mapContainer');
   private map?: L.Map;
   private markerLayer?: L.LayerGroup;
+  private resizeObserver?: ResizeObserver;
+  private resizeFrame?: number;
+  private readonly onWindowResize = () => this.scheduleMapResize();
+  private readonly onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') this.scheduleMapResize();
+  };
   buildings: MapBuilding[] = [];
   loading = true;
   error = '';
@@ -63,10 +69,17 @@ export class CampusMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   ngAfterViewInit(): void {
     this.initializeMap();
-    setTimeout(() => this.map?.invalidateSize(), 200);
+    this.observeMapSize();
+    this.scheduleMapResize();
   }
   ngOnDestroy(): void {
     this.request?.unsubscribe();
+    this.resizeObserver?.disconnect();
+    window.removeEventListener('resize', this.onWindowResize);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    if (this.resizeFrame !== undefined) {
+      window.cancelAnimationFrame(this.resizeFrame);
+    }
     this.map?.remove();
   }
   private loadBuildings(): void {
@@ -131,6 +144,39 @@ export class CampusMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }).addTo(this.map);
     this.markerLayer = L.layerGroup().addTo(this.map);
     this.addBuildingMarkers();
+  }
+  private observeMapSize(): void {
+    const container = this.mapContainer()?.nativeElement;
+    if (!container) return;
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        const entry = entries.find((item) => item.target === container);
+        if (
+          entry &&
+          entry.contentRect.width > 0 &&
+          entry.contentRect.height > 0
+        ) {
+          this.scheduleMapResize();
+        }
+      });
+      this.resizeObserver.observe(container);
+    }
+    window.addEventListener('resize', this.onWindowResize);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+  private scheduleMapResize(): void {
+    if (!this.map) return;
+    if (this.resizeFrame !== undefined) {
+      window.cancelAnimationFrame(this.resizeFrame);
+    }
+    this.resizeFrame = window.requestAnimationFrame(() => {
+      this.resizeFrame = undefined;
+      const container = this.mapContainer()?.nativeElement;
+      if (!container || !container.clientWidth || !container.clientHeight) {
+        return;
+      }
+      this.map?.invalidateSize({ animate: false, pan: false });
+    });
   }
   private addBuildingMarkers(): void {
     if (!this.markerLayer) return;

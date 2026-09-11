@@ -10,7 +10,28 @@ describe('CampusMapComponent', () => {
   let component: CampusMapComponent;
   let fixture: ComponentFixture<CampusMapComponent>;
   let http: HttpTestingController;
+  let resizeCallback: ResizeObserverCallback;
+  let frameCallback: FrameRequestCallback;
+  const disconnectResizeObserver = vi.fn();
   beforeEach(() => {
+    disconnectResizeObserver.mockClear();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          resizeCallback = callback;
+        }
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {
+          disconnectResizeObserver();
+        }
+      },
+    );
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallback = callback;
+      return 1;
+    });
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -23,7 +44,11 @@ describe('CampusMapComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
   it('carica edifici e tutte le pagine degli spazi senza marker dimostrativi', () => {
     http
       .expectOne('/api/v1/buildings')
@@ -92,5 +117,37 @@ describe('CampusMapComponent', () => {
     expect(spaces.cancelled).toBe(true);
     fixture.detectChanges();
     expect(component.error).toContain('Impossibile caricare');
+  });
+  it('ricalcola Leaflet quando il contenitore diventa visibile', () => {
+    http.expectOne('/api/v1/buildings').flush({ data: [] });
+    http.expectOne('/api/v1/spaces?size=100').flush({ data: [] });
+    const canvas: HTMLDivElement = fixture.nativeElement.querySelector(
+      '.campus-map__canvas',
+    );
+    Object.defineProperties(canvas, {
+      clientWidth: { configurable: true, value: 640 },
+      clientHeight: { configurable: true, value: 360 },
+    });
+    const invalidateSize = vi.spyOn(component['map']!, 'invalidateSize');
+    resizeCallback(
+      [
+        {
+          target: canvas,
+          contentRect: { width: 640, height: 360 },
+        } as unknown as ResizeObserverEntry,
+      ],
+      component['resizeObserver']!,
+    );
+    frameCallback(0);
+    expect(invalidateSize).toHaveBeenCalledWith({
+      animate: false,
+      pan: false,
+    });
+  });
+  it("interrompe l'osservazione del layout alla distruzione", () => {
+    http.expectOne('/api/v1/buildings').flush({ data: [] });
+    http.expectOne('/api/v1/spaces?size=100').flush({ data: [] });
+    fixture.destroy();
+    expect(disconnectResizeObserver).toHaveBeenCalledOnce();
   });
 });
