@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  ViewChild,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular';
@@ -28,14 +21,10 @@ import { passwordValidationMessages } from './password-validation';
   templateUrl: './access.page.html',
   styleUrls: ['./access.page.scss'],
 })
-export class AccessPage implements OnDestroy {
-  @ViewChild(IonContent) private content?: IonContent;
+export class AccessPage {
   readonly auth = inject(Auth);
-  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private viewportObserver?: ResizeObserver;
-  private viewportFrame?: number;
   readonly registering = this.route.snapshot.data['mode'] === 'register';
   readonly busy = signal(false);
   readonly error = signal('');
@@ -85,45 +74,6 @@ export class AccessPage implements OnDestroy {
     this.error.set('');
   }
 
-  async ionViewDidEnter(): Promise<void> {
-    const scrollElement = await this.content?.getScrollElement();
-    if (!scrollElement) return;
-
-    this.stopViewportTracking();
-    const updateHeight = () => {
-      if (this.viewportFrame !== undefined) {
-        window.cancelAnimationFrame(this.viewportFrame);
-      }
-      this.viewportFrame = window.requestAnimationFrame(() => {
-        this.viewportFrame = undefined;
-        this.host.nativeElement.style.setProperty(
-          '--slot-access-height',
-          `${scrollElement.clientHeight}px`,
-        );
-      });
-    };
-
-    updateHeight();
-    this.viewportObserver = new ResizeObserver(updateHeight);
-    this.viewportObserver.observe(scrollElement);
-  }
-
-  ionViewDidLeave(): void {
-    this.stopViewportTracking();
-  }
-
-  ngOnDestroy(): void {
-    this.stopViewportTracking();
-  }
-
-  private stopViewportTracking(): void {
-    this.viewportObserver?.disconnect();
-    this.viewportObserver = undefined;
-    if (this.viewportFrame !== undefined) {
-      window.cancelAnimationFrame(this.viewportFrame);
-      this.viewportFrame = undefined;
-    }
-  }
   get passwordErrors(): string[] {
     if (!this.registering) return [];
     return passwordValidationMessages(this.password);

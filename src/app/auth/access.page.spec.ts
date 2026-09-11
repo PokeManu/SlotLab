@@ -46,39 +46,6 @@ describe('Form di accesso', () => {
     ) as HTMLImageElement;
     expect(logo.getAttribute('src')).toBe('assets/branding/slotlab-logo.png');
   });
-  it('sincronizza il centraggio con l’altezza reale di Ionic al primo ingresso', async () => {
-    const fixture = create();
-    const page = fixture.componentInstance;
-    const scrollElement = document.createElement('div');
-    Object.defineProperty(scrollElement, 'clientHeight', { value: 720 });
-    vi.spyOn(page['content']!, 'getScrollElement').mockResolvedValue(
-      scrollElement,
-    );
-    const observe = vi.fn();
-    const disconnect = vi.fn();
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        observe = observe;
-        disconnect = disconnect;
-      },
-    );
-    let frame: FrameRequestCallback | undefined;
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-      frame = callback;
-      return 1;
-    });
-
-    await page.ionViewDidEnter();
-    frame?.(0);
-
-    expect(
-      fixture.nativeElement.style.getPropertyValue('--slot-access-height'),
-    ).toBe('720px');
-    expect(observe).toHaveBeenCalledWith(scrollElement);
-    page.ionViewDidLeave();
-    expect(disconnect).toHaveBeenCalled();
-  });
   it('blocca doppio invio e mostra errore credenziali senza rinnovo', () => {
     const fixture = create();
     const page = fixture.componentInstance;

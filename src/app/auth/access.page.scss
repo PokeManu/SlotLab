@@ -1,5 +1,6 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   --ion-background-color: var(--slot-background);
   --ion-text-color: var(--slot-text);
@@ -13,20 +14,24 @@ ion-content::part(scroll) {
 .access {
   flex: 1 0 auto;
   width: 100%;
-  min-height: var(--slot-access-height, 100%);
+  min-height: 100%;
   box-sizing: border-box;
   padding: calc(40px + var(--slot-safe-area-top)) 20px
     calc(40px + var(--slot-safe-area-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   color: var(--slot-text);
+}
+.access > * {
+  flex-shrink: 0;
 }
 .access__brand {
   display: flex;
   align-items: center;
   margin-bottom: 28px;
+  margin-top: auto;
   padding: 6px 10px;
   border-radius: 16px;
   background: #ffffff;
@@ -213,7 +218,7 @@ a {
 }
 .access__footer {
   text-align: center;
-  margin: 24px 0 0;
+  margin: 24px 0 auto;
 }
 @media (max-width: 420px) {
   .access {
