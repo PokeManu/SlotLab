@@ -3,3 +3,6 @@
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal
+
+# Snapshot dimostrativo distribuibile; demo-locale.sqlite rimane privato
+!/demo.sqlite

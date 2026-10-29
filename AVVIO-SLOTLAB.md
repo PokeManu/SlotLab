@@ -28,3 +28,35 @@ Soltanto i due npm start, ciascuno nella propria cartella. Fermare entrambi con 
 
 ## Contenuto della consegna
 Il repository e questo archivio includono initial.sqlite come snapshot, non il database operativo personale database.sqlite. Sono esclusi node_modules, .env, backup e cache. Nessun hosting o wrapper nativo e richiesto. I dati operativi e i backup conservati sul computer originale non vengono cancellati. Lo snapshot e le foto correlate sono preservati nella correzione; non pubblicare ulteriori dati operativi per aggirare la distinzione fra ZIP e branch.
+
+## Database dimostrativo con utenti, prenotazioni e segnalazioni
+
+Il file `backend/db/demo.sqlite` contiene 10 utenti fittizi, 24 prenotazioni (18 concluse e 6 future alla generazione), 7 segnalazioni, 18 edifici e 3 spazi. Non contiene un amministratore del mittente. Le password degli utenti demo sono casuali e non disponibili: servono come dati dimostrativi. Crea il tuo amministratore oppure registra un nuovo utente per accedere.
+
+Dal terminale dentro backend, dopo npm ci e la preparazione di .env:
+
+1. Copia lo snapshot in un file locale nuovo, senza sovrascrivere dati esistenti:
+
+```bash
+node -e "require('node:fs').copyFileSync('db/demo.sqlite','db/demo-locale.sqlite',require('node:fs').constants.COPYFILE_EXCL)"
+```
+
+2. Imposta in `.env` il database da usare per l'avvio:
+
+```env
+SLOTLAB_DB_PATH=./db/demo-locale.sqlite
+```
+
+3. Compila le quattro variabili SLOTLAB_ADMIN_... di `.env` con i tuoi dati e una password valida (8–64 caratteri, maiuscola, minuscola, numero, simbolo, senza spazi). Poi esegui:
+
+```bash
+npm run db:seed
+SLOTLAB_DB_PATH=./db/database.sqlite SLOTLAB_DEMO_DB_PATH=./db/demo-locale.sqlite npm run db:seed-demo
+npm start
+```
+
+Il secondo comando rigenera le date demo rispetto al giorno corrente e ripristina le fasce demo dopo il seed iniziale. La variabile SLOTLAB_DB_PATH impostata soltanto in quel comando indica al controllo quale database operativo proteggere; seed-demo scrive esclusivamente nel percorso SLOTLAB_DEMO_DB_PATH. All'avvio successivo npm start usa normalmente demo-locale.sqlite indicato in .env.
+
+Se demo-locale.sqlite esiste già, il comando di copia rifiuta di sovrascriverlo: conservarlo e verificare i suoi dati prima di procedere. La rigenerazione del seed sostituisce le prenotazioni e le segnalazioni dimostrative riconoscibili; non usarla come recupero di dati personali. Le prenotazioni future dello snapshot possono diventare passate: rigenerare il campione quando serve una dimostrazione aggiornata.
+
+La copia locale del mittente conserva nel proprio demo-locale.sqlite anche l'amministratore precedente. Quel file, .env e database.sqlite non sono pubblicati. Per tornare al database operativo precedente basta reimpostare SLOTLAB_DB_PATH=./db/database.sqlite e riavviare il backend; il file originale non è stato sostituito.
