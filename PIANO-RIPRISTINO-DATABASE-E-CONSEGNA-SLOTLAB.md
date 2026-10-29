@@ -2,7 +2,7 @@
 
 **Data:** 29 ottobre 2026.
 **Stato:** IN ESECUZIONE — autorizzato dall’utente il 29 ottobre 2026.
-**Avanzamento dell'esecuzione:** 95% — collaudo locale della consegna superato; pubblicazione su Finale autorizzata prima della conferma ARM del collega.
+**Avanzamento dell'esecuzione:** 95% — correzione collaudata e pubblicata su Finale; resta la conferma ARM del collega per la chiusura.
 **Progetto:** `/Users/Shared/Programmazione Web e Mobile/SlotLab`.
 **Branch di destinazione:** `Finale` del repository `PokeManu/SlotLab`; riferimento remoto verificato il 29 ottobre 2026: `d75fd757ef710e8eaf78cb98e3d7d8cd04f34220`. Ricontrollare il riferimento prima dell'integrazione e del push.
 **Ultimo aggiornamento del piano:** confronto con il branch `Finale`, pubblicato dal collega a partire dalla copia ricevuta su WhatsApp.
@@ -175,12 +175,12 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 | D — Test | 15% | 65% | Completata | Backend 158, frontend 256, lint e build superati |
 | E — ZIP e guida | 15% | 80% | Completata | Zero dipendenze nell’indice; ZIP e guida verificati |
 | F — Collaudo da ZIP | 15% | 95% | Completata | Chrome pulito: accesso, refresh, scrittura e riavvio riusciti |
-| G — Conferma, push e chiusura | 5% | 100% | In attesa | Conferma del collega e pubblicazione verificata su `Finale` necessarie |
+| G — Conferma, push e chiusura | 5% | 100% | In attesa | Pubblicazione verificata; resta conferma ARM del collega |
 
 **Revisione del piano:** un subagent ha svolto una revisione indipendente in sola lettura; integrate le indicazioni su integrità SQLite, preservazione dei dati, casi negativi e collaudo della consegna. Nessuna implementazione delegata o iniziata.
 **Aggiornamento del 29 ottobre 2026:** integrate le evidenze del confronto remoto con `Finale`, i quattro manifest/lockfile diversi, la distinzione fra snapshot versionato e database operativo, la pulizia delle dipendenze tracciate, i test delle dipendenze aggiornate e la pubblicazione finale. Un secondo subagent ha revisionato i criteri di integrazione. Esecuzione ferma allo 0%; nessuna riparazione o pubblicazione iniziata.
-**Attività attuale:** pubblicare la versione collaudata su Finale, poi attendere la prova del collega dal branch remoto.
-**Prossimo passo:** push normale su Finale e verifica del commit remoto; poi il collega seguirà AVVIO-SLOTLAB.md dalla copia scaricata da GitHub. La conferma ARM resta necessaria per dichiarare il 100%.
+**Attività attuale:** pubblicazione completata e verificata; in attesa della prova del collega dal branch Finale.
+**Prossimo passo:** il collega scarica Finale e segue AVVIO-SLOTLAB.md. Raccogliere esito di installazione, migrazioni, backend, frontend e login sul suo Mac ARM; solo dopo dichiarare il 100%.
 **Nota sulla dichiarazione precedente:** il completamento delle revisioni frontend/backend non equivaleva al collaudo della copia completa con il database storico. Questo piano aggiunge esplicitamente la verifica della consegna prima della dichiarazione finale di funzionamento.
 
 ## Registro esecuzione autorizzata — 29 ottobre 2026
@@ -206,3 +206,7 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 ## Aggiornamento della modalità di consegna — 29 ottobre 2026
 
 L’utente ha autorizzato esplicitamente la pubblicazione su GitHub prima del collaudo del collega: il riscontro ARM non è più una condizione preventiva del push. Rimane una verifica finale aperta. Il remoto è stato ricontrollato ed è ancora d75fd75; nessun aggiornamento concorrente rilevato. I commit locali 7b1008d e 9af3814 contengono la correzione già collaudata; questo aggiornamento riguarda soltanto il piano. Non si pubblicano .env, database operativo o node_modules.
+
+### Pubblicazione verificata — 29 ottobre 2026
+
+Push normale riuscito da d75fd75 a f173ad8b961f35d257876c163e5e8ea957d2502e. Il commit remoto coincide con quello locale. Riletti gli oggetti da GitHub in archivio Git temporaneo: tutti i 383 file pubblicati coincidono byte per byte con i file locali collaudati (salvo aggiornamenti documentali successivi ai test). Presenti guida, snapshot, fixture e migrazioni; assenti node_modules, .env e database operativo. Nessun aggiornamento concorrente sovrascritto. Questo rapporto viene aggiunto con un successivo commit documentale, senza modificare il codice verificato. Prova ARM ancora non disponibile: 100% non dichiarato.
