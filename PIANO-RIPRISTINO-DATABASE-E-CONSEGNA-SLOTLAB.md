@@ -1,11 +1,11 @@
 # Piano di ripristino del database e verifica della consegna SlotLab
 
-**Data:** 29 ottobre 2026.  
-**Stato:** IN ESECUZIONE — autorizzato dall’utente il 29 ottobre 2026.  
-**Avanzamento dell'esecuzione:** 95% — collaudo locale della consegna superato; in attesa della conferma ARM del collega e della pubblicazione.  
-**Progetto:** `/Users/Shared/Programmazione Web e Mobile/SlotLab`.  
-**Branch di destinazione:** `Finale` del repository `PokeManu/SlotLab`; riferimento remoto verificato il 29 ottobre 2026: `d75fd757ef710e8eaf78cb98e3d7d8cd04f34220`. Ricontrollare il riferimento prima dell'integrazione e del push.  
-**Ultimo aggiornamento del piano:** confronto con il branch `Finale`, pubblicato dal collega a partire dalla copia ricevuta su WhatsApp.  
+**Data:** 29 ottobre 2026.
+**Stato:** IN ESECUZIONE — autorizzato dall’utente il 29 ottobre 2026.
+**Avanzamento dell'esecuzione:** 95% — collaudo locale della consegna superato; in attesa della conferma ARM del collega e della pubblicazione.
+**Progetto:** `/Users/Shared/Programmazione Web e Mobile/SlotLab`.
+**Branch di destinazione:** `Finale` del repository `PokeManu/SlotLab`; riferimento remoto verificato il 29 ottobre 2026: `d75fd757ef710e8eaf78cb98e3d7d8cd04f34220`. Ricontrollare il riferimento prima dell'integrazione e del push.
+**Ultimo aggiornamento del piano:** confronto con il branch `Finale`, pubblicato dal collega a partire dalla copia ricevuta su WhatsApp.
 **Obiettivo:** rendere avviabile la copia completa del sito preservando i dati esistenti, produrre una consegna ZIP verificata e riproducibile e integrare le correzioni collaudate sul branch `Finale`, mantenendo il lavoro del collega.
 
 ## 1. Autorizzazione e limiti
@@ -177,10 +177,10 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 | F — Collaudo da ZIP | 15% | 95% | Completata | Chrome pulito: accesso, refresh, scrittura e riavvio riusciti |
 | G — Conferma, push e chiusura | 5% | 100% | In attesa | Conferma del collega e pubblicazione verificata su `Finale` necessarie |
 
-**Revisione del piano:** un subagent ha svolto una revisione indipendente in sola lettura; integrate le indicazioni su integrità SQLite, preservazione dei dati, casi negativi e collaudo della consegna. Nessuna implementazione delegata o iniziata.  
-**Aggiornamento del 29 ottobre 2026:** integrate le evidenze del confronto remoto con `Finale`, i quattro manifest/lockfile diversi, la distinzione fra snapshot versionato e database operativo, la pulizia delle dipendenze tracciate, i test delle dipendenze aggiornate e la pubblicazione finale. Un secondo subagent ha revisionato i criteri di integrazione. Esecuzione ferma allo 0%; nessuna riparazione o pubblicazione iniziata.  
-**Attività attuale:** attendere il riscontro del collega sul pacchetto corretto e completare poi il push verificato su Finale.  
-**Prossimo passo:** inoltrare al collega lo ZIP corretto e la guida; raccogliere l'esito sul suo Mac ARM. Se positivo, ricontrollare il remoto e pubblicare il commit mirato su Finale.  
+**Revisione del piano:** un subagent ha svolto una revisione indipendente in sola lettura; integrate le indicazioni su integrità SQLite, preservazione dei dati, casi negativi e collaudo della consegna. Nessuna implementazione delegata o iniziata.
+**Aggiornamento del 29 ottobre 2026:** integrate le evidenze del confronto remoto con `Finale`, i quattro manifest/lockfile diversi, la distinzione fra snapshot versionato e database operativo, la pulizia delle dipendenze tracciate, i test delle dipendenze aggiornate e la pubblicazione finale. Un secondo subagent ha revisionato i criteri di integrazione. Esecuzione ferma allo 0%; nessuna riparazione o pubblicazione iniziata.
+**Attività attuale:** attendere il riscontro del collega sul pacchetto corretto e completare poi il push verificato su Finale.
+**Prossimo passo:** inoltrare al collega lo ZIP corretto e la guida; raccogliere l'esito sul suo Mac ARM. Se positivo, ricontrollare il remoto e pubblicare il commit mirato su Finale.
 **Nota sulla dichiarazione precedente:** il completamento delle revisioni frontend/backend non equivaleva al collaudo della copia completa con il database storico. Questo piano aggiunge esplicitamente la verifica della consegna prima della dichiarazione finale di funzionamento.
 
 ## Registro esecuzione autorizzata — 29 ottobre 2026
@@ -197,6 +197,8 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 - **95%:** collaudo effettivo con Node 26.7.0 x64 in cartella `Collaudo ZIP/SlotLab`: backend 200, proxy API 401 senza sessione, Chrome in incognito su localhost:4200 con account creato solo nella copia di test. Login admin, elenco dei tre spazi, route /admin/spaces e refresh riusciti. Modifica nome di uno spazio salvata soltanto nella copia di test e ancora presente dopo arresto/riavvio del backend e refresh; sessione mantenuta. Lo ZIP finale non include questa modifica né le credenziali di test. Lo snapshot contiene zero segnalazioni: nessuna foto di segnalazione disponibile per un controllo visivo, risorse esistenti comunque preservate. Nessuna prova reale su ARM dichiarata.
 - Restano gli avvisi di build su Browserslist obsoleta, budget SCSS e CommonJS; nessun errore bloccante in lint, test o build. Il recupero email SMTP non rientra nella correzione e non è stato collaudato.
 - Ripristino di emergenza: backup permanente nella cartella sorella `Backup-SlotLab-ripristino-20261029`, con database precedenti, inventario, archivio file e patch. A server fermo ripristinare tramite SQLite Backup il database precedente e i file SQL precedenti dall'archivio solo se si vuole annullare questa correzione; tale combinazione ripristina anche l'errore originale. Non scambiare backup e pacchetto di consegna.
-- **Incompleti:** riscontro del collega sul Mac ARM, commit/push su GitHub e verifica del contenuto pubblicato. Non dichiarato il 100% e nessun push effettuato.
+- **Incompleti:** riscontro del collega sul Mac ARM, push su GitHub e verifica del contenuto pubblicato. Non dichiarato il 100% e nessun push effettuato.
 
 - Revisione finale indipendente del subagent: SQL/checksum, integrità dei due database, conservazione dei record, fixture e guida coerenti. Precisato che lo snapshot contiene il catalogo ma nessun account: la guida indica come creare il proprio amministratore, senza distribuire credenziali di collaudo.
+
+- Correzione salvata nel commit locale `7b1008d` su `Finale`; main e remoto invariati. Ultima revisione del Markdown salvata separatamente. Server di collaudo fermati alla fine delle prove. Stato corrente: 95%, in attesa del destinatario, non della sua nuova autorizzazione a correggere.
