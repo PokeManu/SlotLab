@@ -24,4 +24,13 @@ describe('NextBookingComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('emits the booking id from the Ionic action', () => {
+    const opened: string[] = [];
+    component.bookingOpened.subscribe((id) => opened.push(id));
+    expect(fixture.nativeElement.querySelector('ion-card')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ion-badge')?.textContent).toContain('confermata');
+
+    fixture.nativeElement.querySelector('ion-button').click();
+    expect(opened).toEqual(['booking-test']);
+  });
 });

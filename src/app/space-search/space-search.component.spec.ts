@@ -11,4 +11,15 @@ describe('SpaceSearchComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('emits the search text from the Ionic searchbar', () => {
+    const values: string[] = [];
+    component.searchChange.subscribe((value) => values.push(value));
+    const searchbar = fixture.nativeElement.querySelector('ion-searchbar');
+
+    searchbar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'Aula' } }));
+    searchbar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: null } }));
+
+    expect(values).toEqual(['Aula', '']);
+  });
 });

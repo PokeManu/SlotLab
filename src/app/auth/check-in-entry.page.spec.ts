@@ -43,10 +43,10 @@ describe('CheckInEntryPage', () => {
     const fixture = TestBed.createComponent(CheckInEntryPage);
     fixture.detectChanges();
     for (const result of ['checked_in', 'already_checked_in']) {
-      fixture.nativeElement.querySelector('button').click();
+      fixture.nativeElement.querySelector('ion-button').click();
       fixture.componentInstance.verify();
       await fixture.whenStable();
-      expect(fixture.nativeElement.querySelector('button').disabled).toBe(true);
+      expect(fixture.nativeElement.querySelector('ion-button').disabled).toBe(true);
       TestBed.inject(HttpTestingController)
         .expectOne({ method: 'POST', url: '/api/v1/spaces/12/check-in' })
         .flush({
@@ -60,7 +60,7 @@ describe('CheckInEntryPage', () => {
       expect(
         fixture.nativeElement.querySelector('[role="status"]').textContent,
       ).toContain('Accesso consentito');
-      expect(fixture.nativeElement.querySelector('button').disabled).toBe(
+      expect(fixture.nativeElement.querySelector('ion-button').disabled).toBe(
         false,
       );
     }
@@ -91,7 +91,7 @@ describe('CheckInEntryPage', () => {
     const fixture = TestBed.createComponent(CheckInEntryPage);
     fixture.detectChanges();
     fixture.componentInstance.verify();
-    expect(fixture.nativeElement.querySelector('button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('ion-button')).toBeNull();
     TestBed.inject(HttpTestingController).expectNone(
       '/api/v1/spaces/0/check-in',
     );

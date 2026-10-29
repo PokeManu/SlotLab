@@ -3,6 +3,7 @@ import {
   ActivatedRoute,
   convertToParamMap,
   provideRouter,
+  Router,
 } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import {
@@ -62,6 +63,16 @@ describe('SpaceDetailPage', () => {
   });
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  it('mantiene le azioni Ionic verso prenotazione e segnalazione', async () => {
+    await fixture.whenStable();
+    const actions = fixture.nativeElement.querySelectorAll('ion-button');
+    expect(actions.length).toBe(3);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+    fixture.nativeElement.querySelector('.primary-button').click();
+    expect(navigate).toHaveBeenCalledWith(['/booking', '1']);
+    fixture.nativeElement.querySelector('.secondary-button').click();
+    expect(navigate).toHaveBeenCalledWith(['/reports', 'new', '1']);
   });
   function reloadAvailability() {
     component.ngOnInit();

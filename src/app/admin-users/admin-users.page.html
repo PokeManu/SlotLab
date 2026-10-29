@@ -1,67 +1,89 @@
-<ion-content [fullscreen]="true"
-  ><div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-    <main class="users-page">
+<ion-content [fullscreen]="true">
+  <ion-alert
+    [isOpen]="confirmingUser !== null"
+    header="Elimina account"
+    [message]="confirmingUser ? 'Eliminare l\'account di ' + confirmingUser.firstName + ' ' + confirmingUser.lastName + '?' : ''"
+    [buttons]="deleteAlertButtons"
+    (didDismiss)="cancelRemoval()"
+  ></ion-alert>
+  <main class="users-page" [attr.aria-busy]="loading || deletingId !== null">
       <header>
         <h1>Gestione utenti</h1>
         <p>
           Cerca gli account registrati ed elimina quelli non amministrativi.
         </p>
       </header>
-      <form class="search" (submit)="$event.preventDefault(); onSearch()">
-        <label for="user-search">Cerca per nome, cognome o email</label
-        ><input
-          id="user-search"
-          name="search"
-          type="search"
-          [(ngModel)]="search"
-          (ngModelChange)="onSearch()"
+      <div class="search">
+        <ion-searchbar
+          aria-label="Cerca per nome, cognome o email"
           placeholder="Cerca utenti"
-        />
-      </form>
+          [value]="search"
+          [disabled]="deletingId !== null"
+          (ionInput)="onSearch($event.detail.value ?? '')"
+        ></ion-searchbar>
+      </div>
+      @if (deletingId !== null) {
+      <p class="loading" role="status">Eliminazione account in corso…</p>
+      }
       @if (error) {
       <p class="error" role="alert">{{ error }}</p>
+      <ion-button type="button" fill="outline" (click)="loadUsers()">Riprova</ion-button>
+      } @else if (loading) {
+      <p class="loading" role="status">
+        <ion-spinner name="crescent" aria-label="Caricamento utenti"></ion-spinner>
+        Caricamento utenti…
+      </p>
       }
-      <section class="table" aria-label="Elenco utenti">
-        <div class="row row--head">
-          <span>Nome</span><span>Email</span><span>Ruolo</span
-          ><span>Azioni</span>
+      @if (!loading && !error) {
+      <section
+        class="table"
+        role="table"
+        aria-label="Elenco utenti"
+      >
+        <div class="row row--head" role="row">
+          <span role="columnheader">Nome</span><span role="columnheader">Email</span><span role="columnheader">Ruolo</span
+          ><span role="columnheader">Azioni</span>
         </div>
         @for (user of users; track user.id) {
-        <div class="row">
-          <span><strong>{{ user.firstName }} {{ user.lastName }}</strong></span
-          ><span>{{ user.email }}</span
-          ><span>{{ user.role === 'admin' ? 'Amministratore' : 'Utente' }}</span
-          ><span
-            ><button
+        <div class="row" role="row">
+          <span role="cell"><strong>{{ user.firstName }} {{ user.lastName }}</strong></span
+          ><span role="cell">{{ user.email }}</span
+          ><span role="cell">{{ user.role === 'admin' ? 'Amministratore' : 'Utente' }}</span
+          ><span role="cell"
+            ><ion-button
               type="button"
-              [disabled]="user.role === 'admin'"
+              color="danger"
+              fill="outline"
+              size="small"
+              [disabled]="user.role === 'admin' || deletingId !== null"
               (click)="remove(user)"
             >
               Elimina
-            </button></span
+            </ion-button></span
           >
         </div>
         } @empty {
-        <p class="empty">Nessun utente trovato.</p>
+        <p class="empty" role="row">Nessun utente trovato.</p>
         }
       </section>
-      <nav class="pagination" aria-label="Paginazione utenti">
-        <button
+      }
+      <nav class="pagination" aria-label="Paginazione utenti" [attr.aria-busy]="loading || deletingId !== null">
+        <ion-button
           type="button"
+          fill="outline"
           (click)="previousPage()"
-          [disabled]="page === 1 || loading"
+          [disabled]="page === 1 || loading || deletingId !== null"
         >
-          Precedente</button
-        ><span>Pagina {{ page }} di {{ totalPages || 1 }}</span
-        ><button
+          Precedente</ion-button
+        ><span aria-live="polite" aria-atomic="true">Pagina {{ page }} di {{ totalPages || 1 }}</span
+        ><ion-button
           type="button"
+          fill="outline"
           (click)="nextPage()"
-          [disabled]="page >= totalPages || loading"
+          [disabled]="page >= totalPages || loading || deletingId !== null"
         >
           Successiva
-        </button>
+        </ion-button>
       </nav>
-    </main>
-  </div></ion-content
->
+  </main>
+</ion-content>

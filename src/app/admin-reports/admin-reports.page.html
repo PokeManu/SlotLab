@@ -1,56 +1,60 @@
 <ion-content [fullscreen]="true" class="admin-content">
-  <div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-
-    <main class="reports-management">
+  <main class="reports-management">
       <header class="reports-header">
         <h1>Segnalazioni</h1>
       </header>
 
-      <nav class="report-filters" aria-label="Filtra le segnalazioni">
-        <button
-          type="button"
-          [class.report-filter--active]="activeFilter === 'all'"
-          (click)="setFilter('all')"
-        >
-          Tutte
-        </button>
-
-        <button
-          type="button"
-          [class.report-filter--active]="activeFilter === 'open'"
-          (click)="setFilter('open')"
-        >
-          Aperte
-        </button>
-
-        <button
-          type="button"
-          [class.report-filter--active]="activeFilter === 'in-progress'"
-          (click)="setFilter('in-progress')"
-        >
-          In lavorazione
-        </button>
-
-        <button
-          type="button"
-          [class.report-filter--active]="activeFilter === 'resolved'"
-          (click)="setFilter('resolved')"
-        >
-          Risolte
-        </button>
-      </nav>
+      <ion-segment
+        class="report-filters"
+        scrollable="true"
+        [value]="activeFilter"
+        (ionChange)="setFilter($event.detail.value)"
+        aria-label="Filtra le segnalazioni"
+      >
+        <ion-segment-button value="all">
+          <ion-label>Tutte</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="open">
+          <ion-label>Aperte</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="in-progress">
+          <ion-label>In lavorazione</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="resolved">
+          <ion-label>Risolte</ion-label>
+        </ion-segment-button>
+      </ion-segment>
 
       <section class="reports-layout">
-        <div class="reports-list" aria-label="Elenco delle segnalazioni">
-          @for (report of filteredReports; track report.id){
-          <button
-            type="button"
+        @if (loading) {
+        <p class="empty-reports" role="status">
+          <ion-spinner name="crescent" aria-label="Caricamento segnalazioni"></ion-spinner>
+          Caricamento segnalazioni…
+        </p>
+        } @else if (errorMessage) {
+        <div class="empty-reports" role="alert">
+          <p>{{ errorMessage }}</p>
+          <ion-button type="button" fill="outline" (click)="loadReports()">
+            Riprova
+          </ion-button>
+        </div>
+        } @else if (filteredReports.length > 0) {
+        <ion-list
+          class="reports-list"
+          lines="full"
+          aria-label="Elenco delle segnalazioni"
+        >
+          @for (report of filteredReports; track report.id) {
+          <ion-item
+            button
+            detail="false"
             class="report-item"
             [class.report-item--selected]="selectedReport?.id === report.id"
             (click)="selectReport(report)"
+            [attr.aria-label]="report.title + ', ' + report.statusLabel"
           >
             <span
+              slot="start"
               class="report-item__icon"
               [class.report-item__icon--high]="report.priority === 'high'"
               [class.report-item__icon--medium]="report.priority === 'medium'"
@@ -59,13 +63,13 @@
               <ion-icon [name]="report.icon"></ion-icon>
             </span>
 
-            <span class="report-item__information">
+            <ion-label class="report-item__information">
               <strong>{{report.title}}</strong>
               <small>{{report.space}}</small>
               <small>{{report.date}}</small>
-            </span>
+            </ion-label>
 
-            <span class="report-item__badges">
+            <span slot="end" class="report-item__badges">
               <span
                 class="priority-pill"
                 [class.priority-pill--high]="report.priority === 'high'"
@@ -79,30 +83,27 @@
                 Stato: {{ report.statusLabel }}
               </span>
             </span>
-          </button>
-          } @empty{
-          <p class="empty-reports">
-            {{ errorMessage || 'Non sono presenti segnalazioni per questo
-            filtro' }}
-          </p>
+          </ion-item>
           }
-        </div>
+        </ion-list>
+        } @else {
+        <p class="empty-reports">
+          Non sono presenti segnalazioni per questo filtro.
+        </p>
+        }
 
-        @if (selectedReport; as report) {
+        @if (!loading && !errorMessage && selectedReport; as report) {
         <app-report-detail
           [selectedReport]="report"
+          [savingStatus]="savingStatus"
           (statusChange)="updateStatus($event)"
         ></app-report-detail>
+        }
         @if (statusMessage || statusError) {
-        <p class="empty-reports" role="status">
+        <p class="empty-reports" [attr.role]="statusError ? 'alert' : 'status'">
           {{ statusMessage || statusError }}
-        </p>
-        } } @else {
-        <p class="empty-reports">
-          Seleziona una segnalazione per visualizzarne i dettagli.
         </p>
         }
       </section>
-    </main>
-  </div>
+  </main>
 </ion-content>

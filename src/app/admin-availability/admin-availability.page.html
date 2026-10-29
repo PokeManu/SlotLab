@@ -1,7 +1,5 @@
-<ion-content [fullscreen]="true"
-  ><div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-    <main class="availability-page">
+<ion-content [fullscreen]="true">
+  <main class="availability-page">
       <h1>Disponibilità</h1>
       <p class="intro">
         Configura le fasce prenotabili per ogni spazio. Ogni fascia si ripete
@@ -11,71 +9,109 @@
       @if (error) {
       <p class="error" role="alert">{{ error }}</p>
       }
-      <label class="space-select"
-        >Spazio<select [(ngModel)]="spaceId" (ngModelChange)="load()">
-          <option [ngValue]="0">Seleziona uno spazio</option>
+      <label class="space-select">
+        <span>Spazio</span>
+        <ion-select
+          aria-label="Spazio"
+          interface="popover"
+          [(ngModel)]="spaceId"
+          (ngModelChange)="selectSpace()"
+          [disabled]="savingSchedule || savingException || !!busyRow"
+        >
+          <ion-select-option [value]="0">Seleziona uno spazio</ion-select-option>
           @for (space of spaces; track space.id) {
-          <option [ngValue]="space.id">{{ space.name }}</option>
+          <ion-select-option [value]="space.id">{{ space.name }}</ion-select-option>
           }
-        </select></label
-      >
+        </ion-select>
+      </label>
       @if (spaceId) {
-      <form class="form" (submit)="$event.preventDefault(); create()">
+      <form class="form" [formGroup]="form" (ngSubmit)="create()" novalidate>
         <label
           >Dal<input
-            name="from"
             type="date"
-            [(ngModel)]="form.validFrom"
-            required /></label
+            formControlName="validFrom"
+            [attr.aria-invalid]="showScheduleError('validFrom')"
+            [attr.aria-describedby]="showScheduleError('validFrom') ? 'availability-from-error' : null" />
+          @if (showScheduleError('validFrom')) {
+          <small id="availability-from-error" class="field-error" role="alert">Indica la data iniziale.</small>
+          }
+        </label
         ><label
           >Al<input
-            name="until"
             type="date"
-            [(ngModel)]="form.validUntil"
-            required /></label
+            formControlName="validUntil"
+            [attr.aria-invalid]="showScheduleError('validUntil') || showPeriodError"
+            [attr.aria-describedby]="showScheduleError('validUntil') ? 'availability-until-error' : showPeriodError ? 'availability-period-error' : null" />
+          @if (showScheduleError('validUntil')) {
+          <small id="availability-until-error" class="field-error" role="alert">Indica la data finale.</small>
+          }
+        </label
         ><label
-          >Giorno della settimana<select
-            name="weekday"
-            [(ngModel)]="form.weekday"
+          >Giorno della settimana<ion-select
+            aria-label="Giorno della settimana"
+            interface="popover"
+            formControlName="weekday"
+            [attr.aria-invalid]="showScheduleError('weekday')"
+            [attr.aria-describedby]="showScheduleError('weekday') ? 'availability-weekday-error' : null"
           >
-            <option [ngValue]="1">Lunedì</option>
-            <option [ngValue]="2">Martedì</option>
-            <option [ngValue]="3">Mercoledì</option>
-            <option [ngValue]="4">Giovedì</option>
-            <option [ngValue]="5">Venerdì</option>
-            <option [ngValue]="6">Sabato</option>
-            <option [ngValue]="7">Domenica</option>
-          </select></label
+            <ion-select-option [value]="1">Lunedì</ion-select-option>
+            <ion-select-option [value]="2">Martedì</ion-select-option>
+            <ion-select-option [value]="3">Mercoledì</ion-select-option>
+            <ion-select-option [value]="4">Giovedì</ion-select-option>
+            <ion-select-option [value]="5">Venerdì</ion-select-option>
+            <ion-select-option [value]="6">Sabato</ion-select-option>
+            <ion-select-option [value]="7">Domenica</ion-select-option>
+          </ion-select>
+          @if (showScheduleError('weekday')) {
+          <small id="availability-weekday-error" class="field-error" role="alert">Seleziona un giorno.</small>
+          }
+        </label
         ><label
           >Inizio<input
-            name="start"
             type="time"
-            [(ngModel)]="form.startTime"
-            required /></label
+            formControlName="startTime"
+            [attr.aria-invalid]="showScheduleError('startTime')"
+            [attr.aria-describedby]="showScheduleError('startTime') ? 'availability-start-error' : null" />
+          @if (showScheduleError('startTime')) {
+          <small id="availability-start-error" class="field-error" role="alert">Indica l'ora iniziale.</small>
+          }
+        </label
         ><label
           >Fine<input
-            name="end"
             type="time"
-            [(ngModel)]="form.endTime"
-            required /></label
-        ><button type="submit">
-          {{ reusingId !== null ? 'Riattiva fascia' : editingId === null ?
+            formControlName="endTime"
+            [attr.aria-invalid]="showScheduleError('endTime') || showTimeError"
+            [attr.aria-describedby]="showScheduleError('endTime') ? 'availability-end-error' : showTimeError ? 'availability-time-error' : null" />
+          @if (showScheduleError('endTime')) {
+          <small id="availability-end-error" class="field-error" role="alert">Indica l'ora finale.</small>
+          }
+        </label
+        ><ion-button type="submit" [disabled]="savingSchedule || savingException || !!busyRow">
+          {{ savingSchedule ? 'Salvataggio…' : reusingId !== null ? 'Riattiva fascia' : editingId === null ?
           'Aggiungi fascia' : 'Salva nuova versione' }}
-        </button>
+        </ion-button>
+        @if (showPeriodError) {
+        <p id="availability-period-error" class="field-error form-error" role="alert">La data finale deve essere uguale o successiva a quella iniziale.</p>
+        }
+        @if (showTimeError) {
+        <p id="availability-time-error" class="field-error form-error" role="alert">L'ora finale deve essere successiva a quella iniziale.</p>
+        }
       </form>
       } @if (reuseMessage) {
       <p class="reuse-message" role="status">{{ reuseMessage }}</p>
       } @if (retiredCount) {
       <div class="availability-history">
-        <button
+        <ion-button
           type="button"
           class="history-toggle"
+          fill="outline"
           [attr.aria-pressed]="showRetired"
+          [disabled]="savingSchedule || savingException || !!busyRow"
           (click)="showRetired = !showRetired"
         >
           {{ showRetired ? 'Nascondi fasce ritirate' : 'Mostra fasce ritirate ('
           + retiredCount + ')' }}
-        </button>
+        </ion-button>
       </div>
       }
       <section class="table availability-table" aria-label="Fasce configurate">
@@ -99,16 +135,18 @@
             ><span>{{ row.isRetired ? 'Ritirata' : 'Attiva' }}</span>
             <div class="row-actions">
               @if (row.isRetired) {
-              <button
+              <ion-button
                 type="button"
                 class="button--secondary reuse-button"
+                fill="outline"
+                [disabled]="savingSchedule || savingException || !!busyRow"
                 (click)="reuse(row)"
               >
                 Riutilizza
-              </button>
+              </ion-button>
               } @else {
-              <button type="button" (click)="edit(row)">Modifica</button
-              ><button type="button" (click)="retire(row)">Ritira</button> }
+              <ion-button type="button" [disabled]="savingSchedule || savingException || !!busyRow" (click)="edit(row)">Modifica</ion-button
+              ><ion-button type="button" [disabled]="savingSchedule || savingException || !!busyRow" (click)="retire(row)">Ritira</ion-button> }
             </div>
           </div>
           } @empty {
@@ -119,32 +157,47 @@
           }
         </div>
       </section>
+      @if (spaceId) {
       <h2>Indisponibilità eccezionali</h2>
-      <form class="form" (submit)="$event.preventDefault(); createException()">
-        <label
-          >Data<input
-            name="exceptionDate"
-            type="date"
-            [(ngModel)]="exception.date"
-            required /></label
-        ><label
-          >Inizio<input
-            name="exceptionStart"
-            type="time"
-            [(ngModel)]="exception.startTime"
-            required /></label
-        ><label
-          >Fine<input
-            name="exceptionEnd"
-            type="time"
-            [(ngModel)]="exception.endTime"
-            required /></label
-        ><label
-          >Motivo<input
-            name="reason"
-            [(ngModel)]="exception.reason"
-            required /></label
-        ><button type="submit">Imposta indisponibilità</button>
+      <form class="form form--exception" [formGroup]="exceptionForm" (ngSubmit)="createException()" novalidate>
+        <label>Data
+          <input type="date" formControlName="date"
+            [attr.aria-invalid]="showExceptionError('date')"
+            [attr.aria-describedby]="showExceptionError('date') ? 'exception-date-error' : null" />
+          @if (showExceptionError('date')) {
+          <small id="exception-date-error" class="field-error" role="alert">Indica una data.</small>
+          }
+        </label>
+        <label>Inizio
+          <input type="time" formControlName="startTime"
+            [attr.aria-invalid]="showExceptionError('startTime')"
+            [attr.aria-describedby]="showExceptionError('startTime') ? 'exception-start-error' : null" />
+          @if (showExceptionError('startTime')) {
+          <small id="exception-start-error" class="field-error" role="alert">Indica l'ora iniziale.</small>
+          }
+        </label>
+        <label>Fine
+          <input type="time" formControlName="endTime"
+            [attr.aria-invalid]="showExceptionError('endTime') || showExceptionTimeError"
+            [attr.aria-describedby]="showExceptionError('endTime') ? 'exception-end-error' : showExceptionTimeError ? 'exception-time-error' : null" />
+          @if (showExceptionError('endTime')) {
+          <small id="exception-end-error" class="field-error" role="alert">Indica l'ora finale.</small>
+          }
+        </label>
+        <label>Motivo
+          <ion-input aria-label="Motivo" formControlName="reason"
+            [attr.aria-invalid]="showExceptionError('reason')"
+            [attr.aria-describedby]="showExceptionError('reason') ? 'exception-reason-error' : null"></ion-input>
+          @if (showExceptionError('reason')) {
+          <small id="exception-reason-error" class="field-error" role="alert">Indica il motivo.</small>
+          }
+        </label>
+        <ion-button type="submit" [disabled]="savingException || savingSchedule || !!busyRow">
+          {{ savingException ? 'Salvataggio…' : 'Imposta indisponibilità' }}
+        </ion-button>
+        @if (showExceptionTimeError) {
+        <p id="exception-time-error" class="field-error form-error" role="alert">L'ora finale deve essere successiva a quella iniziale.</p>
+        }
       </form>
       <section class="table" aria-label="Indisponibilità">
         <div class="row row--head">
@@ -156,12 +209,12 @@
           <span>{{ row.date }}</span
           ><span>{{ row.startTime }}–{{ row.endTime }}</span
           ><span>{{ row.reason }}</span
-          ><button type="button" (click)="removeException(row)">Rimuovi</button>
+          ><ion-button type="button" [disabled]="savingSchedule || savingException || !!busyRow" (click)="removeException(row)">Rimuovi</ion-button>
         </div>
         } @empty {
         <p class="empty">Nessuna indisponibilità.</p>
         }
       </section>
-    </main>
-  </div></ion-content
->
+      }
+  </main>
+</ion-content>

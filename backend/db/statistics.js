@@ -1,4 +1,4 @@
-const { localDateTimeToInstant, romeNow } = require("../domain/time");
+const { isIsoDate, localDateTimeToInstant, romeNow } = require("../domain/time");
 function validationError(
   message = "Il periodo delle statistiche non è valido.",
 ) {
@@ -8,13 +8,7 @@ function validationError(
   });
 }
 function isRealDate(value) {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
-    return false;
-  const parsed = new Date(`${value}T00:00:00.000Z`);
-  return (
-    !Number.isNaN(parsed.getTime()) &&
-    parsed.toISOString().slice(0, 10) === value
-  );
+  return isIsoDate(value);
 }
 function validateStatisticsPeriod(query) {
   if (!query || typeof query !== "object" || Array.isArray(query))
@@ -124,6 +118,59 @@ async function readOccurrenceIssues(db, dateFrom, dateTo) {
     throw error;
   }
 }
+async function readStatisticsRows(db, period) {
+  const [occurrenceRows, bookingRows, participantRows, reportRows, tracking, occurrenceIssues] =
+    await Promise.all([
+      db.all(
+        `SELECT o.id AS occurrenceId, o.space_id AS spaceId, o.date,
+                o.start_time AS startTime, o.end_time AS endTime,
+                o.offered_capacity AS offeredCapacity, o.was_offered AS wasOffered,
+                o.finalized_at AS finalizedAt,
+                s.name AS spaceName, s.type AS spaceType
+           FROM slot_occurrences o
+           JOIN spaces s ON s.id = o.space_id
+          WHERE o.date BETWEEN ? AND ?
+          ORDER BY o.date, o.start_time, o.end_time, o.space_id, o.id;`,
+        [period.dateFrom, period.dateTo],
+      ),
+      db.all(
+        `SELECT b.id AS bookingId, b.space_id AS spaceId, b.date,
+                a.start_time AS startTime, a.end_time AS endTime
+           FROM bookings b
+           JOIN availabilities a ON a.id = b.availability_id
+          WHERE b.date BETWEEN ? AND ?;`,
+        [period.dateFrom, period.dateTo],
+      ),
+      db.all(
+        `SELECT b.id AS bookingId, bp.id AS participantId, bp.present
+           FROM bookings b
+           JOIN booking_participants bp ON bp.booking_id = b.id
+          WHERE b.date BETWEEN ? AND ?
+          ORDER BY b.id, bp.id;`,
+        [period.dateFrom, period.dateTo],
+      ),
+      db.all(
+        `SELECT category, status, created_at AS createdAt
+           FROM reports WHERE created_at >= ? AND created_at < ?;`,
+        [
+          localDateTimeToInstant(period.dateFrom, "00:00").toISOString(),
+          new Date(
+            localDateTimeToInstant(period.dateTo, "23:59:59").getTime() + 1000,
+          ).toISOString(),
+        ],
+      ),
+      readTracking(db),
+      readOccurrenceIssues(db, period.dateFrom, period.dateTo),
+    ]);
+  return {
+    occurrenceRows,
+    bookingRows,
+    participantRows,
+    reportRows,
+    tracking,
+    occurrenceIssues,
+  };
+}
 function historyCompleteness(
   tracking,
   dateFrom,
@@ -155,50 +202,14 @@ async function statistics(db, dateFrom, dateTo, now = new Date()) {
   const period = validateStatisticsPeriod({ dateFrom, dateTo });
   if (!(now instanceof Date) || Number.isNaN(now.getTime()))
     throw new TypeError("now deve essere una data valida.");
-  const occurrenceRows = await db.all(
-    `SELECT o.id AS occurrenceId, o.space_id AS spaceId, o.date,
-            o.start_time AS startTime, o.end_time AS endTime,
-            o.offered_capacity AS offeredCapacity, o.was_offered AS wasOffered,
-            o.finalized_at AS finalizedAt,
-            s.name AS spaceName, s.type AS spaceType
-       FROM slot_occurrences o
-       JOIN spaces s ON s.id = o.space_id
-      WHERE o.date BETWEEN ? AND ?
-      ORDER BY o.date, o.start_time, o.end_time, o.space_id, o.id;`,
-    [period.dateFrom, period.dateTo],
-  );
-  const bookingRows = await db.all(
-    `SELECT b.id AS bookingId, b.space_id AS spaceId, b.date,
-            a.start_time AS startTime, a.end_time AS endTime
-       FROM bookings b
-       JOIN availabilities a ON a.id = b.availability_id
-      WHERE b.date BETWEEN ? AND ?;`,
-    [period.dateFrom, period.dateTo],
-  );
-  const participantRows = await db.all(
-    `SELECT b.id AS bookingId, bp.id AS participantId, bp.present
-       FROM bookings b
-       JOIN booking_participants bp ON bp.booking_id = b.id
-      WHERE b.date BETWEEN ? AND ?
-      ORDER BY b.id, bp.id;`,
-    [period.dateFrom, period.dateTo],
-  );
-  const reportRows = await db.all(
-    `SELECT category, status, created_at AS createdAt
-       FROM reports WHERE created_at >= ? AND created_at < ?;`,
-    [
-      localDateTimeToInstant(period.dateFrom, "00:00").toISOString(),
-      new Date(
-        localDateTimeToInstant(period.dateTo, "23:59:59").getTime() + 1000,
-      ).toISOString(),
-    ],
-  );
-  const tracking = await readTracking(db);
-  const occurrenceIssues = await readOccurrenceIssues(
-    db,
-    period.dateFrom,
-    period.dateTo,
-  );
+  const {
+    occurrenceRows,
+    bookingRows,
+    participantRows,
+    reportRows,
+    tracking,
+    occurrenceIssues,
+  } = await readStatisticsRows(db, period);
   const terminatedOccurrences = occurrenceRows.filter((row) =>
     isTerminatedOccurrence(row, now),
   );

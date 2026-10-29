@@ -1,14 +1,31 @@
-import { allPages } from '../api/all-pages';
+import {
+  AdminSpacesApi,
+} from '../api/admin-spaces-api';
 import { SpaceQrComponent } from '../space-qr/space-qr.component';
 import { SpaceSearchComponent } from '../admin-parts/space-search.component';
-import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import {
+  IonButton,
+  IonAlert,
+  IonCheckbox,
+  IonContent,
+  IonIcon,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { finalize } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
   addOutline,
@@ -37,6 +54,21 @@ interface AdminSpace {
   status: 'available' | 'in-use' | 'maintenance';
   statusLabel: string;
 }
+function nonBlank(control: AbstractControl): ValidationErrors | null {
+  return String(control.value ?? '').trim() ? null : { required: true };
+}
+function defaultSpaceForm() {
+  return {
+    buildingId: 0,
+    name: '',
+    floor: 0,
+    type: 'study_room',
+    capacity: 1,
+    accessible: false,
+    status: 'active',
+    serviceCodes: [] as string[],
+  };
+}
 @Component({
   selector: 'app-admin-spaces',
   templateUrl: './admin-spaces.page.html',
@@ -44,10 +76,16 @@ interface AdminSpace {
   imports: [
     SpaceQrComponent,
     SpaceSearchComponent,
-    AdminSidebarComponent,
     IonContent,
     IonIcon,
+    IonButton,
+    IonAlert,
+    IonCheckbox,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
     FormsModule,
+    ReactiveFormsModule,
   ],
 })
 export class AdminSpacesPage implements OnInit {
@@ -58,17 +96,46 @@ export class AdminSpacesPage implements OnInit {
     { code: 'computer', label: 'Computer' },
     { code: 'air_conditioning', label: 'Aria condizionata' },
   ];
-  toggleService(code: string): void {
-    this.form.serviceCodes = this.form.serviceCodes.includes(code)
-      ? this.form.serviceCodes.filter((item) => item !== code)
-      : [...this.form.serviceCodes, code];
+  setService(code: string, checked: boolean): void {
+    const control = this.form.controls.serviceCodes;
+    const selected = control.value;
+    control.setValue(
+      checked
+        ? selected.includes(code) ? selected : [...selected, code]
+        : selected.filter((item) => item !== code),
+    );
   }
-  onStatusChange(): void {
-    if (this.form.status !== 'active') this.form.accessible = false;
+  onStatusChange(status: string): void {
+    const accessible = this.form.controls.accessible;
+    if (status !== 'active') {
+      accessible.setValue(false);
+      accessible.disable();
+    } else if (!this.saving) {
+      accessible.enable();
+    }
+  }
+  showError(name: keyof AdminSpacesPage['form']['controls']): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || this.attemptedSubmit);
+  }
+  startCreate(): void {
+    if (this.saving || this.deletingId !== null) return;
+    this.editingId = null;
+    this.createError = '';
+    this.attemptedSubmit = false;
+    this.form.reset(defaultSpaceForm());
+    this.onStatusChange('active');
+    this.showCreate = true;
+  }
+  closeForm(): void {
+    if (this.saving || this.deletingId !== null) return;
+    this.showCreate = false;
+    this.editingId = null;
+    this.createError = '';
   }
   qrSpaceId: number | null = null;
   readonly auth = inject(Auth);
-  private readonly http = inject(HttpClient);
+  private readonly spacesApi = inject(AdminSpacesApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
   spaces: AdminSpace[] = [];
@@ -80,16 +147,38 @@ export class AdminSpacesPage implements OnInit {
   editingId: number | null = null;
   createError = '';
   loadError = '';
-  form = {
-    buildingId: 0,
-    name: '',
-    floor: 0,
-    type: 'study_room',
-    capacity: 1,
-    accessible: false,
-    status: 'active',
-    serviceCodes: [] as string[],
-  };
+  saving = false;
+  deletingId: number | null = null;
+  pendingDelete: AdminSpace | null = null;
+  readonly deleteButtons = [
+    { text: 'Annulla', role: 'cancel' },
+    { text: 'Elimina', role: 'destructive', handler: () => this.confirmRemoveSpace() },
+  ];
+  attemptedSubmit = false;
+  readonly form = new FormGroup({
+    buildingId: new FormControl<number | null>(0, [
+      Validators.required,
+      Validators.min(1),
+      Validators.pattern(/^\d+$/),
+    ]),
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, nonBlank],
+    }),
+    floor: new FormControl<number | null>(0, [
+      Validators.required,
+      Validators.pattern(/^-?\d+$/),
+    ]),
+    type: new FormControl('study_room', { nonNullable: true }),
+    capacity: new FormControl<number | null>(1, [
+      Validators.required,
+      Validators.min(1),
+      Validators.pattern(/^\d+$/),
+    ]),
+    accessible: new FormControl(false, { nonNullable: true }),
+    status: new FormControl('active', { nonNullable: true }),
+    serviceCodes: new FormControl<string[]>([], { nonNullable: true }),
+  });
   private search = '';
   filterBuilding = '';
   filterType = '';
@@ -133,10 +222,7 @@ export class AdminSpacesPage implements OnInit {
     });
   }
   ngOnInit(): void {
-    allPages<{
-      id: number;
-      name: string;
-    }>(this.http, `${environment.apiUrl}/admin/buildings`).subscribe({
+    this.spacesApi.buildings().subscribe({
       next: (response) => {
         this.buildings = response.data;
         this.changeDetector.markForCheck();
@@ -153,28 +239,39 @@ export class AdminSpacesPage implements OnInit {
     });
   }
   saveSpace(): void {
+    if (this.saving || this.deletingId !== null || this.pendingDelete !== null) return;
+    this.attemptedSubmit = true;
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+    const value = this.form.getRawValue();
+    const payload = {
+      buildingId: Number(value.buildingId),
+      name: value.name,
+      floor: Number(value.floor),
+      type: value.type,
+      capacity: Number(value.capacity),
+      accessible: value.status === 'active' && value.accessible,
+      status: value.status,
+      serviceCodes: value.serviceCodes,
+    };
+    this.saving = true;
+    this.form.disable();
     const request =
       this.editingId === null
-        ? this.http.post(`${environment.apiUrl}/admin/spaces`, this.form)
-        : this.http.patch(
-            `${environment.apiUrl}/admin/spaces/${this.editingId}`,
-            this.form,
-          );
-    request.subscribe({
+        ? this.spacesApi.create(payload)
+        : this.spacesApi.update(this.editingId, payload);
+    request.pipe(finalize(() => {
+      this.saving = false;
+      this.form.enable();
+      this.onStatusChange(this.form.controls.status.value);
+      this.changeDetector.markForCheck();
+    })).subscribe({
       next: () => {
         this.showCreate = false;
         this.editingId = null;
         this.createError = '';
-        this.form = {
-          buildingId: 0,
-          name: '',
-          floor: 0,
-          type: 'study_room',
-          capacity: 1,
-          accessible: false,
-          status: 'active',
-          serviceCodes: [] as string[],
-        };
+        this.attemptedSubmit = false;
+        this.form.reset(defaultSpaceForm());
         this.loadSpaces();
         this.changeDetector.markForCheck();
       },
@@ -185,27 +282,14 @@ export class AdminSpacesPage implements OnInit {
     });
   }
   editSpace(space: AdminSpace): void {
-    this.http
-      .get<{
-        data: {
-          id: number;
-          building: {
-            id: number;
-          };
-          name: string;
-          floor: number;
-          type: string;
-          capacity: number;
-          accessible: boolean;
-          status: string;
-          serviceCodes: string[];
-        };
-      }>(`${environment.apiUrl}/admin/spaces/${space.id}`)
+    if (this.saving || this.deletingId !== null) return;
+    this.spacesApi
+      .detail(space.id)
       .subscribe({
         next: (response) => {
           const item = response.data;
           this.editingId = item.id;
-          this.form = {
+          this.form.reset({
             buildingId: item.building.id,
             name: item.name,
             floor: item.floor,
@@ -214,16 +298,34 @@ export class AdminSpacesPage implements OnInit {
             accessible: item.accessible,
             status: item.status,
             serviceCodes: item.serviceCodes ?? [],
-          };
+          });
+          this.onStatusChange(item.status);
+          this.attemptedSubmit = false;
+          this.createError = '';
           this.showCreate = true;
+          this.changeDetector.markForCheck();
+        },
+        error: () => {
+          this.createError = 'Impossibile caricare lo spazio da modificare.';
           this.changeDetector.markForCheck();
         },
       });
   }
   removeSpace(space: AdminSpace): void {
-    if (!window.confirm(`Eliminare lo spazio ${space.name}?`)) return;
-    this.http
-      .delete(`${environment.apiUrl}/admin/spaces/${space.id}`)
+    if (this.saving || this.deletingId !== null) return;
+    this.pendingDelete = space;
+  }
+  confirmRemoveSpace(): void {
+    const space = this.pendingDelete;
+    if (!space || this.deletingId !== null) return;
+    this.pendingDelete = null;
+    this.deletingId = space.id;
+    this.spacesApi
+      .remove(space.id)
+      .pipe(finalize(() => {
+        this.deletingId = null;
+        this.changeDetector.markForCheck();
+      }))
       .subscribe({
         next: () => this.loadSpaces(),
         error: () => {
@@ -237,19 +339,7 @@ export class AdminSpacesPage implements OnInit {
     this.loadSpaces();
   }
   private loadSpaces(): void {
-    const query = this.search
-      ? `?search=${encodeURIComponent(this.search)}`
-      : '';
-    allPages<{
-      id: number;
-      name: string;
-      building: {
-        name: string;
-      };
-      capacity: number;
-      type: string;
-      status: string;
-    }>(this.http, `${environment.apiUrl}/admin/spaces${query}`).subscribe({
+    this.spacesApi.list(this.search).subscribe({
       next: (response) => {
         this.loadError = '';
         this.currentPage = 1;

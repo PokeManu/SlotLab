@@ -12,13 +12,15 @@ process.env.NODE_ENV = "test";
 process.env.HOST = "127.0.0.1";
 process.env.PORT = "0";
 process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString("hex");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const { queries } = require("../db/transaction");
 const { hashPassword } = require("../security/password");
 const { romeNow } = require("../domain/time");
 let base;
 let db;
+let server;
 const password = "ParticipantsFixture2026!";
 const accounts = {};
 async function request(url, method = "GET", body, token) {
@@ -64,7 +66,7 @@ function shortlyAfterNow() {
   };
 }
 before(async () => {
-  const server = await startServer();
+  server = await startServer();
   base = `http://127.0.0.1:${server.address().port}`;
   db = queries(getDatabase());
   const building = await db.run(
@@ -118,7 +120,7 @@ before(async () => {
   accounts.date = date;
 });
 after(async () => {
-  await stopServer();
+  await closeTestServer(server);
   fs.rmSync(directory, { recursive: true, force: true });
 });
 test("la Home restituisce la stessa prenotazione a creatore e partecipanti, senza duplicati", async () => {

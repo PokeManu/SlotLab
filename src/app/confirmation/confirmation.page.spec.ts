@@ -47,6 +47,12 @@ describe('ConfirmationPage', () => {
     expect(fixture.nativeElement.textContent).toContain('Aula reale');
     expect(fixture.nativeElement.textContent).toContain('14/09/2026');
     expect(fixture.nativeElement.textContent).toContain('2 partecipanti');
+    expect(fixture.nativeElement.querySelectorAll('ion-card')).toHaveLength(2);
+    expect(
+      Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll('ion-button'),
+      ).map((button) => button.getAttribute('href')),
+    ).toEqual(['/bookings', '/home']);
     expect(fixture.nativeElement.querySelector('.qr-button')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-space-qr')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain(

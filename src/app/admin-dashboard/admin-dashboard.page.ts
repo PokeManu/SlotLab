@@ -1,12 +1,13 @@
-import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { allPages } from '../api/all-pages';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import {
+  AdminDashboardApi,
+  DashboardBooking,
+  DashboardSpaceStatus,
+} from '../api/admin-dashboard-api';
+import { IonButton, IonContent, IonIcon, IonSearchbar, IonSpinner } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   barChartOutline,
@@ -22,163 +23,129 @@ import {
   warningOutline,
   constructOutline,
 } from 'ionicons/icons';
-interface AdminBooking {
-  time: string;
-  name: string;
-  building: string;
-  details: string;
-  status: string;
-}
-interface SpaceStatus {
-  icon: string;
-  name: string;
-  details: string;
-  tone: 'available' | 'warning';
-}
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss'],
-  imports: [AdminSidebarComponent, IonContent, IonIcon, FormsModule],
+  imports: [IonButton, IonContent, IonIcon, IonSearchbar, IonSpinner],
 })
-export class AdminDashboardPage implements OnInit {
+export class AdminDashboardPage implements OnInit, OnDestroy {
   readonly auth = inject(Auth);
   private readonly router = inject(Router);
   searchTerm = '';
-  private readonly http = inject(HttpClient);
+  private readonly dashboardApi = inject(AdminDashboardApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  bookings: AdminBooking[] = [];
-  spaceStatuses: SpaceStatus[] = [];
+  private requests: Subscription[] = [];
+  bookings: DashboardBooking[] = [];
+  spaceStatuses: DashboardSpaceStatus[] = [];
   bookingCount = 0;
   spaceCount = 0;
   availableSpaceCount = 0;
   openReportCount = 0;
+  summaryLoading = false;
+  summaryError = '';
+  bookingsLoading = false;
+  bookingsError = '';
+  spacesLoading = false;
+  spacesError = '';
   readonly todayLabel = this.formatRomeToday(new Date());
   private hasEntered = false;
   ngOnInit(): void {
+    this.loadDashboard();
+  }
+  ngOnDestroy(): void {
+    this.cancelRequests();
+  }
+  ionViewWillEnter(): void {
+    if (this.hasEntered) this.loadDashboard();
+    this.hasEntered = true;
+  }
+  private loadDashboard(): void {
+    this.cancelRequests();
     this.loadSummary();
     this.loadBookings();
     this.loadSpaceStatuses();
     this.loadReportsRefresh();
   }
-  ionViewWillEnter(): void {
-    if (this.hasEntered) {
-      this.loadSummary();
-      this.loadBookings();
-    }
-    this.hasEntered = true;
+  private cancelRequests(): void {
+    this.requests.forEach((request) => request.unsubscribe());
+    this.requests = [];
   }
   private loadSummary(): void {
-    this.http
-      .get<{
-        data: {
-          bookingCount: number;
-          spaceCount: number;
-          availableSpaceCount: number;
-          openReportCount: number;
-        };
-      }>(`${environment.apiUrl}/admin/summary`)
-      .subscribe({
-        next: (response) => {
-          this.bookingCount = response.data.bookingCount;
-          this.spaceCount = response.data.spaceCount;
-          this.availableSpaceCount = response.data.availableSpaceCount;
-          this.openReportCount = response.data.openReportCount;
+    this.summaryLoading = true;
+    this.summaryError = '';
+    this.requests.push(
+      this.dashboardApi.summary().subscribe({
+        next: (summary) => {
+          this.bookingCount = summary.bookingCount;
+          this.spaceCount = summary.spaceCount;
+          this.availableSpaceCount = summary.availableSpaceCount;
+          this.openReportCount = summary.openReportCount;
+          this.summaryLoading = false;
           this.changeDetector.markForCheck();
         },
-        error: () => this.changeDetector.markForCheck(),
-      });
+        error: () => {
+          this.summaryLoading = false;
+          this.summaryError = 'Impossibile caricare il riepilogo.';
+          this.changeDetector.markForCheck();
+        },
+      }),
+    );
   }
   private loadBookings(): void {
-    allPages<{
-      date: string;
-      startTime: string;
-      spaceName: string;
-      building: string;
-      participantCount: number;
-      status: string;
-    }>(this.http, `${environment.apiUrl}/admin/bookings?size=5`).subscribe({
-      next: (response) => {
-        const current = new Intl.DateTimeFormat('sv-SE', {
-          timeZone: 'Europe/Rome',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hourCycle: 'h23',
-        }).format(new Date());
-        this.bookings = response.data
-          .filter(
-            (item) =>
-              item.status === 'confirmed' &&
-              `${item.date} ${item.startTime}` > current,
-          )
-          .sort((a, b) =>
-            `${a.date} ${a.startTime}`.localeCompare(
-              `${b.date} ${b.startTime}`,
-            ),
-          )
-          .slice(0, 5)
-          .map((item) => ({
-            time: `${item.date} ${item.startTime}`,
-            name: item.spaceName,
-            building: item.building,
-            details: `${item.participantCount} partecipanti`,
-            status: 'Confermata',
-          }));
+    this.bookingsLoading = true;
+    this.bookingsError = '';
+    this.bookings = [];
+    this.requests.push(this.dashboardApi.upcomingBookings().subscribe({
+      next: (bookings) => {
+        this.bookings = bookings;
+        this.bookingsLoading = false;
         this.changeDetector.markForCheck();
       },
       error: () => {
         this.bookings = [];
+        this.bookingsLoading = false;
+        this.bookingsError = 'Impossibile caricare le prenotazioni.';
         this.changeDetector.markForCheck();
       },
-    });
+    }));
   }
   private loadSpaceStatuses(): void {
-    this.http
-      .get<{
-        data: Array<{
-          status: string;
-          type: string;
-          name: string;
-        }>;
-      }>(`${environment.apiUrl}/admin/spaces`)
-      .subscribe({
-        next: (response) => {
-          this.spaceStatuses = response.data
-            .slice(0, 4)
-            .map((item) => ({
-              icon:
-                item.type === 'study_room' ? 'book-outline' : 'desktop-outline',
-              name: item.name,
-              details:
-                item.status === 'active'
-                  ? 'Disponibile'
-                  : item.status === 'maintenance'
-                    ? 'Manutenzione'
-                    : 'Disattivato',
-              tone: item.status === 'active' ? 'available' : 'warning',
-            }));
+    this.spacesLoading = true;
+    this.spacesError = '';
+    this.spaceStatuses = [];
+    this.requests.push(
+      this.dashboardApi.spaceStatuses().subscribe({
+        next: (statuses) => {
+          this.spaceStatuses = statuses;
+          this.spacesLoading = false;
           this.changeDetector.markForCheck();
         },
         error: () => {
           this.spaceStatuses = [];
+          this.spacesLoading = false;
+          this.spacesError = 'Impossibile caricare lo stato degli spazi.';
           this.changeDetector.markForCheck();
         },
-      });
+      }),
+    );
   }
   private loadReportsRefresh(): void {
-    this.http
-      .get<{
-        data: Array<{
-          status: string;
-        }>;
-      }>(`${environment.apiUrl}/admin/reports`)
-      .subscribe({
+    this.requests.push(
+      this.dashboardApi.refreshReports().subscribe({
         next: () => this.changeDetector.markForCheck(),
         error: () => this.changeDetector.markForCheck(),
-      });
+      }),
+    );
+  }
+  retrySummary(): void {
+    this.loadSummary();
+  }
+  retryBookings(): void {
+    this.loadBookings();
+  }
+  retrySpaces(): void {
+    this.loadSpaceStatuses();
   }
   openBookings(): void {
     this.router.navigate(['/admin/bookings']);
@@ -191,6 +158,9 @@ export class AdminDashboardPage implements OnInit {
     this.router.navigate(['/admin/spaces'], {
       queryParams: value ? { search: value } : {},
     });
+  }
+  onSearchInput(value: string | null | undefined): void {
+    this.searchTerm = value ?? '';
   }
   private formatRomeToday(date: Date): string {
     const label = new Intl.DateTimeFormat('it-IT', {

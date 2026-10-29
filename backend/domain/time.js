@@ -54,6 +54,20 @@ function parseDateTimeParts(date, time) {
   }
   return { year, month, day, hour, minute, second };
 }
+function parseIsoDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return null;
+  const date = new Date(`${value}T12:00:00Z`);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== value
+  )
+    return null;
+  return { value, weekday: date.getUTCDay() || 7 };
+}
+function isIsoDate(value) {
+  return parseIsoDate(value) !== null;
+}
 function sameLocalParts(actual, expected) {
   return (
     actual.year === String(expected.year).padStart(4, "0") &&
@@ -122,6 +136,10 @@ function romeNow(instant = new Date()) {
     second: Number(parts.second),
   };
 }
+function romeLocalDateTime(instant = new Date()) {
+  const parts = romeNow(instant);
+  return `${parts.date} ${parts.time}`;
+}
 function secondsUntilLocal(date, time, instant = new Date()) {
   return (
     (localDateTimeToInstant(date, time).getTime() - instant.getTime()) / 1000
@@ -142,9 +160,12 @@ function checkInWindow(date, startTime, instant = new Date()) {
 module.exports = {
   ROME_TIME_ZONE,
   checkInWindow,
+  isIsoDate,
   isAtLeastAhead,
   isMoreThanAhead,
   localDateTimeToInstant,
+  parseIsoDate,
+  romeLocalDateTime,
   romeNow,
   secondsUntilLocal,
 };

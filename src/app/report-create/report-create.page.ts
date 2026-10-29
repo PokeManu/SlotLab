@@ -1,9 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, IonSelect, IonSelectOption, IonSpinner, IonTextarea } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   arrowBackOutline,
@@ -12,14 +10,17 @@ import {
 } from 'ionicons/icons';
 import { Space } from '../data/spaces.data';
 import { ReportCategory } from '../models/space-report.model';
+import { ReportsApi } from '../api/reports-api';
+import { SpacesApi } from '../api/spaces-api';
 @Component({
   selector: 'app-report-create',
   templateUrl: './report-create.page.html',
   styleUrls: ['./report-create.page.scss'],
-  imports: [FormsModule, IonContent, IonIcon, RouterLink],
+  imports: [FormsModule, IonButton, IonContent, IonIcon, IonSelect, IonSelectOption, IonSpinner, IonTextarea, RouterLink],
 })
 export class ReportCreatePage implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly reportsApi = inject(ReportsApi);
+  private readonly spacesApi = inject(SpacesApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly spaceId: string | null;
@@ -29,6 +30,7 @@ export class ReportCreatePage implements OnInit {
   photo?: File;
   submitted = false;
   sending = false;
+  attemptedSubmit = false;
   error = '';
   constructor() {
     const spaceId = this.activatedRoute.snapshot.paramMap.get('spaceId');
@@ -52,40 +54,13 @@ export class ReportCreatePage implements OnInit {
   }
   ngOnInit(): void {
     if (!this.spaceId || !/^\d+$/.test(this.spaceId)) return;
-    this.http
-      .get<{
-        data: {
-          id: number;
-          name: string;
-          building: {
-            name: string;
-          };
-          floor: number;
-          type: string;
-          capacity: number;
-          accessible: boolean;
-          services: string[];
-        };
-      }>(`${environment.apiUrl}/spaces/${this.spaceId}`)
+    this.spacesApi
+      .detail(this.spaceId)
       .subscribe({
-        next: (response) => {
-          const value = response.data;
-          this.space = {
-            id: String(value.id),
-            name: value.name,
-            type:
-              value.type === 'study_room'
-                ? 'Aula studio'
-                : value.type === 'laboratory'
-                  ? 'Laboratorio'
-                  : 'Sala riunioni',
-            building: value.building.name,
-            floor: value.floor,
-            seats: value.capacity,
-            accessible: value.accessible,
-            image: '',
-            services: value.services,
-          };
+        next: ({ space }) => {
+          // The report form does not render the preview image. Keep the
+          // existing empty value while centralizing the DTO mapping in SpacesApi.
+          this.space = { ...space, image: '' };
           this.changeDetector.markForCheck();
         },
         error: () => this.changeDetector.markForCheck(),
@@ -93,24 +68,26 @@ export class ReportCreatePage implements OnInit {
   }
   submitReport(): void {
     if (this.sending) return;
+    this.attemptedSubmit = true;
     this.error = '';
-    if (!this.category || this.description.trim().length < 10) {
+    if (
+      !this.category ||
+      this.description.trim().length < 10 ||
+      this.description.trim().length > 500
+    ) {
       return;
     }
     if (!this.spaceId || !/^\d+$/.test(this.spaceId)) {
       this.error = 'Lo spazio selezionato non è valido.';
       return;
     }
-    const form = new FormData();
-    form.append(
-      'category',
-      this.category === 'equipment' ? 'technical' : this.category,
-    );
-    form.append('description', this.description.trim());
-    if (this.photo) form.append('photo', this.photo, this.photo.name);
     this.sending = true;
-    this.http
-      .post(`${environment.apiUrl}/spaces/${this.spaceId}/reports`, form)
+    this.reportsApi
+      .create(this.spaceId, {
+        category: this.category,
+        description: this.description,
+        photo: this.photo,
+      })
       .subscribe({
         next: () => {
           this.sending = false;

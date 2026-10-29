@@ -4,72 +4,33 @@
 }
 
 .space-search {
-  display: flex;
-  align-items: stretch;
-  gap: 16px;
   width: 100%;
   margin-bottom: 24px;
 }
 
-.space-search__field {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-  height: 72px;
-  padding: 0 24px;
-  border: 1px solid var(--slot-border);
-  border-radius: 18px;
-  background: var(--slot-surface);
+ion-searchbar {
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+  --placeholder-color: var(--slot-text-muted);
+  --icon-color: var(--slot-text);
+  --clear-button-color: var(--slot-text);
+  --border-radius: 18px;
+  --box-shadow: inset 0 0 0 1px var(--slot-border);
+
+  padding: 0;
 }
 
-.space-search__field:focus-within {
-  border-color: var(--slot-primary);
-  box-shadow: 0 0 0 3px rgb(79 127 255 / 16%);
-}
-
-.space-search__field ion-icon {
-  flex-shrink: 0;
-  margin-right: 16px;
-  color: var(--slot-text);
-  font-size: 27px;
-}
-
-.space-search__input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--slot-text);
-  font: inherit;
-  font-size: 20px;
-}
-
-.space-search__input::placeholder {
-  color: var(--slot-text-muted);
-  opacity: 1;
+ion-searchbar:focus-within {
+  --box-shadow: inset 0 0 0 1px var(--slot-primary),
+    0 0 0 3px var(--slot-primary-tint);
 }
 
 @media (max-width: 700px) {
   .space-search {
-    display: block;
     margin-bottom: 16px;
   }
 
-  .space-search__field {
-    height: 58px;
-    padding: 0 18px;
-    border-radius: 16px;
-  }
-
-  .space-search__field ion-icon {
-    margin-right: 12px;
-    font-size: 23px;
-  }
-
-  .space-search__input {
-    font-size: 16px;
+  ion-searchbar {
+    --border-radius: 16px;
   }
 }

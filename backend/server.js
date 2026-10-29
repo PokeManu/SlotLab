@@ -1,7 +1,7 @@
 const app = require("./app");
 const { closeDatabase, connectDatabase } = require("./db/db");
 const { readConfig } = require("./config");
-const { smtpConfig, waitForRecovery } = require("./security/recovery");
+const { smtpConfig } = require("./security/recovery");
 const { cleanDeletedFiles } = require("./security/report-files");
 const { transaction } = require("./db/transaction");
 const { consolidateOccurrences } = require("./db/occurrences");
@@ -25,19 +25,29 @@ function runOccurrenceConsolidation(suppressErrors = true) {
     });
   return occurrenceRun;
 }
-function startOccurrenceTimer() {
+function clearOccurrenceTimer() {
+  if (!occurrenceTimer) return;
+  clearInterval(occurrenceTimer);
+  occurrenceTimer = null;
+}
+function startOccurrenceTimer(server) {
   if (occurrenceTimer) return;
   occurrenceTimer = setInterval(() => {
+    if (!httpServer) return;
     void runOccurrenceConsolidation();
   }, 60000);
   occurrenceTimer.unref();
+  server.once("close", () => {
+    clearOccurrenceTimer();
+    if (httpServer === server) httpServer = null;
+  });
 }
 async function stopOccurrenceTimer() {
-  if (occurrenceTimer) {
-    clearInterval(occurrenceTimer);
-    occurrenceTimer = null;
-  }
+  clearOccurrenceTimer();
   if (occurrenceRun) await occurrenceRun;
+}
+function waitForOccurrenceConsolidation() {
+  return occurrenceRun || Promise.resolve();
 }
 async function startServer() {
   if (httpServer) {
@@ -53,7 +63,7 @@ async function startServer() {
     const server = app.listen(config.port, config.host);
     server.once("listening", () => {
       httpServer = server;
-      startOccurrenceTimer();
+      startOccurrenceTimer(server);
       const address = server.address();
       console.log(`Server in ascolto su ${config.host}, porta ${address.port}`);
       resolve(server);
@@ -71,44 +81,14 @@ async function startServer() {
     });
   });
 }
-async function stopServer() {
-  await stopOccurrenceTimer();
-  if (httpServer) {
-    const serverToClose = httpServer;
-    httpServer = null;
-    await new Promise((resolve, reject) => {
-      serverToClose.close((error) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve();
-      });
-    });
-  }
-  await waitForRecovery();
-  await closeDatabase();
-}
-async function shutdown(signal) {
-  console.log(`Chiusura richiesta da ${signal}.`);
-  try {
-    await stopServer();
-    process.exitCode = 0;
-  } catch (error) {
-    console.error(`Chiusura non riuscita: ${error.message}`);
-    process.exitCode = 1;
-  }
-}
 if (require.main === module) {
   startServer().catch((error) => {
     console.error(`Avvio non riuscito: ${error.message}`);
     process.exitCode = 1;
   });
-  process.once("SIGINT", () => shutdown("SIGINT"));
-  process.once("SIGTERM", () => shutdown("SIGTERM"));
 }
 module.exports = {
   app,
   startServer,
-  stopServer,
+  waitForOccurrenceConsolidation,
 };

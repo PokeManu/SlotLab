@@ -1,6 +1,4 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
-
   <main class="spaces">
     <section class="spaces__intro">
       <div>
@@ -45,7 +43,7 @@
           </div>
         </header>
 
-        <div class="spaces__results-list">
+        <ion-list class="spaces__results-list" lines="none">
           @for (space of spaces; track space.id) {
           <app-space-list-item
             [space]="space"
@@ -56,10 +54,8 @@
           } @empty {
           <p class="spaces__empty">Nessuno spazio disponibile.</p>
           }
-        </div>
+        </ion-list>
       </section>
     </section>
   </main>
 </ion-content>
-
-<app-mobile-navigation></app-mobile-navigation>

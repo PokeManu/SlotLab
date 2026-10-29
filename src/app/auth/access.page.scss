@@ -78,7 +78,7 @@ label {
 }
 .access__field-icon {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
@@ -86,7 +86,8 @@ label {
   font-size: 19px;
   pointer-events: none;
 }
-input {
+ion-input {
+  z-index: 0;
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
@@ -94,15 +95,22 @@ input {
   border-radius: 10px;
   background: var(--slot-background);
   color: var(--slot-text);
-  padding: 13px 13px 13px 43px;
+  --padding-top: 13px;
+  --padding-bottom: 13px;
+  --padding-start: 43px;
+  --padding-end: 13px;
   font: inherit;
   font-size: 16px;
 }
-.access__input-wrap--password input {
-  padding-right: 52px;
+.access__input--plain {
+  --padding-start: 13px;
 }
-input:focus-visible,
+.access__input-wrap--password ion-input {
+  --padding-end: 52px;
+}
+ion-input:focus-within,
 button:focus-visible,
+ion-button:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--slot-primary-soft);
   outline-offset: 3px;
@@ -112,36 +120,40 @@ a:focus-visible {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-button {
-  border: 0;
-  border-radius: 10px;
-  background: var(--slot-primary);
-  color: white;
-  font: inherit;
-  font-weight: 600;
-  width: 100%;
+.access__submit {
+  display: block;
+  --border-radius: 10px;
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
+  margin: 0;
   min-height: 48px;
-  padding: 12px;
-  cursor: pointer;
+  font-weight: 600;
 }
 .access__password-toggle {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: 50%;
   right: 5px;
   display: grid;
   place-items: center;
   width: 40px;
   min-height: 40px;
-  padding: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: transparent;
+  --background-hover: var(--slot-primary-tint);
+  --color: var(--slot-text-muted);
+  border: 0;
   transform: translateY(-50%);
   border-radius: 8px;
-  background: transparent;
-  color: var(--slot-text-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 .access__password-toggle:hover {
-  background: var(--slot-primary-tint);
-  color: var(--slot-primary-soft);
+  --color: var(--slot-primary-soft);
 }
 .access__password-toggle ion-icon {
   font-size: 20px;
@@ -156,7 +168,7 @@ fieldset:disabled {
 .access__input--invalid {
   border-color: var(--slot-danger);
 }
-.access__input--invalid:focus-visible {
+.access__input--invalid:focus-within {
   outline-color: var(--slot-danger);
 }
 .access__requirements {
@@ -173,26 +185,27 @@ fieldset:disabled {
   line-height: 1.5;
 }
 .access__confirmation {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;
+  display: block;
+  margin-bottom: 18px;
+  color: var(--slot-text);
+  font-size: 14px;
+  line-height: 1.5;
 }
-.access__confirmation input {
-  flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
-  padding: 0;
+.access__confirmation::part(label) {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
 }
 .access__error {
-  color: #ffb8b8;
+  color: var(--slot-danger);
   line-height: 1.5;
 }
 .access__success {
-  color: #9de3c2;
+  color: var(--slot-success);
   line-height: 1.5;
 }
 .access__message {
-  color: #ffe0a0;
+  color: var(--slot-warning);
   line-height: 1.5;
 }
 .access__switch {

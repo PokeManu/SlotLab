@@ -1,9 +1,7 @@
-import { allPages } from '../api/all-pages';
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { environment } from '../../environments/environment';
-import { finalize } from 'rxjs';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { finalize, Subscription } from 'rxjs';
+import { NotificationsApi } from '../api/notifications-api';
+import { IonButton, IonContent, IonIcon, IonItem, IonList, IonSpinner } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   bookOutline,
@@ -12,8 +10,6 @@ import {
   easelOutline,
   warningOutline,
 } from 'ionicons/icons';
-import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
-import { TopbarComponent } from '../topbar-component/topbar-component.component';
 import { NotificationState } from './notification-state';
 type NotificationIcon =
   | 'book-outline'
@@ -40,10 +36,10 @@ interface NotificationGroup {
   selector: 'app-notifications',
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
-  imports: [IonContent, IonIcon, TopbarComponent, MobileNavigationComponent],
+  imports: [IonButton, IonContent, IonIcon, IonItem, IonList, IonSpinner],
 })
-export class NotificationsPage implements OnInit {
-  private readonly http = inject(HttpClient);
+export class NotificationsPage implements OnInit, OnDestroy {
+  private readonly notificationsApi = inject(NotificationsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly notificationState = inject(NotificationState);
   loading = false;
@@ -51,12 +47,16 @@ export class NotificationsPage implements OnInit {
   saving = false;
   notificationGroups: NotificationGroup[] = [];
   private hasEntered = false;
+  private loadRequest?: Subscription;
   ngOnInit(): void {
     this.loadNotifications();
   }
   ionViewDidEnter(): void {
     if (this.hasEntered) this.loadNotifications();
     this.hasEntered = true;
+  }
+  ngOnDestroy(): void {
+    this.loadRequest?.unsubscribe();
   }
   constructor() {
     addIcons({
@@ -68,16 +68,10 @@ export class NotificationsPage implements OnInit {
     });
   }
   loadNotifications(): void {
+    this.loadRequest?.unsubscribe();
     this.loading = true;
     this.error = '';
-    allPages<{
-      id: number;
-      type: string;
-      title: string;
-      message: string;
-      createdAt: string;
-      read: boolean;
-    }>(this.http, `${environment.apiUrl}/notifications`)
+    this.loadRequest = this.notificationsApi.list()
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -85,8 +79,8 @@ export class NotificationsPage implements OnInit {
         }),
       )
       .subscribe({
-        next: (response) => {
-          const notifications = response.data.map((notification) => ({
+        next: (items) => {
+          const notifications = items.map((notification) => ({
             id: notification.id,
             title: notification.title,
             context: this.contextFor(notification.type),
@@ -143,8 +137,8 @@ export class NotificationsPage implements OnInit {
     if (this.saving) return;
     this.saving = true;
     this.error = '';
-    this.http
-      .patch<void>(`${environment.apiUrl}/notifications/read-all`, {})
+    this.notificationsApi
+      .markAllRead()
       .pipe(
         finalize(() => {
           this.saving = false;
@@ -169,12 +163,8 @@ export class NotificationsPage implements OnInit {
     if (notification.read || this.saving) return;
     this.saving = true;
     this.error = '';
-    this.http
-      .patch<{
-        data: {
-          read: boolean;
-        };
-      }>(`${environment.apiUrl}/notifications/${notification.id}/read`, {})
+    this.notificationsApi
+      .markRead(notification.id)
       .pipe(
         finalize(() => {
           this.saving = false;

@@ -2,13 +2,21 @@
   display: block;
 }
 
+ion-toolbar {
+  --background: var(--slot-background);
+  --color: var(--slot-text);
+  --min-height: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
 .topbar {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   width: 100%;
   min-height: 112px;
-  padding: 0 48px;
+  padding: 0 clamp(20px, 3vw, 48px);
   border-bottom: 1px solid var(--slot-border);
   color: var(--slot-text);
 }
@@ -34,7 +42,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-left: 80px;
+  margin-left: clamp(16px, 4vw, 80px);
 }
 
 .topbar__link {
@@ -154,70 +162,17 @@
   outline-offset: 3px;
 }
 
-.topbar--admin {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 20px;
-  padding: 20px 28px;
-
-  .topbar__brand,
-  .topbar__user,
+@media (max-width: 1100px) {
+  .topbar__navigation,
   .topbar__profile {
-    min-width: 0;
-  }
-
-  .topbar__navigation {
-    min-width: 0;
-    margin-left: 0;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  .topbar__link {
-    padding: 10px 12px;
-    font-size: 16px;
-    white-space: nowrap;
-  }
-
-  .topbar__user {
-    margin-left: 0;
-    justify-self: end;
-  }
-  .topbar__brand,
-  .topbar__avatar {
-    flex-shrink: 0;
-  }
-  .topbar__username {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-@media (min-width: 701px) and (max-width: 1500px) {
-  .topbar--admin {
-    grid-template-columns: minmax(0, 1fr) auto;
-    .topbar__brand {
-      grid-column: 1;
-      grid-row: 1;
-    }
-    .topbar__user {
-      grid-column: 2;
-      grid-row: 1;
-    }
-    .topbar__navigation {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
+    display: none;
   }
 }
 
 @media (max-width: 700px) {
   .topbar {
-    min-height: calc(76px + var(--slot-safe-area-top));
-    padding: calc(16px + var(--slot-safe-area-top)) 20px 16px;
+    min-height: 76px;
+    padding: 16px 20px;
   }
 
   .topbar__brand {
@@ -233,17 +188,10 @@
     display: none;
   }
 
-  .topbar__profile {
-    display: none;
-  }
-
   .topbar__notification,
   .topbar__avatar {
     width: 42px;
     height: 42px;
   }
 
-  .topbar__navigation {
-    display: none;
-  }
 }

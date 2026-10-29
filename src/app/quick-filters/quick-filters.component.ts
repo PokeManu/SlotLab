@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { IonButton } from '@ionic/angular';
 interface QuickFilter {
   id: string;
   label: string;
@@ -10,7 +11,7 @@ interface QuickFilter {
   selector: 'app-quick-filters',
   templateUrl: './quick-filters.component.html',
   styleUrls: ['./quick-filters.component.scss'],
-  imports: [],
+  imports: [IonButton],
 })
 export class QuickFiltersComponent {
   @Output()

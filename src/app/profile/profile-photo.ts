@@ -11,13 +11,33 @@ import {
   throwError,
 } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Auth } from '../auth/auth';
 @Injectable({ providedIn: 'root' })
 export class ProfilePhoto {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(Auth);
   private readonly currentUrl = signal('');
   private loadedFor: number | null = null;
   private loading?: Observable<void>;
   readonly url = this.currentUrl.asReadonly();
+  upload(userId: number, photo: File): Observable<void> {
+    return this.http
+      .put<void>(`${environment.apiUrl}/users/me/photo`, photo, {
+        headers: { 'Content-Type': photo.type },
+      })
+      .pipe(
+        tap(() => {
+          if (this.auth.user()?.id === userId) this.update(userId, photo);
+        }),
+      );
+  }
+  delete(userId: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/users/me/photo`).pipe(
+      tap(() => {
+        if (this.auth.user()?.id === userId) this.remove(userId);
+      }),
+    );
+  }
   load(userId: number): Observable<void> {
     if (this.loadedFor === userId) return this.loading ?? of(undefined);
     this.clearUrl();

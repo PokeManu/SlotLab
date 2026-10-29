@@ -12,14 +12,15 @@
 
     @if (error()) {
     <p class="error-message" role="alert">{{ error() }}</p>
-    <button
+    <ion-button
       class="secondary-button"
       type="button"
+      fill="outline"
       [disabled]="busy()"
       (click)="load()"
     >
       Ricarica prenotazione
-    </button>
+    </ion-button>
     } @if (booking(); as item) {
     <section class="detail-card" aria-labelledby="space-title">
       <span class="eyebrow">Prenotazione #{{ item.id }}</span>
@@ -50,21 +51,22 @@
             <span class="participant-email">{{ person.email }}</span>
             <div class="badges">
               @if (person.participantRole === 'organizer') {
-              <span class="badge">Organizzatore</span> } @if (person.present) {
-              <span class="badge badge--present">Check-in registrato</span> }
+              <ion-badge class="badge">Organizzatore</ion-badge> } @if (person.present) {
+              <ion-badge class="badge badge--present">Check-in registrato</ion-badge> }
             </div>
           </div>
           @if (person.participantRole !== 'organizer' && (isOrganizer() ||
           person.id === auth.user()?.id)) {
-          <button
+          <ion-button
             class="secondary-button"
             type="button"
+            fill="outline"
             [disabled]="busy()"
             (click)="remove(person)"
           >
             {{ person.id === auth.user()?.id ? 'Abbandona prenotazione' :
             'Rimuovi partecipante' }}
-          </button>
+          </ion-button>
           }
         </li>
         }
@@ -77,19 +79,25 @@
       <form (ngSubmit)="add()">
         <label for="participant-email">Email del partecipante</label>
         <div class="email-row">
-          <input
+          <ion-input
             id="participant-email"
             name="email"
             type="email"
-            required
+            aria-label="Email del partecipante"
             [(ngModel)]="email"
+            #emailControl="ngModel"
             [disabled]="busy()"
             placeholder="nome@esempio.it"
-          />
-          <button class="primary-button" type="submit" [disabled]="busy()">
+            [attr.aria-invalid]="(emailControl.touched || attemptedAdd) && emailInvalid"
+            [attr.aria-describedby]="(emailControl.touched || attemptedAdd) && emailInvalid ? 'participant-email-error' : null"
+          ></ion-input>
+          <ion-button class="primary-button" type="submit" [disabled]="busy()">
             Aggiungi
-          </button>
+          </ion-button>
         </div>
+        @if ((emailControl.touched || attemptedAdd) && emailInvalid) {
+        <small id="participant-email-error" class="field-error" role="alert">Inserisci un indirizzo email valido.</small>
+        }
       </form>
     </section>
     }
@@ -101,7 +109,7 @@
       Per il check-in, scansiona con la fotocamera il QR affisso nell’aula.
     </p>
     } @else if (!error()) {
-    <p class="detail-card" role="status">Caricamento…</p>
+    <p class="detail-card" role="status"><ion-spinner name="crescent" aria-hidden="true"></ion-spinner> Caricamento…</p>
     }
   </main>
 </ion-content>

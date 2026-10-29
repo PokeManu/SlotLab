@@ -27,7 +27,7 @@ describe('AdminAnnouncementsPage', () => {
     page.publish();
     fixture.detectChanges();
     expect(
-      fixture.nativeElement.querySelector('button[type="submit"]').disabled,
+      fixture.nativeElement.querySelector('ion-button[type="submit"]').disabled,
     ).toBe(true);
     const request = TestBed.inject(HttpTestingController).expectOne({
       method: 'POST',
@@ -44,16 +44,39 @@ describe('AdminAnnouncementsPage', () => {
     ).toContain('Destinatari: 3');
     expect(page.title).toBe('');
     expect(page.message).toBe('');
+    expect(fixture.nativeElement.querySelector('#announcement-title-error')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#announcement-message-error')).toBeNull();
   });
-  it('rifiuta campi vuoti e conserva il testo dopo un errore', async () => {
+  it('mostra errori sui controlli Ionic dopo invio invalido e non pubblica', async () => {
+    const fixture = TestBed.createComponent(AdminAnnouncementsPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.componentInstance.publish();
+    fixture.detectChanges();
+    const title = fixture.nativeElement.querySelector('ion-input[name=title]');
+    const message = fixture.nativeElement.querySelector('ion-textarea[name=message]');
+    expect(title.getAttribute('aria-invalid')).toBe('true');
+    expect(message.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelectorAll('[role="alert"]')).toHaveLength(2);
+    expect(fixture.componentInstance.error()).toBe('');
+    TestBed.inject(HttpTestingController).expectNone('/api/v1/admin/announcements');
+  });
+  it('rifiuta anche soli spazi e conserva il testo dopo un errore server', async () => {
     const fixture = TestBed.createComponent(AdminAnnouncementsPage);
     const page = fixture.componentInstance;
     fixture.detectChanges();
+    await fixture.whenStable();
+    page.title = '   ';
+    page.message = '   ';
     page.publish();
+    await fixture.whenStable();
+    fixture.detectChanges();
     TestBed.inject(HttpTestingController).expectNone(
       '/api/v1/admin/announcements',
     );
-    expect(page.error()).toContain('Inserisci');
+    expect(page.error()).toBe('');
+    expect(fixture.nativeElement.querySelector('#announcement-title-error')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#announcement-message-error')).not.toBeNull();
     page.title = 'Titolo';
     page.message = 'Messaggio';
     page.publish();

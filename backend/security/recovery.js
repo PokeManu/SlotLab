@@ -1,10 +1,14 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const nodemailer = require("nodemailer");
-const { queries, transaction } = require("../db/transaction");
-const { getDatabase } = require("../db/db");
+const { transaction } = require("../db/transaction");
 const { hashPassword } = require("./password");
 const { validateEmail } = require("./validation");
+const {
+  findRecoveryUser,
+  findUnchangedRecoveryUser,
+  saveRecoveredPassword,
+} = require("../models/auth.model");
 function smtpConfig(env = process.env) {
   const smtpVariables = [
     "SLOTLAB_SMTP_HOST",
@@ -60,26 +64,16 @@ function smtpConfig(env = process.env) {
 async function recoverPassword(email) {
   const config = smtpConfig();
   if (!config) throw new Error("SMTP non configurato.");
-  const user = await queries(getDatabase()).get(
-    "SELECT id, password_hash FROM users WHERE email = ?",
-    [email],
-  );
+  const user = await findRecoveryUser(email);
   if (!user) return;
   const password = `Aa1!${crypto.randomBytes(24).toString("base64url")}`;
   const hash = await hashPassword(password);
   const transport = nodemailer.createTransport(config.transport);
   try {
     await transaction(async (query) => {
-      const current = await query.get(
-        "SELECT id FROM users WHERE id = ? AND password_hash = ?",
-        [user.id, user.password_hash],
-      );
+      const current = await findUnchangedRecoveryUser(query, user);
       if (!current) return;
-      await query.run("UPDATE users SET password_hash = ? WHERE id = ?", [
-        hash,
-        user.id,
-      ]);
-      await query.run("DELETE FROM auth_sessions WHERE user_id = ?", [user.id]);
+      await saveRecoveredPassword(query, user.id, hash);
       const result = await transport.sendMail({
         from: config.from,
         to: { address: email },

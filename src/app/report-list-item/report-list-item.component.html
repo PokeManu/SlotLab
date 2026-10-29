@@ -1,9 +1,9 @@
-<article class="report-item">
+<ion-card class="report-item">
   <div class="report-item__icon" aria-hidden="true">
     <ion-icon [name]="categoryIcon"></ion-icon>
   </div>
 
-  <div class="report-item__content">
+  <ion-card-content class="report-item__content">
     <header class="report-item__header">
       <div>
         <p class="report-item__category">
@@ -13,16 +13,18 @@
         <h2>{{ report.spaceName }}</h2>
       </div>
 
-      <span class="report-item__status" [attr.data-status]="report.status">
+      <ion-badge class="report-item__status" [attr.data-status]="report.status">
         {{ statusLabel }}
-      </span>
+      </ion-badge>
     </header>
 
-    <p class="report-item__location">
-      {{ report.building }}
-      <span aria-hidden="true">·</span>
-      piano {{ report.floor }}
-    </p>
+    @if (report.building) {
+      <p class="report-item__location">
+        {{ report.building }}
+        <span aria-hidden="true">·</span>
+        piano {{ report.floor }}
+      </p>
+    }
 
     <p class="report-item__description">
       {{ report.description }}
@@ -31,7 +33,10 @@
     @if (report.photo) {
       <section aria-label="Foto allegata">
         @if (photoLoading) {
-          <p role="status">Caricamento foto…</p>
+          <p class="report-item__photo-loading" role="status">
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+            Caricamento foto…
+          </p>
         }
         @if (photoError) {
           <p role="alert">{{ photoError }}</p>
@@ -50,5 +55,5 @@
       <span>Segnalazione {{ report.id }}</span>
       <time>{{ report.dateLabel }}</time>
     </footer>
-  </div>
-</article>
+  </ion-card-content>
+</ion-card>

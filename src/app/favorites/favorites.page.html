@@ -1,6 +1,4 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
-
   <main class="favorites-page">
     <header class="favorites-page__header">
       <div>
@@ -11,17 +9,33 @@
       <p class="favorites-page__summary">
         Campus di Viale delle Scienze
         <span aria-hidden="true">·</span>
-        {{ favoriteSpaces.length }} preferiti
+        {{ favoriteSpaces.length }}
+        {{ favoriteSpaces.length === 1 ? "preferito" : "preferiti" }}
       </p>
     </header>
 
-    <app-space-search placeholder="Cerca tra i preferiti"></app-space-search>
+    <app-space-search
+      placeholder="Cerca tra i preferiti"
+      (searchChange)="filterFavorites($event)"
+    ></app-space-search>
+
+    @if (loading) {
+    <div class="favorites-page__feedback" role="status">
+      <ion-spinner name="crescent" aria-label="Caricamento preferiti"></ion-spinner>
+      Caricamento preferiti…
+    </div>
+    } @else if (error) {
+    <div class="favorites-page__feedback" role="alert">
+      <p>{{ error }}</p>
+      <ion-button type="button" fill="outline" (click)="loadFavorites()">Riprova</ion-button>
+    </div>
+    } @else {
 
     <section
       class="favorites-page__grid"
       aria-label="Elenco degli spazi preferiti"
     >
-      @for (space of favoriteSpaces; track space.id) {
+      @for (space of visibleFavoriteSpaces; track space.id) {
       <app-favorite-space-card
         [space]="space"
         (spaceOpened)="openSpace($event)"
@@ -29,12 +43,16 @@
       ></app-favorite-space-card>
       } @empty {
       <div class="favorites-page__empty">
-        <h2>Nessuno spazio preferito</h2>
-        <p>Gli spazi aggiunti ai preferiti compariranno qui.</p>
+        @if (favoriteSpaces.length) {
+          <h2>Nessun risultato</h2>
+          <p>Prova un altro nome, edificio o tipo di spazio.</p>
+        } @else {
+          <h2>Nessuno spazio preferito</h2>
+          <p>Gli spazi aggiunti ai preferiti compariranno qui.</p>
+        }
       </div>
       }
     </section>
+    }
   </main>
 </ion-content>
-
-<app-mobile-navigation></app-mobile-navigation>

@@ -30,6 +30,35 @@
   --slot-danger-surface: rgb(255 146 146 / 14%);
   --slot-warning: #f0c66e;
   --slot-warning-surface: rgb(240 198 110 / 14%);
+
+  --ion-background-color: var(--slot-background);
+  --ion-background-color-rgb: 8, 21, 38;
+  --ion-text-color: var(--slot-text);
+  --ion-text-color-rgb: 244, 247, 255;
+  --ion-color-primary: var(--slot-primary);
+  --ion-color-primary-rgb: 79, 127, 255;
+  --ion-color-primary-contrast: #081526;
+  --ion-color-primary-contrast-rgb: 8, 21, 38;
+  --ion-color-primary-shade: #4670e0;
+  --ion-color-primary-tint: #618cff;
+  --ion-color-success: var(--slot-success);
+  --ion-color-success-rgb: 121, 218, 181;
+  --ion-color-success-contrast: #081526;
+  --ion-color-success-contrast-rgb: 8, 21, 38;
+  --ion-color-success-shade: #6bc0a0;
+  --ion-color-success-tint: #86debc;
+  --ion-color-warning: var(--slot-warning);
+  --ion-color-warning-rgb: 240, 198, 110;
+  --ion-color-warning-contrast: #081526;
+  --ion-color-warning-contrast-rgb: 8, 21, 38;
+  --ion-color-warning-shade: #d3ae61;
+  --ion-color-warning-tint: #f2cc7d;
+  --ion-color-danger: var(--slot-danger);
+  --ion-color-danger-rgb: 255, 146, 146;
+  --ion-color-danger-contrast: #081526;
+  --ion-color-danger-contrast-rgb: 8, 21, 38;
+  --ion-color-danger-shade: #e08080;
+  --ion-color-danger-tint: #ff9d9d;
 }
 
 :root[data-theme="light"] {
@@ -56,4 +85,27 @@
   --slot-danger-surface: #fde8eb;
   --slot-warning: #855812;
   --slot-warning-surface: #fff0d7;
+
+  --ion-background-color-rgb: 243, 246, 251;
+  --ion-text-color-rgb: 24, 37, 58;
+  --ion-color-primary-rgb: 85, 115, 194;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #4b65ab;
+  --ion-color-primary-tint: #6681c8;
+  --ion-color-success-rgb: 35, 118, 91;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #1f684f;
+  --ion-color-success-tint: #39846b;
+  --ion-color-warning-rgb: 133, 88, 18;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #754d10;
+  --ion-color-warning-tint: #91692a;
+  --ion-color-danger-rgb: 173, 62, 75;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #983741;
+  --ion-color-danger-tint: #b5515d;
 }

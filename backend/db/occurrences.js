@@ -1,36 +1,14 @@
-const TIME_ZONE = "Europe/Rome";
-const { localDateTimeToInstant } = require("../domain/time");
-const localFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: TIME_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-});
-function queryLocalParts(date) {
-  const values = Object.fromEntries(
-    localFormatter
-      .formatToParts(date)
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  );
-  return {
-    year: Number(values.year),
-    month: Number(values.month),
-    day: Number(values.day),
-    hour: Number(values.hour),
-    minute: Number(values.minute),
-  };
-}
+const {
+  ROME_TIME_ZONE,
+  localDateTimeToInstant,
+  romeLocalDateTime,
+  romeNow,
+} = require("../domain/time");
 function localDateString(date) {
-  const parts = queryLocalParts(date);
-  return `${String(parts.year).padStart(4, "0")}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+  return romeNow(date).date;
 }
 function localDateTimeString(date) {
-  const parts = queryLocalParts(date);
-  return `${String(parts.year).padStart(4, "0")}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")} ${String(parts.hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
+  return romeLocalDateTime(date);
 }
 function dateOnlyValue(value) {
   const parsed = new Date(`${value}T12:00:00Z`);
@@ -208,19 +186,14 @@ async function markOverlaps(db, items, detectedAt) {
   }
   return affected.size;
 }
-async function consolidateOccurrences(db, now = new Date()) {
-  if (!(now instanceof Date) || Number.isNaN(now.getTime()))
-    throw new TypeError("Ora di consolidamento non valida.");
-  const nowIso = now.toISOString();
-  const tracking = await ensureTracking(db, nowIso);
-  const cursor = new Date(tracking.current.consolidatedUntil);
-  let completedBookings = 0;
+async function completeEndedBookings(db, now) {
   const endedCandidates = await db.all(
     `SELECT b.id,b.date,a.end_time AS endTime
     FROM bookings b JOIN availabilities a ON a.id=b.availability_id
     WHERE b.status='confirmed' AND b.date <= ?`,
     [localDateString(now)],
   );
+  let completedBookings = 0;
   for (const booking of endedCandidates) {
     const end = occurrenceInstant(booking.date, booking.endTime);
     if (end.instant && end.instant <= now) {
@@ -231,27 +204,9 @@ async function consolidateOccurrences(db, now = new Date()) {
       completedBookings += result.changes;
     }
   }
-  if (tracking.initialized || cursor >= now) {
-    return {
-      ...tracking.current,
-      initialized: tracking.initialized,
-      finalized: 0,
-      inserted: 0,
-      completedBookings,
-      ambiguousOccurrences: 0,
-      gapOccurrences: 0,
-    };
-  }
-  const firstDate = localDateString(cursor);
-  const lastDate = localDateString(now);
-  const candidates = await availabilityCandidates(
-    db,
-    cursor,
-    now.getTime(),
-    firstDate,
-    lastDate,
-  );
-  const detectedAt = nowIso;
+  return completedBookings;
+}
+async function finalizeCandidates(db, candidates, detectedAt) {
   let finalized = 0;
   let inserted = 0;
   let ambiguousOccurrences = 0;
@@ -321,11 +276,51 @@ async function consolidateOccurrences(db, now = new Date()) {
     );
     finalized += 1;
   }
-  const existingRows = await db.all(
+  return { finalized, inserted, ambiguousOccurrences, gapOccurrences };
+}
+async function readFinalizedOfferedOccurrences(db, firstDate, lastDate) {
+  return db.all(
     `SELECT space_id AS spaceId, date, start_time AS startTime, end_time AS endTime
        FROM slot_occurrences
       WHERE date BETWEEN ? AND ? AND finalized_at IS NOT NULL AND was_offered = 1;`,
     [firstDate, lastDate],
+  );
+}
+async function consolidateOccurrences(db, now = new Date()) {
+  if (!(now instanceof Date) || Number.isNaN(now.getTime()))
+    throw new TypeError("Ora di consolidamento non valida.");
+  const nowIso = now.toISOString();
+  const tracking = await ensureTracking(db, nowIso);
+  const cursor = new Date(tracking.current.consolidatedUntil);
+  const completedBookings = await completeEndedBookings(db, now);
+  if (tracking.initialized || cursor >= now) {
+    return {
+      ...tracking.current,
+      initialized: tracking.initialized,
+      finalized: 0,
+      inserted: 0,
+      completedBookings,
+      ambiguousOccurrences: 0,
+      gapOccurrences: 0,
+    };
+  }
+  const firstDate = localDateString(cursor);
+  const lastDate = localDateString(now);
+  const candidates = await availabilityCandidates(
+    db,
+    cursor,
+    now.getTime(),
+    firstDate,
+    lastDate,
+  );
+  const detectedAt = nowIso;
+  const finalizedResult = await finalizeCandidates(db, candidates, detectedAt);
+  const { finalized, inserted, ambiguousOccurrences, gapOccurrences } =
+    finalizedResult;
+  const existingRows = await readFinalizedOfferedOccurrences(
+    db,
+    firstDate,
+    lastDate,
   );
   const overlapCount = await markOverlaps(db, existingRows, detectedAt);
   await db.run(
@@ -344,7 +339,7 @@ async function consolidateOccurrences(db, now = new Date()) {
   };
 }
 module.exports = {
-  TIME_ZONE,
+  TIME_ZONE: ROME_TIME_ZONE,
   consolidateOccurrences,
   localDateTimeString,
   occurrenceInstant,

@@ -11,27 +11,6 @@ const {
 const notificationsRouter = require("./notifications.routes");
 const adminRouter = require("./admin.routes");
 const router = express.Router();
-router.use((request, response, next) => {
-  const knownPrefixes = [
-    "/auth",
-    "/users",
-    "/buildings",
-    "/spaces",
-    "/bookings",
-    "/favorites",
-    "/reports",
-    "/notifications",
-    "/admin",
-  ];
-  if (
-    !knownPrefixes.some(
-      (prefix) =>
-        request.path === prefix || request.path.startsWith(`${prefix}/`),
-    )
-  )
-    return next("router");
-  next();
-});
 router.use("/auth", authRouter);
 router.use("/users", usersRouter);
 router.use("/", catalogRouter);

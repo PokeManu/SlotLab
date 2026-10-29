@@ -1,0 +1,60 @@
+ion-split-pane {
+  width: 100%;
+  height: 100%;
+  --side-width: 232px;
+  --side-max-width: 232px;
+  --border: 1px solid var(--slot-border);
+}
+
+ion-menu {
+  --width: 232px;
+  --background: var(--slot-sidebar);
+}
+
+ion-menu ion-content {
+  --background: var(--slot-sidebar);
+}
+
+.app-shell {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--slot-background);
+}
+
+.app-shell__view {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.app-shell__admin-header {
+  display: none;
+}
+
+.app-shell__admin-header ion-toolbar,
+.app-shell__footer ion-toolbar {
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+}
+
+.app-shell__footer {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .app-shell__admin-header {
+    display: block;
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-shell__footer {
+    display: block;
+  }
+}

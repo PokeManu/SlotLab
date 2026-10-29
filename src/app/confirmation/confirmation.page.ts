@@ -5,9 +5,8 @@ import {
   OnDestroy,
   inject,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
@@ -17,30 +16,20 @@ import {
   peopleOutline,
   timeOutline,
 } from 'ionicons/icons';
-import { environment } from '../../environments/environment';
+import { BookingDetail, BookingsApi } from '../api/bookings-api';
 @Component({
   selector: 'app-confirmation',
   templateUrl: './confirmation.page.html',
   styleUrls: ['./confirmation.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink],
+  imports: [IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner, RouterLink],
 })
 export class ConfirmationPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
-  private readonly http = inject(HttpClient);
+  private readonly bookingsApi = inject(BookingsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private request?: Subscription;
   private hasEntered = false;
-  booking: {
-    id: number;
-    spaceId: number;
-    spaceName: string;
-    building: string;
-    floor: number;
-    date: string;
-    startTime: string;
-    endTime: string;
-    participants: unknown[];
-  } | null = null;
+  booking: BookingDetail | null = null;
   loading = false;
   error = '';
   constructor() {
@@ -72,13 +61,11 @@ export class ConfirmationPage implements OnInit, OnDestroy {
       return;
     }
     this.loading = true;
-    this.request = this.http
-      .get<{
-        data: NonNullable<ConfirmationPage['booking']>;
-      }>(`${environment.apiUrl}/bookings/${id}`)
+    this.request = this.bookingsApi
+      .detail(id)
       .subscribe({
-        next: (response) => {
-          this.booking = response.data;
+        next: (booking) => {
+          this.booking = booking;
           this.loading = false;
           this.changeDetector.markForCheck();
         },

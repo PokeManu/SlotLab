@@ -1,13 +1,14 @@
 <ion-content [fullscreen]="true">
   <main class="report-create-page">
     <header class="report-create-page__header">
-      <a
+      <ion-button
         class="report-create-page__back"
+        fill="clear"
         [routerLink]="['/spaces', space.id]"
         aria-label="Torna al dettaglio dello spazio"
       >
-        <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
-      </a>
+        <ion-icon name="arrow-back-outline" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
 
       <h1>Segnala un problema</h1>
     </header>
@@ -37,52 +38,58 @@
 
     <form
       class="report-create-page__form"
-      #reportForm="ngForm"
       (ngSubmit)="submitReport()"
     >
       <div class="report-create-page__field">
-        <label for="report-category"> Tipologia del problema </label>
-
-        <select
+        <ion-select
           id="report-category"
           name="reportCategory"
+          label="Tipologia del problema"
+          labelPlacement="stacked"
+          placeholder="Seleziona una tipologia"
+          interface="popover"
           required
           [(ngModel)]="category"
+          #categoryControl="ngModel"
+          [attr.aria-invalid]="categoryControl.invalid && (categoryControl.touched || attemptedSubmit)"
+          [attr.aria-describedby]="categoryControl.invalid && (categoryControl.touched || attemptedSubmit) ? 'report-category-error' : null"
         >
-          <option value="" disabled>Seleziona una tipologia</option>
-
-          <option value="equipment">Attrezzatura</option>
-
-          <option value="cleaning">Pulizia</option>
-
-          <option value="accessibility">Accessibilità</option>
-
-          <option value="other">Altro</option>
-        </select>
+          <ion-select-option value="equipment">Attrezzatura</ion-select-option>
+          <ion-select-option value="cleaning">Pulizia</ion-select-option>
+          <ion-select-option value="accessibility">Accessibilità</ion-select-option>
+          <ion-select-option value="other">Altro</ion-select-option>
+        </ion-select>
+        @if (categoryControl.invalid && (categoryControl.touched || attemptedSubmit)) {
+        <p class="report-create-page__error" id="report-category-error" role="alert">
+          Seleziona una tipologia di problema.
+        </p>
+        }
       </div>
 
       <div class="report-create-page__field">
-        <label for="report-description"> Descrizione </label>
-
-        <textarea
+        <ion-textarea
           id="report-description"
           name="reportDescription"
-          rows="6"
+          label="Descrizione"
+          labelPlacement="stacked"
+          [rows]="6"
           required
           minlength="10"
           maxlength="500"
           placeholder="Descrivi il problema riscontrato..."
           [(ngModel)]="description"
           #descriptionControl="ngModel"
-        ></textarea>
+          [attr.aria-invalid]="descriptionControl.invalid && (descriptionControl.touched || attemptedSubmit)"
+          [attr.aria-describedby]="descriptionControl.invalid && (descriptionControl.touched || attemptedSubmit) ? 'report-description-error' : null"
+        ></ion-textarea>
 
         <div class="report-create-page__field-info">
           <span>Minimo 10 caratteri</span>
           <span>{{ description.length }}/500</span>
         </div>
 
-        @if ( descriptionControl.invalid && descriptionControl.touched ) {
-        <p class="report-create-page__error">
+        @if (descriptionControl.invalid && (descriptionControl.touched || attemptedSubmit)) {
+        <p class="report-create-page__error" id="report-description-error" role="alert">
           Inserisci una descrizione di almeno 10 caratteri.
         </p>
         }
@@ -104,13 +111,17 @@
       <p class="report-create-page__error" role="alert">{{ error }}</p>
       }
 
-      <button
+      <ion-button
         class="report-create-page__submit"
         type="submit"
-        [disabled]="reportForm.invalid || sending"
+        expand="block"
+        [disabled]="sending"
       >
+        @if (sending) {
+        <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+        }
         {{ sending ? 'Invio in corso…' : 'Invia segnalazione' }}
-      </button>
+      </ion-button>
     </form>
     } @else {
     <section class="report-create-page__success" role="status">
@@ -126,16 +137,18 @@
         è stata inviata correttamente.
       </p>
 
-      <a class="report-create-page__primary-link" routerLink="/reports">
+      <ion-button class="report-create-page__primary-link" routerLink="/reports" expand="block">
         Vedi le mie segnalazioni
-      </a>
+      </ion-button>
 
-      <a
+      <ion-button
         class="report-create-page__secondary-link"
+        fill="outline"
+        expand="block"
         [routerLink]="['/spaces', space.id]"
       >
         Torna allo spazio
-      </a>
+      </ion-button>
     </section>
     }
   </main>

@@ -67,6 +67,33 @@ describe('NotificationsPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('mostra il caricamento Ionic e disabilita le azioni durante il salvataggio', async () => {
+    component.loadNotifications();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('ion-spinner')).not.toBeNull();
+    http.expectOne('/api/v1/notifications').flush({
+      data: [
+        {
+          id: 2,
+          type: 'booking_created',
+          title: 'Prenotazione creata',
+          message: 'Test',
+          createdAt: '2026-09-07T17:00:00Z',
+          read: false,
+        },
+      ],
+    });
+    await fixture.whenStable();
+    const item = fixture.nativeElement.querySelector('ion-list ion-item');
+    expect(item).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('ion-button')).not.toBeNull();
+    item.click();
+    fixture.detectChanges();
+    expect(item.disabled).toBe(true);
+    http.expectOne('/api/v1/notifications/2/read').flush({ data: { read: true } });
+    await fixture.whenStable();
+    expect(item.disabled).toBe(false);
+  });
   it('ricarica le notifiche quando si rientra nella pagina', () => {
     component.ionViewDidEnter();
     component.ionViewDidEnter();
@@ -85,5 +112,12 @@ describe('NotificationsPage', () => {
     expect(component.notificationGroups[0].notifications[0].title).toBe(
       'Segnalazione aggiornata',
     );
+  });
+  it('annulla il caricamento precedente quando arriva un refresh', () => {
+    component.loadNotifications();
+    const old = http.expectOne('/api/v1/notifications');
+    component.loadNotifications();
+    expect(old.cancelled).toBe(true);
+    http.expectOne('/api/v1/notifications').flush({ data: [] });
   });
 });

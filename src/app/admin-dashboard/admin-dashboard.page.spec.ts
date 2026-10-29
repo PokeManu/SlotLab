@@ -1,4 +1,5 @@
 import { provideRouter } from '@angular/router';
+import { Router } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminDashboardPage } from './admin-dashboard.page';
 import { provideHttpClient } from '@angular/common/http';
@@ -23,10 +24,8 @@ describe('AdminDashboardPage', () => {
   });
   it('should create', () => {
     expect(component).toBeTruthy();
-    const logo = fixture.nativeElement.querySelector(
-      '.brand__logo',
-    ) as HTMLImageElement;
-    expect(logo.getAttribute('src')).toBe('assets/branding/slotlab-logo.png');
+    expect(fixture.nativeElement.querySelector('app-admin-sidebar')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.dashboard')).toBeTruthy();
   });
   it('mostra le risposte asincrone senza navigazione o clic', async () => {
     const http = TestBed.inject(HttpTestingController);
@@ -85,6 +84,40 @@ describe('AdminDashboardPage', () => {
     expect(counts).toEqual(['7', '3', '2']);
     http.verify();
   });
+  it('collega la ricerca e le azioni ai controlli Ionic', () => {
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/v1/admin/summary').flush({
+      data: {
+        bookingCount: 0,
+        spaceCount: 0,
+        availableSpaceCount: 0,
+        openReportCount: 0,
+      },
+    });
+    http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [] });
+    http.expectOne('/api/v1/admin/spaces').flush({ data: [] });
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
+
+    const searchbar = fixture.nativeElement.querySelector('ion-searchbar');
+    searchbar.dispatchEvent(
+      new CustomEvent('ionInput', { detail: { value: 'Aula A1' } }),
+    );
+    fixture.detectChanges();
+    expect(component.searchTerm).toBe('Aula A1');
+
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate');
+    component.searchAdmin();
+    component.openBookings();
+    component.openSpaces();
+    expect(navigate).toHaveBeenNthCalledWith(1, ['/admin/spaces'], {
+      queryParams: { search: 'Aula A1' },
+    });
+    expect(navigate).toHaveBeenNthCalledWith(2, ['/admin/bookings']);
+    expect(navigate).toHaveBeenNthCalledWith(3, ['/admin/spaces']);
+    expect(fixture.nativeElement.querySelectorAll('ion-button').length).toBe(2);
+    http.verify();
+  });
   it('ricarica il riepilogo al rientro per riflettere una segnalazione appena risolta', async () => {
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/v1/admin/summary').flush({
@@ -112,13 +145,90 @@ describe('AdminDashboardPage', () => {
       },
     });
     http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [] });
+    http.expectOne('/api/v1/admin/spaces').flush({
+      data: [{ name: 'Aula aggiornata', type: 'study_room', status: 'maintenance' }],
+    });
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
     await fixture.whenStable();
     expect(component.openReportCount).toBe(0);
+    expect(component.spaceStatuses[0].name).toBe('Aula aggiornata');
     expect(
       fixture.nativeElement
         .querySelectorAll('.metric-card__value')[2]
         .textContent.trim(),
     ).toBe('0');
+    http.verify();
+  });
+  it('annulla le risposte precedenti al rientro e mostra i nuovi stati', () => {
+    const http = TestBed.inject(HttpTestingController);
+    const oldSummary = http.expectOne('/api/v1/admin/summary');
+    const oldBookings = http.expectOne('/api/v1/admin/bookings?size=5');
+    const oldSpaces = http.expectOne('/api/v1/admin/spaces');
+    const oldReports = http.expectOne('/api/v1/admin/reports');
+
+    component.ionViewWillEnter();
+    component.ionViewWillEnter();
+    expect(oldSummary.cancelled).toBe(true);
+    expect(oldBookings.cancelled).toBe(true);
+    expect(oldSpaces.cancelled).toBe(true);
+    expect(oldReports.cancelled).toBe(true);
+
+    http.expectOne('/api/v1/admin/summary').flush({
+      data: {
+        bookingCount: 2,
+        spaceCount: 1,
+        availableSpaceCount: 0,
+        openReportCount: 0,
+      },
+    });
+    http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [] });
+    http.expectOne('/api/v1/admin/spaces').flush({
+      data: [{ name: 'Aula in manutenzione', type: 'study_room', status: 'maintenance' }],
+    });
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
+
+    expect(component.bookingCount).toBe(2);
+    expect(component.spaceStatuses[0].details).toBe('Manutenzione');
+    http.verify();
+  });
+  it('distingue caricamento, errore e retry dei tre riquadri', () => {
+    const http = TestBed.inject(HttpTestingController);
+    expect(fixture.nativeElement.querySelectorAll('ion-spinner').length).toBe(3);
+    http
+      .expectOne('/api/v1/admin/summary')
+      .flush({}, { status: 503, statusText: 'Offline' });
+    http
+      .expectOne('/api/v1/admin/bookings?size=5')
+      .flush({}, { status: 503, statusText: 'Offline' });
+    http
+      .expectOne('/api/v1/admin/spaces')
+      .flush({}, { status: 503, statusText: 'Offline' });
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('[role="alert"]').length).toBe(3);
+    expect(fixture.nativeElement.textContent).toContain('Impossibile caricare il riepilogo');
+    expect(fixture.nativeElement.textContent).toContain('Impossibile caricare le prenotazioni');
+    expect(fixture.nativeElement.textContent).toContain('Impossibile caricare lo stato degli spazi');
+
+    component.retrySummary();
+    component.retryBookings();
+    component.retrySpaces();
+    http.expectOne('/api/v1/admin/summary').flush({
+      data: {
+        bookingCount: 1,
+        spaceCount: 1,
+        availableSpaceCount: 1,
+        openReportCount: 0,
+      },
+    });
+    http.expectOne('/api/v1/admin/bookings?size=5').flush({ data: [] });
+    http.expectOne('/api/v1/admin/spaces').flush({ data: [] });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('[role="alert"]').length).toBe(0);
+    expect(fixture.nativeElement.textContent).toContain('Nessuna prenotazione in programma');
+    expect(fixture.nativeElement.textContent).toContain('Nessuno spazio da mostrare');
     http.verify();
   });
 });

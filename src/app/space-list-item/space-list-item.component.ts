@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IonIcon } from '@ionic/angular';
+import { IonBadge, IonButton, IonIcon, IonItem } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { heart, heartOutline } from 'ionicons/icons';
+import { arrowForwardOutline, heart, heartOutline } from 'ionicons/icons';
 import { SpaceSummary } from '../models/space-summary.model';
 @Component({
   selector: 'app-space-list-item',
   templateUrl: './space-list-item.component.html',
   styleUrls: ['./space-list-item.component.scss'],
-  imports: [IonIcon],
+  imports: [IonBadge, IonButton, IonIcon, IonItem],
 })
 export class SpaceListItemComponent {
   @Input({ required: true })
@@ -35,6 +35,7 @@ export class SpaceListItemComponent {
     addIcons({
       heart,
       heartOutline,
+      arrowForwardOutline,
     });
   }
   openSpace(): void {

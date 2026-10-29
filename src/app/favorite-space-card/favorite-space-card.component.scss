@@ -4,21 +4,25 @@
 }
 
 .favorite-space-card {
-  position: relative;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-columns: 88px minmax(0, 1fr) 44px;
   gap: 24px;
   height: 100%;
   min-height: 220px;
-  padding: 28px 64px 28px 24px;
+  margin: 0;
+  padding: 28px 20px 28px 24px;
   border: 1px solid var(--slot-border);
   border-radius: 16px;
-  background: var(--slot-surface);
-  color: var(--slot-text);
-  transition:
-    border-color 160ms ease,
-    transform 160ms ease;
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+  box-shadow: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.favorite-space-card:hover {
+  border-color: var(--slot-primary);
+  transform: translateY(-2px);
 }
 
 .favorite-space-card__icon {
@@ -38,6 +42,7 @@
 
 .favorite-space-card__content {
   min-width: 0;
+  padding: 0;
 }
 
 .favorite-space-card__name {
@@ -78,55 +83,41 @@
   background: #f4b759;
 }
 
-.favorite-space-card__favorite {
-  position: absolute;
-  z-index: 2;
-  top: 20px;
-  right: 20px;
+.favorite-space-card__actions {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--slot-primary);
-  cursor: pointer;
+  gap: 8px;
+}
+
+.favorite-space-card__actions ion-button {
+  --color: var(--slot-primary);
+  --padding-start: 0;
+  --padding-end: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0;
 }
 
 .favorite-space-card__favorite ion-icon {
   font-size: 25px;
 }
 
-.favorite-space-card__action {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  padding: 0;
-  border: 0;
-  border-radius: inherit;
-  background: transparent;
-  cursor: pointer;
+.favorite-space-card__action ion-icon {
+  font-size: 22px;
 }
 
-.favorite-space-card:hover {
-  border-color: var(--slot-primary);
-  transform: translateY(-2px);
-}
-
-.favorite-space-card__favorite:focus-visible,
-.favorite-space-card__action:focus-visible {
+.favorite-space-card__actions ion-button::part(native):focus-visible {
   outline: 3px solid var(--slot-primary);
-  outline-offset: -4px;
+  outline-offset: 2px;
 }
 
 @media (max-width: 700px) {
   .favorite-space-card {
-    grid-template-columns: 68px minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: 68px minmax(0, 1fr) 40px;
+    gap: 12px;
     min-height: 0;
-    padding: 20px 48px 20px 16px;
+    padding: 20px 12px 20px 16px;
   }
 
   .favorite-space-card__icon {
@@ -154,8 +145,8 @@
     font-size: 14px;
   }
 
-  .favorite-space-card__favorite {
-    top: 12px;
-    right: 10px;
+  .favorite-space-card__actions ion-button {
+    width: 40px;
+    height: 40px;
   }
 }

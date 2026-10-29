@@ -1,79 +1,68 @@
-import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
-import { allPages } from '../api/all-pages';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { OnInit } from '@angular/core';
+import { SpacesApi } from '../api/spaces-api';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonContent } from '@ionic/angular';
-import { environment } from '../../environments/environment';
+import { IonButton, IonContent, IonSpinner } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { FavoriteSpace } from '../models/favorite-space.model';
 import { FavoriteSpaceCardComponent } from '../favorite-space-card/favorite-space-card.component';
-import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 import { SpaceSearchComponent } from '../space-search/space-search.component';
-import { TopbarComponent } from '../topbar-component/topbar-component.component';
 @Component({
   selector: 'app-favorites',
   templateUrl: './favorites.page.html',
   styleUrls: ['./favorites.page.scss'],
   imports: [
+    IonButton,
     IonContent,
-    TopbarComponent,
+    IonSpinner,
     SpaceSearchComponent,
     FavoriteSpaceCardComponent,
-    MobileNavigationComponent,
   ],
 })
-export class FavoritesPage implements OnInit {
-  private readonly http = inject(HttpClient);
+export class FavoritesPage implements OnInit, OnDestroy {
+  private readonly spacesApi = inject(SpacesApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   favoriteSpaces: FavoriteSpace[] = [];
+  loading = false;
+  error = '';
+  private searchTerm = '';
+  private hasEntered = false;
+  private loadRequest?: Subscription;
+  get visibleFavoriteSpaces(): FavoriteSpace[] {
+    if (!this.searchTerm) return this.favoriteSpaces;
+    return this.favoriteSpaces.filter((space) =>
+      [space.name, space.building, space.type].some((value) =>
+        value.toLocaleLowerCase('it-IT').includes(this.searchTerm),
+      ),
+    );
+  }
+  filterFavorites(value: string): void {
+    this.searchTerm = value.trim().toLocaleLowerCase('it-IT');
+  }
   ngOnInit(): void {
     this.loadFavorites();
   }
   ionViewDidEnter(): void {
-    this.loadFavorites();
+    if (this.hasEntered) this.loadFavorites();
+    this.hasEntered = true;
   }
-  private loadFavorites(): void {
-    allPages<{
-      id: number;
-      name: string;
-      building: {
-        name: string;
-      };
-      floor: number;
-      type: string;
-      capacity: number;
-      status: string;
-    }>(this.http, `${environment.apiUrl}/favorites`).subscribe({
-      next: (response) => {
-        this.favoriteSpaces = response.data.map(
-          (space) =>
-            ({
-              id: String(space.id),
-              name: space.name,
-              building: space.building.name,
-              floor: space.floor,
-              type:
-                space.type === 'study_room'
-                  ? 'Aula studio'
-                  : space.type === 'laboratory'
-                    ? 'Laboratorio'
-                    : 'Sala riunioni',
-              seats: space.capacity,
-              image: SPACE_PREVIEW_IMAGE,
-              availability:
-                space.status === 'active'
-                  ? 'Disponibilità da verificare'
-                  : 'Non disponibile',
-              availabilityTone:
-                space.status === 'active' ? 'available' : 'warning',
-            }) as FavoriteSpace,
-        );
+  ngOnDestroy(): void {
+    this.loadRequest?.unsubscribe();
+  }
+  loadFavorites(): void {
+    this.loadRequest?.unsubscribe();
+    this.loading = true;
+    this.error = '';
+    this.loadRequest = this.spacesApi.favorites().subscribe({
+      next: (spaces) => {
+        this.favoriteSpaces = spaces;
+        this.loading = false;
         this.changeDetector.markForCheck();
       },
       error: () => {
         this.favoriteSpaces = [];
+        this.loading = false;
+        this.error = 'Impossibile caricare i preferiti.';
         this.changeDetector.markForCheck();
       },
     });
@@ -84,11 +73,18 @@ export class FavoritesPage implements OnInit {
     });
   }
   removeFavorite(spaceId: string): void {
-    this.http.delete(`${environment.apiUrl}/favorites/${spaceId}`).subscribe({
+    this.loadRequest?.unsubscribe();
+    this.loading = false;
+    this.error = '';
+    this.spacesApi.removeFavorite(spaceId).subscribe({
       next: () => {
         this.favoriteSpaces = this.favoriteSpaces.filter(
           (space) => space.id !== spaceId,
         );
+        this.changeDetector.markForCheck();
+      },
+      error: () => {
+        this.error = 'Impossibile rimuovere lo spazio dai preferiti. Riprova.';
         this.changeDetector.markForCheck();
       },
     });

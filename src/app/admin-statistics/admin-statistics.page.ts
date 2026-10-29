@@ -5,12 +5,10 @@ import {
   OnDestroy,
   inject,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Subscription, finalize } from 'rxjs';
-import { IonContent } from '@ionic/angular';
-import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
+import { IonButton, IonContent, IonSpinner } from '@ionic/angular';
 import { Auth } from '../auth/auth';
-import { environment } from '../../environments/environment';
+import { AdminStatisticsApi, StatisticsData } from '../api/admin-statistics-api';
 interface StatisticMetric {
   label: string;
   value: string;
@@ -27,67 +25,15 @@ interface UsageCategory {
   percentage: number;
   color: 'blue' | 'green' | 'orange';
 }
-interface StatisticsData {
-  dateFrom: string;
-  dateTo: string;
-  bookings: number;
-  participants: number;
-  presences: number;
-  absences: number;
-  offeredCapacity: number;
-  utilizationRate: number | null;
-  checkInRate: number | null;
-  daily: Array<{
-    date: string;
-    bookings: number;
-  }>;
-  usage: Array<{
-    type: string;
-    presences: number;
-    percentage: number;
-  }>;
-  mostBookedSpaces: Array<{
-    spaceId: number;
-    spaceName: string;
-    bookings: number;
-    participants: number;
-    presences: number;
-  }>;
-  mostUsedSlots: Array<{
-    startTime: string;
-    endTime: string;
-    bookings: number;
-    participants: number;
-    presences: number;
-  }>;
-  reportsByCategory: Array<{
-    category: string;
-    count: number;
-  }>;
-  reportsByStatus: Array<{
-    status: string;
-    count: number;
-  }>;
-  history: {
-    trackingStartedAt: string | null;
-    complete: boolean;
-    excludedBookings: number;
-    ambiguousOccurrences?: number;
-    gapOccurrences?: number;
-  };
-}
-interface StatisticsResponse {
-  data: StatisticsData;
-}
 @Component({
   selector: 'app-admin-statistics',
   templateUrl: './admin-statistics.page.html',
   styleUrls: ['./admin-statistics.page.scss'],
-  imports: [AdminSidebarComponent, IonContent],
+  imports: [IonButton, IonContent, IonSpinner],
 })
 export class AdminStatisticsPage implements OnInit, OnDestroy {
   readonly auth = inject(Auth);
-  private readonly http = inject(HttpClient);
+  private readonly statisticsApi = inject(AdminStatisticsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private request?: Subscription;
   private loadSequence = 0;
@@ -204,9 +150,8 @@ export class AdminStatisticsPage implements OnInit, OnDestroy {
     this.usageGradient = 'conic-gradient(#334155 0 100%)';
     this.historyMessage = '';
     this.changeDetector.markForCheck();
-    const query = `?dateFrom=${encodeURIComponent(this.dateFrom)}&dateTo=${encodeURIComponent(this.dateTo)}`;
-    this.request = this.http
-      .get<StatisticsResponse>(`${environment.apiUrl}/admin/statistics${query}`)
+    this.request = this.statisticsApi
+      .load(this.dateFrom, this.dateTo)
       .pipe(
         finalize(() => {
           if (sequence === this.loadSequence) {
@@ -216,9 +161,9 @@ export class AdminStatisticsPage implements OnInit, OnDestroy {
         }),
       )
       .subscribe({
-        next: (response) => {
+        next: (data) => {
           if (sequence !== this.loadSequence) return;
-          this.statistics = this.normalise(response.data);
+          this.statistics = data;
           this.updateView(this.statistics);
           this.changeDetector.markForCheck();
         },
@@ -311,22 +256,6 @@ export class AdminStatisticsPage implements OnInit, OnDestroy {
     this.historyMessage = historyNotes.length
       ? `Storia parziale: ${historyNotes.join('; ')}.`
       : '';
-  }
-  private normalise(data: StatisticsData): StatisticsData {
-    return {
-      ...data,
-      daily: data.daily ?? [],
-      usage: data.usage ?? [],
-      mostBookedSpaces: data.mostBookedSpaces ?? [],
-      mostUsedSlots: data.mostUsedSlots ?? [],
-      reportsByCategory: data.reportsByCategory ?? [],
-      reportsByStatus: data.reportsByStatus ?? [],
-      history: data.history ?? {
-        trackingStartedAt: null,
-        complete: false,
-        excludedBookings: 0,
-      },
-    };
   }
   private emptyMetrics(): StatisticMetric[] {
     return [

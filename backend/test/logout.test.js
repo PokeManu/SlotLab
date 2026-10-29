@@ -10,7 +10,8 @@ process.env.NODE_ENV = "test";
 process.env.HOST = "127.0.0.1";
 process.env.PORT = "0";
 process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString("hex");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const account = {
   firstName: "Logout",
@@ -19,6 +20,7 @@ const account = {
   password: "LogoutPassword2026!",
 };
 let baseUrl;
+let server;
 function post(endpoint, body = {}, headers = {}) {
   return fetch(`${baseUrl}/api/v1/auth/${endpoint}`, {
     method: "POST",
@@ -51,13 +53,13 @@ function session() {
   });
 }
 before(async () => {
-  const server = await startServer();
+  server = await startServer();
   baseUrl = `http://127.0.0.1:${server.address().port}`;
   assert.equal((await post("register", account)).status, 201);
 });
 after(async () => {
   try {
-    await stopServer();
+    await closeTestServer(server);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

@@ -20,14 +20,13 @@ describe('ProfilePage', () => {
         provideHttpClientTesting(),
       ],
     }).compileComponents();
-    Object.defineProperty(URL, 'createObjectURL', {
-      configurable: true,
-      value: vi.fn(() => 'blob:profile-photo'),
-    });
-    Object.defineProperty(URL, 'revokeObjectURL', {
-      configurable: true,
-      value: vi.fn(),
-    });
+    vi.stubGlobal(
+      'URL',
+      class extends URL {
+        static override createObjectURL = vi.fn(() => 'blob:profile-photo');
+        static override revokeObjectURL = vi.fn();
+      },
+    );
     http = TestBed.inject(HttpTestingController);
     TestBed.inject(Auth)
       .login({ email: 'anna@example.test', password: 'Password2026!' })
@@ -51,9 +50,24 @@ describe('ProfilePage', () => {
       .expectOne('/api/v1/users/me/photo')
       .flush(new Blob(), { status: 404, statusText: 'Not Found' });
   });
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    vi.unstubAllGlobals();
+  });
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  it('mostra le azioni del profilo come voci Ionic con destinazioni distinte', () => {
+    const destinations = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('ion-list ion-item'),
+    ).map((item) => item.getAttribute('href'));
+    expect(destinations).toEqual([
+      '/profile/password',
+      '/reports',
+      '/profile/delete',
+    ]);
+    expect(fixture.nativeElement.querySelector('ion-button.profile__logout'))
+      .not.toBeNull();
   });
   it('carica una foto valida e aggiorna subito l’anteprima', () => {
     const file = new File(
@@ -75,10 +89,27 @@ describe('ProfilePage', () => {
     expect(
       (
         fixture.nativeElement.querySelector(
-          '.topbar__avatar img',
+          '.profile__avatar img',
         ) as HTMLImageElement
       ).src,
     ).toContain('blob:profile-photo');
+  });
+  it('rimuove la foto dal server e dall’anteprima solo dopo la risposta', () => {
+    const file = new File(['foto'], 'profilo.png', { type: 'image/png' });
+    component.selectProfilePhoto({
+      target: { files: [file], value: 'profilo.png' },
+    } as unknown as Event);
+    http.expectOne('/api/v1/users/me/photo').flush(null, {
+      status: 204,
+      statusText: 'No Content',
+    });
+    expect(component.profilePhotoUrl).toBe('blob:profile-photo');
+    component.removeProfilePhoto();
+    const request = http.expectOne('/api/v1/users/me/photo');
+    expect(request.request.method).toBe('DELETE');
+    expect(component.profilePhotoUrl).toBe('blob:profile-photo');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    expect(component.profilePhotoUrl).toBe('');
   });
   it('rifiuta nel browser formato e dimensione non consentiti', () => {
     const invalid = new File(['test'], 'profilo.gif', { type: 'image/gif' });

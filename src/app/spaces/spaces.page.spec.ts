@@ -45,11 +45,10 @@ describe('SpacesPage', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Aula test');
   });
-  it('usa la topbar condivisa anche nella pagina di ricerca', () => {
-    expect(fixture.nativeElement.querySelectorAll('app-topbar')).toHaveLength(1);
-    expect(
-      fixture.nativeElement.querySelector('.spaces__mobile-notification'),
-    ).toBeNull();
+  it('lascia header e navigazione al layout globale', () => {
+    expect(fixture.nativeElement.querySelector('app-topbar')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-mobile-navigation')).toBeNull();
+    expect(fixture.nativeElement.querySelector('ion-content')).toBeTruthy();
   });
   it('mantiene più spazi nei preferiti', () => {
     component.toggleFavorite('1');
@@ -66,5 +65,27 @@ describe('SpacesPage', () => {
     component.ionViewDidEnter();
     http.expectOne('/api/v1/favorites').flush({ data: [{ id: 1 }, { id: 3 }] });
     expect(component.favoriteSpaceIds).toEqual(new Set(['1', '3']));
+  });
+  it('annulla la ricerca precedente quando i filtri cambiano rapidamente', () => {
+    component.searchSpaces('prima');
+    const previous = http.expectOne('/api/v1/spaces?search=prima');
+    component.searchSpaces('seconda');
+    expect(previous.cancelled).toBe(true);
+    http.expectOne('/api/v1/spaces?search=seconda').flush({
+      data: [
+        {
+          id: 2,
+          name: 'Aula seconda',
+          type: 'study_room',
+          building: { name: 'Edificio 2' },
+          floor: 1,
+          capacity: 12,
+          status: 'active',
+        },
+      ],
+    });
+    expect(component.spaces.map((space) => space.name)).toEqual([
+      'Aula seconda',
+    ]);
   });
 });

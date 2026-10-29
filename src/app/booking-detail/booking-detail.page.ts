@@ -1,33 +1,15 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular';
+import { IonBadge, IonButton, IonContent, IonInput, IonSpinner } from '@ionic/angular';
 import { Auth } from '../auth/auth';
-import { environment } from '../../environments/environment';
-interface Participant {
-  id: number;
-  participantId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  participantRole: string;
-  present: boolean;
-}
-interface Booking {
-  id: number;
-  spaceId: number;
-  spaceName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  participants: Participant[];
-}
+import { BookingDetail, BookingParticipant, BookingsApi } from '../api/bookings-api';
 @Component({
   selector: 'app-user-booking-detail',
-  imports: [IonContent, RouterLink, FormsModule],
+  imports: [IonBadge, IonButton, IonContent, IonInput, IonSpinner, RouterLink, FormsModule],
   templateUrl: './booking-detail.page.html',
   styleUrls: ['./booking-detail.page.scss'],
 })
@@ -35,12 +17,16 @@ export class UserBookingDetailPage implements OnInit {
   readonly auth = inject(Auth);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly http = inject(HttpClient);
+  private readonly bookingsApi = inject(BookingsApi);
   private readonly destroyRef = inject(DestroyRef);
-  readonly booking = signal<Booking | null>(null);
+  readonly booking = signal<BookingDetail | null>(null);
   readonly error = signal('');
   readonly busy = signal(false);
   email = '';
+  attemptedAdd = false;
+  get emailInvalid(): boolean {
+    return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim());
+  }
   private hasEntered = false;
   private loadRequest?: Subscription;
   ngOnInit(): void {
@@ -67,13 +53,11 @@ export class UserBookingDetailPage implements OnInit {
       this.error.set('Prenotazione non valida.');
       return;
     }
-    this.loadRequest = this.http
-      .get<{
-        data: Booking;
-      }>(`${environment.apiUrl}/bookings/${id}`)
+    this.loadRequest = this.bookingsApi
+      .detail(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => this.booking.set(response.data),
+        next: (booking) => this.booking.set(booking),
         error: (error) => this.showError(error),
       });
   }
@@ -86,32 +70,33 @@ export class UserBookingDetailPage implements OnInit {
     );
   }
   add(): void {
-    if (this.busy() || !this.booking() || !this.email.trim()) return;
+    if (this.busy() || !this.booking()) return;
+    this.attemptedAdd = true;
+    if (this.emailInvalid) {
+      this.error.set('');
+      return;
+    }
     this.busy.set(true);
     this.error.set('');
-    this.http
-      .post(
-        `${environment.apiUrl}/bookings/${this.booking()!.id}/participants`,
-        { email: this.email.trim() },
-      )
+    this.bookingsApi
+      .addParticipant(this.booking()!.id, this.email.trim())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.email = '';
+          this.attemptedAdd = false;
           this.busy.set(false);
           this.load();
         },
         error: (error) => this.showError(error),
       });
   }
-  remove(person: Participant): void {
+  remove(person: BookingParticipant): void {
     if (this.busy() || !this.booking()) return;
     this.busy.set(true);
     this.error.set('');
-    this.http
-      .delete(
-        `${environment.apiUrl}/bookings/${this.booking()!.id}/participants/${person.participantId}`,
-      )
+    this.bookingsApi
+      .removeParticipant(this.booking()!.id, person.participantId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

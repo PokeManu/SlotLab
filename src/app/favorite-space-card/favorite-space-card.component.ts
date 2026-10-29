@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IonIcon } from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   bookOutline,
+  arrowForwardOutline,
   desktopOutline,
   heart,
   peopleOutline,
@@ -12,7 +13,7 @@ import { FavoriteSpace } from '../models/favorite-space.model';
   selector: 'app-favorite-space-card',
   templateUrl: './favorite-space-card.component.html',
   styleUrls: ['./favorite-space-card.component.scss'],
-  imports: [IonIcon],
+  imports: [IonButton, IonCard, IonCardContent, IonIcon],
 })
 export class FavoriteSpaceCardComponent {
   @Input({ required: true })
@@ -24,6 +25,7 @@ export class FavoriteSpaceCardComponent {
   constructor() {
     addIcons({
       bookOutline,
+      arrowForwardOutline,
       desktopOutline,
       heart,
       peopleOutline,

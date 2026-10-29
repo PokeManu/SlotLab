@@ -59,6 +59,8 @@ describe('FavoritesPage', () => {
   });
   it('ricarica i preferiti quando si torna nella pagina', () => {
     component.ionViewDidEnter();
+    http.expectNone('/api/v1/favorites');
+    component.ionViewDidEnter();
     http
       .expectOne('/api/v1/favorites')
       .flush({
@@ -75,5 +77,37 @@ describe('FavoritesPage', () => {
         ],
       });
     expect(component.favoriteSpaces.map((space) => space.id)).toEqual(['3']);
+  });
+  it('mostra un errore con retry se la lista non è disponibile', () => {
+    component.loadFavorites();
+    http.expectOne('/api/v1/favorites').flush({}, {
+      status: 503,
+      statusText: 'Unavailable',
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Impossibile caricare');
+    fixture.nativeElement.querySelector('ion-button').click();
+    http.expectOne('/api/v1/favorites').flush({ data: [] });
+    expect(component.error).toBe('');
+  });
+  it('filtra i preferiti dalla ricerca Ionic e mostra il vuoto corretto', () => {
+    component.ngOnInit();
+    http.expectOne('/api/v1/favorites').flush({
+      data: [
+        { id: 1, name: 'Aula A1', building: { name: 'Edificio 6' }, floor: 2, type: 'study_room', capacity: 24, status: 'active' },
+        { id: 2, name: 'Sala B', building: { name: 'Edificio 7' }, floor: 1, type: 'meeting_room', capacity: 12, status: 'active' },
+      ],
+    });
+    fixture.detectChanges();
+    const searchbar: HTMLElement = fixture.nativeElement.querySelector('ion-searchbar');
+
+    searchbar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'sala' } }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Sala B');
+    expect(fixture.nativeElement.textContent).not.toContain('Aula A1');
+
+    searchbar.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'inesistente' } }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nessun risultato');
   });
 });

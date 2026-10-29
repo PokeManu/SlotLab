@@ -15,7 +15,8 @@ Object.assign(process.env, {
   SLOTLAB_UPLOAD_DIR: path.join(directory, "photos"),
   SLOTLAB_JWT_SECRET: crypto.randomBytes(32).toString("hex"),
 });
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const { queries } = require("../db/transaction");
 const { waitForRecovery } = require("../security/recovery");
@@ -26,6 +27,7 @@ let base,
   query,
   sequence = 0,
   rejectMail = false;
+let server;
 const messages = [];
 const password = "AccountTest2026!";
 async function request(method, endpoint, body, token, cookie) {
@@ -129,7 +131,7 @@ before(async () => {
     SLOTLAB_SMTP_FROM: "slotlab@example.test",
     SLOTLAB_SMTP_CA_FILE: cert,
   });
-  const server = await startServer();
+  server = await startServer();
   base = `http://127.0.0.1:${server.address().port}/api/v1`;
   query = queries(getDatabase());
 });
@@ -138,7 +140,7 @@ beforeEach(() => {
   rejectMail = false;
 });
 after(async () => {
-  await stopServer();
+  await closeTestServer(server);
   await new Promise((resolve) => smtp.close(resolve));
   fs.rmSync(directory, { recursive: true });
 });

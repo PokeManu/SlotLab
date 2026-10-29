@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { readConfig } = require("../config");
-const { getDatabase } = require("../db/db");
+const { findAuthenticatedUser } = require("../models/auth.model");
 function unauthorized() {
   return Object.assign(
     new Error("Autenticazione richiesta o sessione non valida."),
@@ -46,16 +46,11 @@ async function requireAuth(request, response, next) {
   ) {
     throw unauthorized();
   }
-  const user = await new Promise((resolve, reject) => {
-    getDatabase().get(
-      `SELECT u.id, u.first_name AS firstName, u.last_name AS lastName,
-              u.email, u.role, u.created_at AS createdAt
-       FROM users u JOIN auth_sessions s ON s.user_id = u.id
-       WHERE u.id = ? AND u.role = ? AND s.access_token_jti = ?;`,
-      [Number(claims.sub), claims.role, claims.jti],
-      (error, row) => (error ? reject(error) : resolve(row)),
-    );
-  });
+  const user = await findAuthenticatedUser(
+    Number(claims.sub),
+    claims.role,
+    claims.jti,
+  );
   if (!user) throw unauthorized();
   request.user = user;
   request.authJti = claims.jti;

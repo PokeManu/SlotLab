@@ -51,6 +51,7 @@ describe('Form di accesso', () => {
     page.submit();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('fieldset').disabled).toBe(true);
+    expect(page.form.disabled).toBe(true);
     const request = http.expectOne('/api/v1/auth/login');
     expect(request.request.body.email).toBe('user@example.test');
     request.flush(
@@ -62,6 +63,7 @@ describe('Form di accesso', () => {
       fixture.nativeElement.querySelector('[role=alert]').textContent,
     ).toContain('Email o password');
     expect(page.busy()).toBe(false);
+    expect(page.form.enabled).toBe(true);
   });
   it('registrazione rifiuta whitespace e dopo successo rimanda al login', () => {
     const fixture = create('register');
@@ -82,7 +84,14 @@ describe('Form di accesso', () => {
     page.password = 'Password2026!';
     page.passwordConfirmation = 'Password2026!';
     page.submit();
-    http.expectOne('/api/v1/auth/register').flush({ data: { id: 1 } });
+    const request = http.expectOne('/api/v1/auth/register');
+    expect(request.request.body).toEqual({
+      firstName: 'Anna',
+      lastName: 'Rossi',
+      email: 'anna@example.test',
+      password: 'Password2026!',
+    });
+    request.flush({ data: { id: 1 } });
     expect(page.password).toBe('');
     expect(page.passwordConfirmation).toBe('');
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/login'], {
@@ -102,16 +111,18 @@ describe('Form di accesso', () => {
     await fixture.whenStable();
     const passwordInput = fixture.nativeElement.querySelector(
       '[name=password]',
-    ) as HTMLInputElement;
+    ) as HTMLIonInputElement;
     const confirmationInput = fixture.nativeElement.querySelector(
       '[name=passwordConfirmation]',
-    ) as HTMLInputElement;
+    ) as HTMLIonInputElement;
     passwordInput.value = 'Password2026!';
-    passwordInput.dispatchEvent(new Event('input'));
+    passwordInput.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'Password2026!' } }));
     confirmationInput.value = 'Password2025!';
-    confirmationInput.dispatchEvent(new Event('input'));
-    confirmationInput.dispatchEvent(new Event('blur'));
+    confirmationInput.dispatchEvent(new CustomEvent('ionInput', { detail: { value: 'Password2025!' } }));
+    confirmationInput.dispatchEvent(new CustomEvent('ionBlur'));
     fixture.detectChanges();
+    expect(page.form.controls.password.value).toBe('Password2026!');
+    expect(page.form.hasError('passwordMismatch')).toBe(true);
     expect(
       fixture.nativeElement
         .querySelector('[name=passwordConfirmation]')
@@ -164,5 +175,24 @@ describe('Form di accesso', () => {
       '/admin',
       { replaceUrl: true },
     );
+  });
+  it('usa il FormGroup per bloccare email invalide e campi obbligatori', () => {
+    const fixture = create('register');
+    const page = fixture.componentInstance;
+    expect(page.form.invalid).toBe(true);
+    page.firstName = 'Anna';
+    page.lastName = 'Rossi';
+    page.email = 'indirizzo-errato';
+    page.password = 'Password2026!';
+    page.passwordConfirmation = 'Password2026!';
+    expect(page.form.controls.email.hasError('email')).toBe(true);
+    page.submit();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[name=email]').getAttribute('aria-invalid')).toBe('true');
+    http.expectNone('/api/v1/auth/register');
+    page.email = ' ANNA@EXAMPLE.TEST ';
+    expect(page.form.valid).toBe(true);
+    page.submit();
+    http.expectOne('/api/v1/auth/register').flush({ data: { id: 1 } });
   });
 });

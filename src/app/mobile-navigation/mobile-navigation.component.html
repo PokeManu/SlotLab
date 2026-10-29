@@ -1,63 +1,16 @@
-<nav
-  class="mobile-navigation"
-  [class.mobile-navigation--admin]="auth.isAdmin()"
-  aria-label="Navigazione mobile"
->
-  @if (auth.isAdmin()) {
-    @for (item of adminNavigation; track item.route) {
-      <a
-        class="mobile-navigation__link"
-        [routerLink]="item.route"
-        routerLinkActive="mobile-navigation__link--active"
-        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
-      >
-        <ion-icon [name]="item.icon"></ion-icon><span>{{ item.label }}</span>
-      </a>
-    }
-  } @else {
-    <a
+<nav class="mobile-navigation" aria-label="Navigazione mobile">
+  @for (item of navigation; track item.route) {
+    <ion-button
+      fill="clear"
       class="mobile-navigation__link"
-      routerLink="/home"
+      [routerLink]="item.route"
       routerLinkActive="mobile-navigation__link--active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
-      <ion-icon name="home-outline"></ion-icon>
-      <span>Home</span>
-    </a>
-
-    <a
-      class="mobile-navigation__link"
-      routerLink="/spaces"
-      routerLinkActive="mobile-navigation__link--active"
-    >
-      <ion-icon name="search-outline"></ion-icon>
-      <span>Cerca</span>
-    </a>
-
-    <a
-      class="mobile-navigation__link"
-      routerLink="/bookings"
-      routerLinkActive="mobile-navigation__link--active"
-    >
-      <ion-icon name="calendar-outline"></ion-icon>
-      <span>Prenotazioni</span>
-    </a>
-
-    <a
-      class="mobile-navigation__link"
-      routerLink="/favorites"
-      routerLinkActive="mobile-navigation__link--active"
-    >
-      <ion-icon name="heart-outline"></ion-icon>
-      <span>Preferiti</span>
-    </a>
+      <span class="mobile-navigation__content">
+        <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+        <span>{{ item.label }}</span>
+      </span>
+    </ion-button>
   }
-  <a
-    class="mobile-navigation__link"
-    routerLink="/profile"
-    routerLinkActive="mobile-navigation__link--active"
-  >
-    <ion-icon name="person-outline"></ion-icon>
-    <span>Profilo</span>
-  </a>
 </nav>

@@ -18,80 +18,137 @@
       </p>
       } @else {
       <p class="access__intro">Dopo la modifica dovrai accedere nuovamente.</p>
-      } @if (sent() && mode === 'forgot') {
+      }
+      @if (sent() && mode === 'forgot') {
       <p role="status">Richiesta ricevuta. Controlla la tua email.</p>
       }
-      <form (ngSubmit)="submit()" novalidate>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <fieldset [disabled]="busy()">
           @if (mode === 'forgot') {
-          <label
-            >Email<input
+          <label>
+            Email
+            <ion-input
+              class="access__input--plain"
               type="email"
-              name="email"
+              aria-label="Email"
               autocomplete="email"
-              [(ngModel)]="email"
-              required
-          /></label>
-          } @else {
-          <label
-            >Password corrente<input
-              type="password"
-              name="currentPassword"
-              autocomplete="current-password"
-              [(ngModel)]="currentPassword"
-              required
-          /></label>
-          } @if (mode === 'password') {
-          <label
-            >Nuova password<input
-              type="password"
-              name="newPassword"
-              autocomplete="new-password"
-              [(ngModel)]="newPassword"
-              required
-          /></label>
-          @if (passwordErrors.length && (newPassword || attemptedSubmit)) {
-          <ul
-            class="access__requirements"
-            aria-label="Requisiti password non soddisfatti"
-          >
-            @for (passwordError of passwordErrors; track passwordError) {
-            <li>{{ passwordError }}</li>
+              inputmode="email"
+              autocapitalize="none"
+              spellcheck="false"
+              formControlName="email"
+              [disabled]="busy()"
+              (ionBlur)="form.controls.email.markAsTouched()"
+              [class.access__input--invalid]="showError('email')"
+              [attr.aria-invalid]="showError('email')"
+              [attr.aria-describedby]="showError('email') ? 'account-email-error' : null"
+            ></ion-input>
+            @if (showError('email')) {
+            <small id="account-email-error" class="access__field-error" role="alert">
+              Inserisci un indirizzo email valido.
+            </small>
             }
-          </ul>
-          }
-          <label
-            >Conferma nuova password<input
+          </label>
+          } @else {
+          <label>
+            Password corrente
+            <ion-input
+              class="access__input--plain"
               type="password"
-              name="confirmation"
+              aria-label="Password corrente"
+              autocomplete="current-password"
+              formControlName="currentPassword"
+              [disabled]="busy()"
+              (ionBlur)="form.controls.currentPassword.markAsTouched()"
+              [class.access__input--invalid]="showError('currentPassword')"
+              [attr.aria-invalid]="showError('currentPassword')"
+              [attr.aria-describedby]="showError('currentPassword') ? 'account-current-error' : null"
+            ></ion-input>
+            @if (showError('currentPassword')) {
+            <small id="account-current-error" class="access__field-error" role="alert">
+              Inserisci la password corrente.
+            </small>
+            }
+          </label>
+          }
+          @if (mode === 'password') {
+          <label>
+            Nuova password
+            <ion-input
+              class="access__input--plain"
+              type="password"
+              aria-label="Nuova password"
               autocomplete="new-password"
-              [(ngModel)]="confirmation"
-              required
-          /></label>
-          @if (attemptedSubmit && confirmation !== newPassword) {
-          <p class="access__field-error">Le password non coincidono.</p>
-          } } @if (mode === 'delete') {
-          <label class="access__confirmation"
-            ><input
-              type="checkbox"
-              name="confirmed"
-              [(ngModel)]="confirmed"
-            />Confermo di voler eliminare definitivamente il mio account.</label
+              formControlName="newPassword"
+              [disabled]="busy()"
+              (ionBlur)="form.controls.newPassword.markAsTouched()"
+              [class.access__input--invalid]="showError('newPassword')"
+              [attr.aria-invalid]="showError('newPassword')"
+              [attr.aria-describedby]="showError('newPassword') ? 'account-password-requirements' : null"
+            ></ion-input>
+            @if (showError('newPassword')) {
+            <ul id="account-password-requirements" class="access__requirements" aria-live="polite">
+              @for (passwordError of passwordErrors; track passwordError) {
+              <li>{{ passwordError }}</li>
+              }
+            </ul>
+            }
+          </label>
+          <label>
+            Conferma nuova password
+            <ion-input
+              class="access__input--plain"
+              type="password"
+              aria-label="Conferma nuova password"
+              autocomplete="new-password"
+              formControlName="confirmation"
+              [disabled]="busy()"
+              (ionBlur)="form.controls.confirmation.markAsTouched()"
+              [class.access__input--invalid]="showError('confirmation') || (form.hasError('passwordMismatch') && attemptedSubmit)"
+              [attr.aria-invalid]="showError('confirmation') || (form.hasError('passwordMismatch') && attemptedSubmit)"
+              [attr.aria-describedby]="showError('confirmation') || (form.hasError('passwordMismatch') && attemptedSubmit) ? 'account-confirmation-error' : null"
+            ></ion-input>
+            @if (showError('confirmation') || (form.hasError('passwordMismatch') && attemptedSubmit)) {
+            <small id="account-confirmation-error" class="access__field-error" role="alert">
+              {{ form.hasError('passwordMismatch') ? 'Le password non coincidono.' : 'Conferma la nuova password.' }}
+            </small>
+            }
+          </label>
+          }
+          @if (mode === 'delete') {
+          <ion-checkbox
+            class="access__confirmation"
+            formControlName="confirmed"
+            [disabled]="busy()"
+            labelPlacement="end"
+            [attr.aria-invalid]="showError('confirmed')"
+            [attr.aria-describedby]="showError('confirmed') ? 'account-delete-error' : null"
           >
-          } @if (error()) {
+            Confermo di voler eliminare definitivamente il mio account.
+          </ion-checkbox>
+          @if (showError('confirmed')) {
+          <p id="account-delete-error" class="access__field-error" role="alert">
+            Conferma la cancellazione definitiva.
+          </p>
+          }
+          }
+          @if (error()) {
           <p class="access__error" role="alert">{{ error() }}</p>
           }
-          <button type="submit">
+          <ion-button
+            class="access__submit"
+            type="submit"
+            expand="block"
+            [disabled]="busy() || auth.signingOut()"
+          >
             {{ busy() ? 'Attendi…' : mode === 'forgot' ? 'Invia richiesta' :
-            mode === 'delete' ? 'Elimina definitivamente' : 'Modifica password'
-            }}
-          </button>
+            mode === 'delete' ? 'Elimina definitivamente' : 'Modifica password' }}
+          </ion-button>
         </fieldset>
       </form>
       <p class="access__switch">
-        <a [routerLink]="mode === 'forgot' ? '/login' : '/profile'"
-          >{{ mode === 'forgot' ? 'Torna al login' : 'Torna al profilo' }}</a
-        >
+        <a [routerLink]="mode === 'forgot' ? '/login' : '/profile'">
+          {{ mode === 'forgot' ? 'Torna al login' : 'Torna al profilo' }}
+        </a>
       </p>
     </section>
   </main>

@@ -6,6 +6,19 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { BookingsPage } from './bookings.page';
+import { romeDate } from '../models/rome-date';
+
+function monthWithOffset(offset: number): string {
+  const [year, month] = romeDate()
+    .slice(0, 7)
+    .split('-')
+    .map(Number);
+  return romeDate(new Date(Date.UTC(year, month - 1 + offset, 1, 12))).slice(
+    0,
+    7,
+  );
+}
+
 describe('BookingsPage', () => {
   let component: BookingsPage;
   let fixture: ComponentFixture<BookingsPage>;
@@ -32,7 +45,17 @@ describe('BookingsPage', () => {
     component.selectView('past');
     expect(component.selectedView).toBe('past');
   });
+  it('changes the view through the Ionic segment', () => {
+    const segment: HTMLIonSegmentElement =
+      fixture.nativeElement.querySelector('ion-segment');
+    segment.dispatchEvent(new CustomEvent('ionChange', { detail: { value: 'past' } }));
+    fixture.detectChanges();
+
+    expect(component.selectedView).toBe('past');
+    expect(fixture.nativeElement.textContent).toContain('Nessuna prenotazione passata');
+  });
   it('mostra la prenotazione appena ricevuta', async () => {
+    const currentMonth = component.selectedMonth;
     component.ngOnInit();
     http
       .expectOne('/api/v1/bookings')
@@ -44,7 +67,7 @@ describe('BookingsPage', () => {
             spaceName: 'Aula test',
             building: 'Edificio 6',
             floor: 2,
-            date: '2026-09-08',
+            date: `${currentMonth}-08`,
             startTime: '08:00',
             endTime: '20:00',
             status: 'confirmed',
@@ -82,16 +105,18 @@ describe('BookingsPage', () => {
     expect(component.upcomingBookingGroups).toHaveLength(0);
   });
   it('filtra le prenotazioni selezionando un mese', () => {
+    const currentMonth = component.selectedMonth;
+    const previousMonth = monthWithOffset(-1);
     component.ngOnInit();
     http.expectOne('/api/v1/bookings').flush({
       data: [
         {
           id: 7,
           spaceId: 1,
-          spaceName: 'Aula settembre',
+          spaceName: 'Aula mese precedente',
           building: 'Edificio 6',
           floor: 2,
-          date: '2026-09-08',
+          date: `${previousMonth}-08`,
           startTime: '08:00',
           endTime: '10:00',
           status: 'confirmed',
@@ -100,10 +125,10 @@ describe('BookingsPage', () => {
         {
           id: 8,
           spaceId: 1,
-          spaceName: 'Aula ottobre',
+          spaceName: 'Aula mese corrente',
           building: 'Edificio 6',
           floor: 2,
-          date: '2026-10-08',
+          date: `${currentMonth}-08`,
           startTime: '08:00',
           endTime: '10:00',
           status: 'confirmed',
@@ -111,14 +136,15 @@ describe('BookingsPage', () => {
         },
       ],
     });
-    component.selectMonth({ target: { value: '2026-10' } } as unknown as Event);
+    component.selectMonth({ target: { value: currentMonth } } as unknown as Event);
     expect(
       component.upcomingBookingGroups
         .flatMap((group) => group.bookings)
         .map((booking) => booking.spaceName),
-    ).toEqual(['Aula ottobre']);
+    ).toEqual(['Aula mese corrente']);
   });
   it('ricarica le prenotazioni quando si rientra nella pagina', () => {
+    const currentMonth = component.selectedMonth;
     component.ionViewDidEnter();
     component.ionViewDidEnter();
     http.expectOne('/api/v1/bookings').flush({
@@ -129,7 +155,7 @@ describe('BookingsPage', () => {
           spaceName: 'Nuova aula',
           building: 'Edificio 6',
           floor: 2,
-          date: '2026-09-09',
+          date: `${currentMonth}-09`,
           startTime: '08:00',
           endTime: '10:00',
           status: 'confirmed',
@@ -142,5 +168,16 @@ describe('BookingsPage', () => {
         .flatMap((group) => group.bookings)
         .map((booking) => booking.spaceName),
     ).toEqual(['Nuova aula']);
+  });
+  it('scarta una richiesta precedente e non ripropone dati vecchi dopo errore', () => {
+    component.ionViewDidEnter();
+    component.ionViewDidEnter();
+    const oldRequest = http.expectOne('/api/v1/bookings');
+    component.ionViewDidEnter();
+    expect(oldRequest.cancelled).toBe(true);
+    http.expectOne('/api/v1/bookings')
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+    component.selectMonth({ target: { value: component.selectedMonth } } as unknown as Event);
+    expect(component.upcomingBookingGroups).toEqual([]);
   });
 });

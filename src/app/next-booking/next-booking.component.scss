@@ -5,14 +5,21 @@
 
 .next-booking {
   box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  border: 1px solid var(--slot-border);
+  border-radius: 20px;
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+  box-shadow: none;
+}
+
+.next-booking__content {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 32px;
-  border: 1px solid var(--slot-border);
-  border-radius: 20px;
-  background: var(--slot-surface);
-  color: var(--slot-text);
 }
 
 .next-booking__eyebrow {
@@ -33,17 +40,23 @@
 }
 
 .next-booking__status {
+  align-self: flex-start;
   margin: 14px 0 0;
-  color: var(--slot-text-muted);
-  font-size: 16px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  --background: var(--slot-border);
+  --color: var(--slot-text-muted);
+  font-size: 14px;
 }
 
 .next-booking__status[data-status="confirmed"] {
-  color: var(--slot-success);
+  --background: var(--slot-success-surface);
+  --color: var(--slot-success);
 }
 
 .next-booking__status[data-status="cancelled"] {
-  color: var(--slot-danger);
+  --background: var(--slot-danger-surface);
+  --color: var(--slot-danger);
 }
 
 .next-booking__details {
@@ -71,34 +84,26 @@
 }
 
 .next-booking__button {
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
+  --border-radius: 14px;
   width: 100%;
-  min-height: 56px;
+  height: 56px;
   margin-top: auto;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--slot-primary);
-  color: var(--slot-text);
-  font: inherit;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
   font-size: 17px;
-  cursor: pointer;
+  text-transform: none;
 }
 
-.next-booking__button:hover {
-  filter: brightness(1.08);
-}
-
-.next-booking__button:active {
-  transform: translateY(1px);
-}
-
-.next-booking__button:focus-visible {
+.next-booking__button::part(native):focus-visible {
   outline: 3px solid var(--slot-text);
   outline-offset: 3px;
 }
 
 @media (max-width: 700px) {
-  .next-booking {
+  .next-booking__content {
     padding: 24px;
   }
 

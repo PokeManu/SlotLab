@@ -32,4 +32,23 @@ describe('BookingListItemComponent', () => {
       fixture.nativeElement.querySelector('a[href^="/check-in"]'),
     ).toBeNull();
   });
+
+  it('emits cancellation only from the dedicated Ionic button', () => {
+    const cancelled: string[] = [];
+    component.cancelBookingRequested.subscribe((id) => cancelled.push(id));
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('ion-card');
+    const detail: HTMLElement = fixture.nativeElement.querySelector(
+      '.booking-item__check-in',
+    );
+    const cancel: HTMLElement = fixture.nativeElement.querySelector(
+      '.booking-item__cancel',
+    );
+
+    expect(card).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ion-badge')?.textContent).toContain('Confermata');
+    expect(detail).toBeTruthy();
+    cancel.click();
+    expect(cancelled).toEqual(['booking-test']);
+  });
 });

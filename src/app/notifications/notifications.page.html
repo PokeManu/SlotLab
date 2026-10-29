@@ -1,30 +1,34 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
   <main class="notifications">
     <header class="notifications__header">
       <h1>Notifiche</h1>
-      <button
+      <ion-button
         class="notifications__mark-all"
         type="button"
+        fill="clear"
         [disabled]="saving || loading || !notificationGroups.length"
         (click)="markAllAsRead()"
       >
         Segna tutte come lette
-      </button>
+      </ion-button>
     </header>
 
     @if (loading) {
-    <p role="status">Caricamento notifiche…</p>
+    <p class="notifications__loading" role="status">
+      <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+      Caricamento notifiche…
+    </p>
     } @if (error) {
     <p role="alert">{{ error }}</p>
-    <button
+    <ion-button
       type="button"
       class="notifications__mark-all"
+      fill="clear"
       [disabled]="loading || saving"
       (click)="loadNotifications()"
     >
       Ricarica notifiche
-    </button>
+    </ion-button>
     } @if (!loading && !error && !notificationGroups.length) {
     <p role="status">Nessuna notifica presente.</p>
     }
@@ -40,15 +44,17 @@
         >
           {{group.label}}
         </h2>
-        <div class="notification-group__list">
+        <ion-list class="notification-group__list">
           @for(notification of group.notifications; track notification.id){
-          <button
+          <ion-item
             class="notification-card"
-            type="button"
+            [button]="true"
+            [detail]="false"
             [disabled]="saving || loading"
             [class.notification-card--read]="notification.read"
             (click)="markAsRead(notification)"
           >
+            <div class="notification-card__layout">
             <span
               class="notification-card__icon"
               [class.notification-card__icon--primary]="notification.variant === 'primary'"
@@ -84,12 +90,12 @@
               ></span>
               }
             </span>
-          </button>
+            </div>
+          </ion-item>
           }
-        </div>
+        </ion-list>
       </section>
       }
     </div>
   </main>
 </ion-content>
-<app-mobile-navigation></app-mobile-navigation>

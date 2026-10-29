@@ -11,7 +11,7 @@ import {
   createOutline,
   trashOutline,
 } from 'ionicons/icons';
-import type { AdminBooking } from '../admin-bookings/admin-bookings.page';
+import type { AdminBooking } from '../api/admin-bookings-api';
 @Component({
   selector: 'app-booking-detail',
   imports: [IonIcon],

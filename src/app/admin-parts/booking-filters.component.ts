@@ -1,11 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { IonIcon } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import { searchOutline, chevronDownOutline } from 'ionicons/icons';
+import { DatePipe } from '@angular/common';
+import {
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular';
 @Component({
   selector: 'app-booking-filters',
-  imports: [FormsModule, IonIcon],
+  imports: [DatePipe, IonSearchbar, IonSelect, IonSelectOption],
   templateUrl: './booking-filters.component.html',
   styleUrls: ['./booking-filters.component.scss'],
 })
@@ -32,7 +34,4 @@ export class BookingFiltersComponent {
   selectedStatusChange = new EventEmitter<string>();
   @Output()
   changed = new EventEmitter<void>();
-  constructor() {
-    addIcons({ searchOutline, chevronDownOutline });
-  }
 }

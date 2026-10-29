@@ -43,6 +43,52 @@ describe('Gestione credenziali e account', () => {
     ) as HTMLImageElement;
     expect(logo.getAttribute('src')).toBe('assets/branding/slotlab-logo.png');
   });
+  it('usa controlli Ionic collegati ai form Angular nei tre flussi', () => {
+    const forgot = create('forgot');
+    const email = forgot.nativeElement.querySelector('ion-input[type=email]');
+    expect(email.getAttribute('formcontrolname')).toBe('email');
+    expect(forgot.nativeElement.querySelector('ion-button[type=submit]')).not.toBeNull();
+    forgot.componentInstance.submit();
+    forgot.detectChanges();
+    expect(email.getAttribute('aria-invalid')).toBe('true');
+    http.expectNone('/api/v1/auth/forgot-password');
+
+    TestBed.resetTestingModule();
+    const password = create('password');
+    expect(password.nativeElement.querySelectorAll('ion-input[type=password]')).toHaveLength(3);
+    password.componentInstance.currentPassword = 'Current2026!';
+    password.componentInstance.newPassword = 'Changed2026!';
+    password.componentInstance.confirmation = 'different';
+    expect(password.componentInstance.form.hasError('passwordMismatch')).toBe(true);
+    password.componentInstance.submit();
+    password.detectChanges();
+    expect(password.nativeElement.querySelector('#account-confirmation-error')?.textContent)
+      .toContain('non coincidono');
+
+    TestBed.resetTestingModule();
+    const deletion = create('delete');
+    expect(deletion.nativeElement.querySelector('ion-checkbox[formcontrolname=confirmed]'))
+      .not.toBeNull();
+    expect(deletion.componentInstance.form.invalid).toBe(true);
+  });
+  it('disabilita direttamente i controlli Ionic durante una richiesta', () => {
+    for (const mode of ['forgot', 'password', 'delete']) {
+      if (mode !== 'forgot') TestBed.resetTestingModule();
+      const fixture = create(mode);
+      const controls = Array.from(
+        fixture.nativeElement.querySelectorAll('ion-input, ion-checkbox'),
+      ) as Array<HTMLIonInputElement | HTMLIonCheckboxElement>;
+      expect(controls.length).toBeGreaterThan(0);
+
+      fixture.componentInstance.busy.set(true);
+      fixture.detectChanges();
+      expect(controls.every((control) => control.disabled)).toBe(true);
+
+      fixture.componentInstance.busy.set(false);
+      fixture.detectChanges();
+      expect(controls.every((control) => !control.disabled)).toBe(true);
+    }
+  });
   it('recupero normalizza email, impedisce doppio invio e mostra risposta uniforme', () => {
     const fixture = create('forgot'),
       page = fixture.componentInstance;
@@ -54,6 +100,7 @@ describe('Gestione credenziali e account', () => {
     page.submit();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('fieldset').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('ion-input[type=email]').disabled).toBe(true);
     const request = http.expectOne('/api/v1/auth/forgot-password');
     expect(request.request.body).toEqual({ email: 'test@example.test' });
     request.flush(null, { status: 204, statusText: 'No Content' });

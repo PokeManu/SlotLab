@@ -7,13 +7,6 @@ ion-content {
   --color: var(--slot-text);
 }
 
-app-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 1100;
-  background: var(--slot-background);
-}
-
 .home {
   box-sizing: border-box;
   width: 100%;
@@ -88,15 +81,12 @@ app-topbar {
 }
 
 .recommended-spaces__all {
-  border: 0;
-  padding: 0;
-  background: transparent;
+  --color: var(--slot-primary-soft);
+  --padding-start: 8px;
+  --padding-end: 8px;
   flex-shrink: 0;
-  font: inherit;
-  color: var(--slot-primary-soft);
   font-size: 16px;
   font-weight: 500;
-  cursor: pointer;
 }
 
 .recommended-spaces__grid {
@@ -127,7 +117,7 @@ app-topbar {
   .home {
     display: flex;
     flex-direction: column;
-    padding: 40px 20px calc(100px + var(--slot-safe-area-bottom));
+    padding: 40px 20px;
   }
 
   .home__intro {

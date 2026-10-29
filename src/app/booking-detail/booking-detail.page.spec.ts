@@ -102,6 +102,23 @@ describe('UserBookingDetailPage', () => {
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).not.toContain('due@example.test');
   });
+  it('mostra l’errore e non invia un indirizzo partecipante non valido', async () => {
+    const fixture = TestBed.createComponent(UserBookingDetailPage);
+    fixture.detectChanges();
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/v1/bookings/7').flush({ data: booking });
+    fixture.componentInstance.email = 'indirizzo-errato';
+    fixture.componentInstance.add();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.error()).toBe('');
+    expect(fixture.componentInstance.attemptedAdd).toBe(true);
+    const fieldError = fixture.nativeElement.querySelector('#participant-email-error');
+    expect(fieldError?.textContent).toContain('email valido');
+    expect(fieldError?.getAttribute('role')).toBe('alert');
+    expect(fixture.nativeElement.querySelectorAll('[role=alert]')).toHaveLength(1);
+    http.expectNone('/api/v1/bookings/7/participants');
+  });
   it('permette al partecipante di uscire senza mostrare aggiunta e rimozione altrui', async () => {
     userId = 2;
     const fixture = TestBed.createComponent(UserBookingDetailPage);

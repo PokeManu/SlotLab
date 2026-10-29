@@ -110,15 +110,13 @@ dd {
   display: none;
 }
 .badge {
-  padding: 5px 9px;
-  border-radius: 20px;
-  background: rgba(79, 127, 255, 0.14);
-  color: var(--slot-primary-soft);
+  --background: rgba(79, 127, 255, 0.14);
+  --color: var(--slot-primary-soft);
   font-size: 12px;
 }
 .badge--present {
-  background: var(--slot-success-surface);
-  color: var(--slot-success);
+  --background: var(--slot-success-surface);
+  --color: var(--slot-success);
 }
 form {
   display: grid;
@@ -128,39 +126,41 @@ form {
   display: flex;
   gap: 12px;
 }
-input {
+ion-input {
   box-sizing: border-box;
   flex: 1;
   min-width: 0;
   min-height: 44px;
-  padding: 10px 12px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --padding-start: 12px;
+  --padding-end: 12px;
   border: 1px solid var(--slot-border);
   border-radius: 10px;
   background: var(--slot-input);
   color: var(--slot-text);
   font: inherit;
 }
+.field-error {
+  color: var(--slot-danger);
+}
+ion-input[aria-invalid="true"] {
+  border-color: var(--slot-danger);
+}
 .primary-button,
 .secondary-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
+  margin: 0;
   min-height: 44px;
-  padding: 12px 18px;
-  border: 1px solid var(--slot-primary);
-  border-radius: 10px;
-  background: var(--slot-primary);
-  color: #fff;
+  --border-radius: 10px;
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
   font: inherit;
   text-decoration: none;
-  text-align: center;
-  cursor: pointer;
 }
 .secondary-button {
-  background: transparent;
-  border-color: var(--slot-border);
-  color: var(--slot-primary-soft);
+  --background: transparent;
+  --border-color: var(--slot-border);
+  --color: var(--slot-primary-soft);
   font-size: 14px;
 }
 .check-in-button {
@@ -173,22 +173,18 @@ input {
 }
 .error-message {
   padding: 16px;
-  border: 1px solid #b95a68;
+  border: 1px solid var(--slot-danger);
   border-radius: 12px;
-  color: #ffb8c2;
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: wait;
+  color: var(--slot-danger);
 }
 a:hover,
-button:not(:disabled):hover {
+ion-button:not([disabled]):hover {
   filter: brightness(1.12);
 }
 a:focus-visible,
-button:focus-visible,
-input:focus-visible {
-  outline: 3px solid #8da8ff;
+ion-button:focus-visible,
+ion-input:focus-within {
+  outline: 3px solid var(--slot-primary-soft);
   outline-offset: 3px;
 }
 @media (max-width: 480px) {
@@ -204,7 +200,7 @@ input:focus-visible {
   .email-row {
     flex-direction: column;
   }
-  .participant button {
+  .participant ion-button {
     width: 100%;
   }
 }

@@ -1,7 +1,6 @@
-import { EMPTY, Subscription, expand, reduce } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { BookingFiltersComponent } from '../admin-parts/booking-filters.component';
 import { BookingDetailComponent } from '../admin-parts/booking-detail.component';
-import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
 import { Auth } from '../auth/auth';
 import { CommonModule } from '@angular/common';
 import {
@@ -11,10 +10,12 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonIcon } from '@ionic/angular';
+import {
+  AdminBooking,
+  AdminBookingStatus,
+  AdminBookingsApi,
+} from '../api/admin-bookings-api';
+import { IonBadge, IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   addOutline,
@@ -37,48 +38,6 @@ import {
   trashOutline,
   warningOutline,
 } from 'ionicons/icons';
-type BookingStatus = 'Confermata' | 'Completata';
-interface BookingParticipant {
-  firstName: string;
-  lastName: string;
-  email: string;
-  present: boolean;
-  checkedInAt: string | null;
-}
-interface ApiBooking {
-  participants?: BookingParticipant[];
-  id: number;
-  date: string;
-  startTime: string;
-  endTime: string;
-  spaceName: string;
-  building: string;
-  floor: number;
-  participantCount: number;
-  status: string;
-  organizerName: string;
-}
-interface BookingResponse {
-  data: ApiBooking[];
-  pagination: {
-    page: number;
-    totalPages: number;
-  };
-}
-export interface AdminBooking {
-  people?: BookingParticipant[];
-  code: string;
-  startTime: string;
-  endTime: string;
-  space: string;
-  bookedBy: string;
-  participants: number;
-  status: BookingStatus;
-  dateLabel: string;
-  dateValue: string;
-  building: string;
-  floor: number;
-}
 @Component({
   selector: 'app-admin-bookings',
   templateUrl: './admin-bookings.page.html',
@@ -87,16 +46,17 @@ export interface AdminBooking {
   imports: [
     BookingFiltersComponent,
     BookingDetailComponent,
-    AdminSidebarComponent,
     CommonModule,
-    FormsModule,
+    IonBadge,
+    IonButton,
     IonContent,
     IonIcon,
+    IonSpinner,
   ],
 })
 export class AdminBookingsPage implements OnInit, OnDestroy {
   readonly auth = inject(Auth);
-  private readonly http = inject(HttpClient);
+  private readonly bookingsApi = inject(AdminBookingsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private request?: Subscription;
   private hasEntered = false;
@@ -151,42 +111,9 @@ export class AdminBookingsPage implements OnInit, OnDestroy {
     this.loading = true;
     this.errorMessage = '';
     this.changeDetector.markForCheck();
-    const fetchPage = (page: number) =>
-      this.http.get<BookingResponse>(
-        `${environment.apiUrl}/admin/bookings?page=${page}&size=100`,
-      );
-    this.request = fetchPage(1)
-      .pipe(
-        expand((response) =>
-          response.pagination.page < response.pagination.totalPages
-            ? fetchPage(response.pagination.page + 1)
-            : EMPTY,
-        ),
-        reduce(
-          (rows: ApiBooking[], response) => rows.concat(response.data),
-          [],
-        ),
-      )
-      .subscribe({
-        next: (rows) => {
-          this.bookings = rows.map((booking) => ({
-            people: booking.participants ?? [],
-            code: String(booking.id),
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            space: booking.spaceName,
-            bookedBy: booking.organizerName ?? '—',
-            participants: booking.participantCount,
-            status:
-              booking.status === 'completed' ? 'Completata' : 'Confermata',
-            dateLabel: new Date(`${booking.date}T12:00:00Z`).toLocaleDateString(
-              'it-IT',
-              { timeZone: 'Europe/Rome' },
-            ),
-            dateValue: booking.date,
-            building: booking.building,
-            floor: booking.floor,
-          }));
+    this.request = this.bookingsApi.list().subscribe({
+        next: (bookings) => {
+          this.bookings = bookings;
           this.selectedBooking =
             this.bookings.find((booking) => booking.code === selectedCode) ??
             null;
@@ -277,7 +204,7 @@ export class AdminBookingsPage implements OnInit, OnDestroy {
   nextPage(): void {
     this.goToPage(this.currentPage + 1);
   }
-  statusModifier(status: BookingStatus): string {
+  statusModifier(status: AdminBookingStatus): string {
     return status === 'Confermata'
       ? 'booking-status--confirmed'
       : 'booking-status--check-in';

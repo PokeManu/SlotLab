@@ -1,12 +1,12 @@
 import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonContent } from '@ionic/angular';
-import { environment } from '../../environments/environment';
+import { IonButton, IonContent } from '@ionic/angular';
+import { CheckInApi, CheckInResult } from '../api/check-in-api';
 @Component({
   selector: 'app-check-in-entry',
-  imports: [IonContent, RouterLink],
+  imports: [IonButton, IonContent, RouterLink],
   template: ` <ion-content>
     <main class="check-in">
       <section class="check-in__card" aria-labelledby="check-in-title">
@@ -25,9 +25,9 @@ import { environment } from '../../environments/environment';
           @if (errorMessage()) {
             <p role="alert">{{ errorMessage() }}</p>
           }
-          <button type="button" (click)="verify()" [disabled]="loading()">
+          <ion-button type="button" expand="block" (click)="verify()" [disabled]="loading()">
             {{ loading() ? 'Verifica in corso…' : 'Verifica check-in' }}
-          </button>
+          </ion-button>
         } @else {
           <p>L’indirizzo del QR non è valido.</p>
         }
@@ -39,14 +39,10 @@ import { environment } from '../../environments/environment';
 })
 export class CheckInEntryPage {
   private readonly route = inject(ActivatedRoute);
-  private readonly http = inject(HttpClient);
+  private readonly checkInApi = inject(CheckInApi);
   private readonly destroyRef = inject(DestroyRef);
   readonly loading = signal(false);
-  readonly result = signal<{
-    result: string;
-    message: string;
-    checkedInAt: string;
-  } | null>(null);
+  readonly result = signal<CheckInResult | null>(null);
   readonly errorMessage = signal('');
   get spaceId() {
     return this.route.snapshot.paramMap.get('id') ?? '';
@@ -59,14 +55,8 @@ export class CheckInEntryPage {
     this.loading.set(true);
     this.result.set(null);
     this.errorMessage.set('');
-    this.http
-      .post<{
-        data: {
-          result: string;
-          message: string;
-          checkedInAt: string;
-        };
-      }>(`${environment.apiUrl}/spaces/${this.spaceId}/check-in`, {})
+    this.checkInApi
+      .verify(this.spaceId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

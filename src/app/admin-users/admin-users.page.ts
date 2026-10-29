@@ -1,25 +1,15 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { IonContent } from '@ionic/angular';
-import { environment } from '../../environments/environment';
-import { AdminSidebarComponent } from '../admin-parts/admin-sidebar.component';
-import { FormsModule } from '@angular/forms';
-interface AdminUser {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: 'user' | 'admin';
-  createdAt: string;
-}
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { IonAlert, IonButton, IonContent, IonSearchbar, IonSpinner } from '@ionic/angular';
+import { Subscription } from 'rxjs';
+import { AdminUser, AdminUsersApi } from '../api/admin-users-api';
 @Component({
   selector: 'app-admin-users',
   templateUrl: './admin-users.page.html',
   styleUrls: ['./admin-users.page.scss'],
-  imports: [IonContent, AdminSidebarComponent, FormsModule],
+  imports: [IonAlert, IonButton, IonContent, IonSearchbar, IonSpinner],
 })
-export class AdminUsersPage implements OnInit {
-  private readonly http = inject(HttpClient);
+export class AdminUsersPage implements OnInit, OnDestroy {
+  private readonly usersApi = inject(AdminUsersApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   users: AdminUser[] = [];
   search = '';
@@ -27,7 +17,15 @@ export class AdminUsersPage implements OnInit {
   totalPages = 0;
   loading = false;
   error = '';
+  deletingId: number | null = null;
+  confirmingUser: AdminUser | null = null;
+  readonly deleteAlertButtons = [
+    { text: 'Annulla', role: 'cancel' },
+    { text: 'Elimina', role: 'destructive', handler: () => this.confirmRemoval() },
+  ];
   private hasEntered = false;
+  private loadRequest?: Subscription;
+  private deleteRequest?: Subscription;
   ngOnInit(): void {
     this.loadUsers();
   }
@@ -35,19 +33,17 @@ export class AdminUsersPage implements OnInit {
     if (this.hasEntered) this.loadUsers();
     this.hasEntered = true;
   }
+  ngOnDestroy(): void {
+    this.loadRequest?.unsubscribe();
+    this.deleteRequest?.unsubscribe();
+  }
   loadUsers(): void {
+    this.loadRequest?.unsubscribe();
     this.loading = true;
     this.error = '';
     this.changeDetector.markForCheck();
-    const params = new URLSearchParams({ page: String(this.page), size: '20' });
-    if (this.search.trim()) params.set('search', this.search.trim());
-    this.http
-      .get<{
-        data: AdminUser[];
-        pagination: {
-          totalPages: number;
-        };
-      }>(`${environment.apiUrl}/admin/users?${params}`)
+    this.loadRequest = this.usersApi
+      .list(this.page, this.search)
       .subscribe({
         next: (response) => {
           this.users = response.data;
@@ -56,27 +52,47 @@ export class AdminUsersPage implements OnInit {
           this.changeDetector.markForCheck();
         },
         error: () => {
+          this.users = [];
+          this.totalPages = 0;
           this.error = 'Impossibile caricare gli utenti.';
           this.loading = false;
           this.changeDetector.markForCheck();
         },
       });
   }
-  onSearch(): void {
+  onSearch(value = this.search): void {
+    this.search = value;
     this.page = 1;
     this.loadUsers();
   }
   remove(user: AdminUser): void {
     if (
-      user.role === 'admin' ||
-      !window.confirm(
-        `Eliminare l'account di ${user.firstName} ${user.lastName}?`,
-      )
+      this.deletingId !== null ||
+      user.role === 'admin'
     )
       return;
-    this.http.delete(`${environment.apiUrl}/admin/users/${user.id}`).subscribe({
-      next: () => this.loadUsers(),
+    this.confirmingUser = user;
+    this.changeDetector.markForCheck();
+  }
+  cancelRemoval(): void {
+    this.confirmingUser = null;
+  }
+  confirmRemoval(): void {
+    const user = this.confirmingUser;
+    this.confirmingUser = null;
+    if (!user || this.deletingId !== null || user.role === 'admin') return;
+    this.loadRequest?.unsubscribe();
+    this.loading = false;
+    this.deletingId = user.id;
+    this.error = '';
+    this.changeDetector.markForCheck();
+    this.deleteRequest = this.usersApi.remove(user.id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.loadUsers();
+      },
       error: () => {
+        this.deletingId = null;
         this.error = 'Impossibile eliminare l’utente.';
         this.changeDetector.markForCheck();
       },

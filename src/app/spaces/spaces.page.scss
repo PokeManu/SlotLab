@@ -94,6 +94,7 @@ ion-content {
   min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
+  background: transparent;
 }
 
 .spaces__empty {
@@ -115,8 +116,7 @@ ion-content {
 
 @media (max-width: 700px) {
   .spaces {
-    padding: 32px 20px
-      calc(100px + var(--slot-safe-area-bottom));
+    padding: 32px 20px 48px;
   }
 
   .spaces__intro {

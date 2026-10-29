@@ -1,100 +1,142 @@
 <ion-content [fullscreen]="true">
-  <div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-
-    <main class="spaces-management">
+  <main class="spaces-management">
       <header class="spaces-header">
         <h1>Gestione spazi</h1>
-        <button
+        <ion-button
           type="button"
           class="add-space-button"
-          (click)="showCreate = !showCreate"
+          [disabled]="saving || deletingId !== null"
+          (click)="showCreate ? closeForm() : startCreate()"
         >
           <ion-icon name="add-outline"></ion-icon>
-          <span>Aggiungi spazio</span>
-        </button>
+          <span>{{ showCreate ? 'Chiudi modulo' : 'Aggiungi spazio' }}</span>
+        </ion-button>
       </header>
 
       @if (showCreate) {
       <form
         class="space-create-form"
-        (submit)="$event.preventDefault(); saveSpace()"
+        [formGroup]="form"
+        (ngSubmit)="saveSpace()"
+        novalidate
       >
-        <label
-          >Edificio<select
-            name="building"
-            [(ngModel)]="form.buildingId"
-            required
+        <label>
+          Edificio
+          <ion-select
+            aria-label="Edificio dello spazio"
+            interface="popover"
+            formControlName="buildingId"
+            (ionBlur)="form.controls.buildingId.markAsTouched()"
+            [class.invalid]="showError('buildingId')"
+            [attr.aria-invalid]="showError('buildingId')"
+            [attr.aria-describedby]="showError('buildingId') ? 'space-building-error' : null"
           >
-            <option [ngValue]="0">Seleziona</option>
+            <ion-select-option [value]="0">Seleziona</ion-select-option>
             @for (building of buildings; track building.id) {
-            <option [ngValue]="building.id">{{ building.name }}</option>
+            <ion-select-option [value]="building.id">{{ building.name }}</ion-select-option>
             }
-          </select></label
-        >
-        <label
-          >Nome<input name="name" [(ngModel)]="form.name" required
-        /></label>
-        <label
-          >Piano<input
-            name="floor"
+          </ion-select>
+          @if (showError('buildingId')) {
+          <small id="space-building-error" class="field-error" role="alert">Seleziona un edificio.</small>
+          }
+        </label>
+        <label>
+          Nome
+          <ion-input
+            aria-label="Nome spazio"
+            formControlName="name"
+            (ionBlur)="form.controls.name.markAsTouched()"
+            [class.invalid]="showError('name')"
+            [attr.aria-invalid]="showError('name')"
+            [attr.aria-describedby]="showError('name') ? 'space-name-error' : null"
+          ></ion-input>
+          @if (showError('name')) {
+          <small id="space-name-error" class="field-error" role="alert">Inserisci il nome dello spazio.</small>
+          }
+        </label>
+        <label>
+          Piano
+          <ion-input
+            aria-label="Piano"
             type="number"
-            [(ngModel)]="form.floor"
-            required
-        /></label>
-        <label
-          >Tipologia<select name="type" [(ngModel)]="form.type">
-            <option value="study_room">Aula studio</option>
-            <option value="laboratory">Laboratorio</option>
-            <option value="meeting_room">Sala riunioni</option>
-          </select></label
-        >
-        <label
-          >Posti<input
-            name="capacity"
+            inputmode="numeric"
+            step="1"
+            formControlName="floor"
+            (ionBlur)="form.controls.floor.markAsTouched()"
+            [class.invalid]="showError('floor')"
+            [attr.aria-invalid]="showError('floor')"
+            [attr.aria-describedby]="showError('floor') ? 'space-floor-error' : null"
+          ></ion-input>
+          @if (showError('floor')) {
+          <small id="space-floor-error" class="field-error" role="alert">Inserisci un piano intero.</small>
+          }
+        </label>
+        <label>
+          Tipologia
+          <ion-select aria-label="Tipologia spazio" interface="popover" formControlName="type">
+            <ion-select-option value="study_room">Aula studio</ion-select-option>
+            <ion-select-option value="laboratory">Laboratorio</ion-select-option>
+            <ion-select-option value="meeting_room">Sala riunioni</ion-select-option>
+          </ion-select>
+        </label>
+        <label>
+          Posti
+          <ion-input
+            aria-label="Posti"
             type="number"
+            inputmode="numeric"
             min="1"
-            [(ngModel)]="form.capacity"
-            required
-        /></label>
-        <label
-          >Stato<select
-            name="status"
-            [(ngModel)]="form.status"
-            (ngModelChange)="onStatusChange()"
+            step="1"
+            formControlName="capacity"
+            (ionBlur)="form.controls.capacity.markAsTouched()"
+            [class.invalid]="showError('capacity')"
+            [attr.aria-invalid]="showError('capacity')"
+            [attr.aria-describedby]="showError('capacity') ? 'space-capacity-error' : null"
+          ></ion-input>
+          @if (showError('capacity')) {
+          <small id="space-capacity-error" class="field-error" role="alert">Inserisci un numero intero di posti maggiore di zero.</small>
+          }
+        </label>
+        <label>
+          Stato
+          <ion-select
+            aria-label="Stato spazio"
+            interface="popover"
+            formControlName="status"
+            (ionChange)="onStatusChange($event.detail.value)"
           >
-            <option value="active">Attivo</option>
-            <option value="maintenance">Manutenzione</option>
-            <option value="deactivated">Disattivato</option>
-          </select></label
-        >
+            <ion-select-option value="active">Attivo</ion-select-option>
+            <ion-select-option value="maintenance">Manutenzione</ion-select-option>
+            <ion-select-option value="deactivated">Disattivato</ion-select-option>
+          </ion-select>
+        </label>
         <fieldset class="space-create-form__options">
           <legend>Caratteristiche e servizi</legend>
-          <label class="checkbox"
-            ><input
-              name="accessible"
-              type="checkbox"
-              [(ngModel)]="form.accessible"
-              [disabled]="form.status !== 'active'"
-            /><span>Accessibile</span></label
-          >
+          <ion-checkbox
+            class="checkbox"
+            labelPlacement="end"
+            formControlName="accessible"
+          >Accessibile</ion-checkbox>
           @for (service of services; track service.code) {
-          <label class="checkbox"
-            ><input
-              type="checkbox"
-              [checked]="form.serviceCodes.includes(service.code)"
-              (change)="toggleService(service.code)"
-            /><span>{{ service.label }}</span></label
-          >
+          <ion-checkbox
+            class="checkbox"
+            labelPlacement="end"
+            [checked]="form.controls.serviceCodes.value.includes(service.code)"
+            [disabled]="saving"
+            (ionChange)="setService(service.code, $event.detail.checked)"
+          >{{ service.label }}</ion-checkbox>
           }
         </fieldset>
-        <button type="submit">
-          {{ editingId === null ? 'Aggiungi spazio' : 'Salva modifiche' }}
-        </button>
-        @if (createError) {
-        <p class="create-error" role="alert">{{ createError }}</p>
-        }
+        <ion-button type="submit" [disabled]="saving || deletingId !== null">
+          {{ saving ? 'Salvataggio…' : editingId === null ? 'Aggiungi spazio' : 'Salva modifiche' }}
+        </ion-button>
       </form>
+      }
+      @if (createError) {
+      <p class="create-error" role="alert">{{ createError }}</p>
+      }
+      @if (deletingId !== null) {
+      <p role="status">Eliminazione spazio in corso…</p>
       }
 
       <app-space-search
@@ -102,39 +144,42 @@
       ></app-space-search>
 
       <section class="space-filters" aria-label="Filtri degli spazi">
-        <select
+        <ion-select
           class="filter-button"
           aria-label="Edificio"
+          interface="popover"
           [(ngModel)]="filterBuilding"
           (ngModelChange)="currentPage=1"
         >
-          <option value="">Tutti gli edifici</option>
+          <ion-select-option value="">Tutti gli edifici</ion-select-option>
           @for (building of buildings; track building.id) {
-          <option [value]="building.name">{{ building.name }}</option>
+          <ion-select-option [value]="building.name">{{ building.name }}</ion-select-option>
           }
-        </select>
-        <select
+        </ion-select>
+        <ion-select
           class="filter-button"
           aria-label="Tipologia"
+          interface="popover"
           [(ngModel)]="filterType"
           (ngModelChange)="currentPage=1"
         >
-          <option value="">Tutte le tipologie</option>
-          <option value="study_room">Aula studio</option>
-          <option value="laboratory">Laboratorio</option>
-          <option value="meeting_room">Sala riunioni</option>
-        </select>
-        <select
+          <ion-select-option value="">Tutte le tipologie</ion-select-option>
+          <ion-select-option value="study_room">Aula studio</ion-select-option>
+          <ion-select-option value="laboratory">Laboratorio</ion-select-option>
+          <ion-select-option value="meeting_room">Sala riunioni</ion-select-option>
+        </ion-select>
+        <ion-select
           class="filter-button"
           aria-label="Stato"
+          interface="popover"
           [(ngModel)]="filterStatus"
           (ngModelChange)="currentPage=1"
         >
-          <option value="">Tutti gli stati</option>
-          <option>Disponibile</option>
-          <option>Manutenzione</option>
-          <option>Disattivato</option>
-        </select>
+          <ion-select-option value="">Tutti gli stati</ion-select-option>
+          <ion-select-option value="Disponibile">Disponibile</ion-select-option>
+          <ion-select-option value="Manutenzione">Manutenzione</ion-select-option>
+          <ion-select-option value="Disattivato">Disattivato</ion-select-option>
+        </ion-select>
       </section>
 
       @if (loadError) {
@@ -152,7 +197,7 @@
         <div class="spaces-table__body">
           @for (space of visibleSpaces; track space.id){
           <article class="space-row">
-            <div class="space-row__iname">
+            <div class="space-row__name">
               <span class="space-row__icon">
                 <ion-icon [name]="space.icon"></ion-icon>
               </span>
@@ -172,32 +217,38 @@
             </span>
 
             <div class="space-row__actions">
-              <button
+              <ion-button
                 type="button"
+                fill="clear"
                 class="icon-button"
                 [attr.aria-label]="'Mostra QR di ' + space.name"
                 (click)="qrSpaceId = space.id"
               >
                 QR
-              </button>
-              <button
+              </ion-button>
+              <ion-button
                 type="button"
+                fill="clear"
                 class="icon-button"
                 [attr.aria-label]="'Modifica ' + space.name"
+                [disabled]="saving || deletingId !== null"
                 (click)="editSpace(space)"
               >
                 <ion-icon name="create-outline"></ion-icon>
-              </button>
+              </ion-button>
 
-              <button
+              <ion-button
                 type="button"
+                fill="clear"
+                color="danger"
                 class="icon-button icon-button--danger"
                 [attr.aria-label]="'Elimina ' + space.name"
                 title="Elimina spazio"
+                [disabled]="saving || deletingId !== null"
                 (click)="removeSpace(space)"
               >
                 <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
-              </button>
+              </ion-button>
             </div>
           </article>
           }
@@ -207,34 +258,31 @@
           <span>{{ filteredSpaces.length }} spazi trovati</span>
 
           <nav class="pagination" aria-label="Paginazione degli spazi">
-            <button
+            <ion-button
               type="button"
+              fill="outline"
               class="pagination__button"
               aria-label="Pagina precedente"
               [disabled]="currentPage === 1"
               (click)="currentPage = currentPage - 1"
             >
               <ion-icon name="chevron-back-outline"></ion-icon>
-            </button>
+            </ion-button>
 
-            <button
-              type="button"
-              class="pagination__button pagination__button--active"
-              aria-label="Pagina corrente"
-              aria-current="page"
-            >
+            <span class="pagination__current" aria-current="page" aria-label="Pagina corrente">
               {{ currentPage }}
-            </button>
+            </span>
 
-            <button
+            <ion-button
               type="button"
+              fill="outline"
               class="pagination__button"
               aria-label="Pagina successiva"
               [disabled]="currentPage === totalPages"
               (click)="currentPage = currentPage + 1"
             >
               <ion-icon name="chevron-forward-outline"></ion-icon>
-            </button>
+            </ion-button>
           </nav>
         </footer>
       </section>
@@ -244,11 +292,17 @@
           [spaceId]="qrSpaceId"
           [showCheckInLink]="false"
         ></app-space-qr
-        ><button class="qr-close" type="button" (click)="qrSpaceId = null">
+        ><ion-button class="qr-close" type="button" (click)="qrSpaceId = null">
           Chiudi QR
-        </button>
+        </ion-button>
       </section>
       }
-    </main>
-  </div>
+      <ion-alert
+        [isOpen]="pendingDelete !== null"
+        header="Eliminare spazio?"
+        [message]="pendingDelete?.name ?? ''"
+        [buttons]="deleteButtons"
+        (didDismiss)="pendingDelete = null"
+      ></ion-alert>
+  </main>
 </ion-content>

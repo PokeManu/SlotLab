@@ -43,7 +43,10 @@
       <section class="report-attachment">
         <h3>Foto allegata</h3>
         @if (photoLoading) {
-          <p role="status">Caricamento foto…</p>
+          <p class="photo-state" role="status">
+            <ion-spinner name="crescent" aria-label="Caricamento foto"></ion-spinner>
+            Caricamento foto…
+          </p>
         }
         @if (photoError) {
           <p role="alert">{{ photoError }}</p>
@@ -61,51 +64,43 @@
     <section class="report-update" aria-label="Aggiorna segnalazione">
       <label class="update-field">
         <span>Stato</span>
-        <span class="select-wrapper">
-          <span
-            class="status-dot"
-            [class.status-dot--open]="selectedReport.status === 'open'"
-            [class.status-dot--progress]="
-              selectedReport.status === 'in-progress'
-            "
-            [class.status-dot--resolved]="selectedReport.status === 'resolved'"
-          >
-          </span>
-
-          <select [value]="selectedReport.status" #status>
-            <option value="open">Aperta</option>
-            <option value="in-progress">In lavorazione</option>
-            <option value="resolved">Risolta</option>
-          </select>
-
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </span>
+        <ion-select
+          interface="popover"
+          aria-label="Stato della segnalazione"
+          [value]="pendingStatus"
+          (ionChange)="pendingStatus = $event.detail.value"
+        >
+          <ion-select-option value="open">Aperta</ion-select-option>
+          <ion-select-option value="in-progress">In lavorazione</ion-select-option>
+          <ion-select-option value="resolved">Risolta</ion-select-option>
+        </ion-select>
       </label>
 
       <label class="update-field">
         <span>Assegnata a</span>
-        <span class="select-wrapper">
+        <span class="readonly-field">
           <ion-icon
-            class="select-wrapper__leading-icon"
+            class="readonly-field__icon"
             name="person-outline"
           ></ion-icon>
-
-          <select [value]="selectedReport.assignee">
-            <option value="Ufficio tecnico">Ufficio tecnico</option>
-            <option value="Servizi generali">Servizi generali</option>
-            <option value="Amministrazione">Amministrazione</option>
-          </select>
-          <ion-icon name="chevron-down-outline"></ion-icon>
+          <span>{{ selectedReport.assignee || 'Non assegnata' }}</span>
         </span>
       </label>
 
-      <button
+      <ion-button
         type="button"
         class="save-report-button"
-        (click)="saveStatus(status.value)"
+        expand="block"
+        [disabled]="savingStatus"
+        (click)="saveStatus(pendingStatus)"
       >
-        Salva aggiornamento
-      </button>
+        @if (savingStatus) {
+          <ion-spinner name="crescent" aria-label="Salvataggio in corso"></ion-spinner>
+          Salvataggio…
+        } @else {
+          Salva aggiornamento
+        }
+      </ion-button>
     </section>
   </div>
 </article>

@@ -1,5 +1,52 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-split-pane
+    contentId="app-shell"
+    [when]="layout() === 'admin' ? '(min-width: 1181px)' : false"
+  >
+    <ion-menu
+      contentId="app-shell"
+      menuId="admin-navigation"
+      type="overlay"
+      [disabled]="layout() !== 'admin'"
+    >
+      <ion-content>
+        <app-admin-sidebar></app-admin-sidebar>
+      </ion-content>
+    </ion-menu>
+
+    <div
+      id="app-shell"
+      class="app-shell"
+      [class.app-shell--admin]="layout() === 'admin'"
+    >
+      @if (layout() === 'user') {
+        <app-topbar></app-topbar>
+      }
+
+      @if (layout() === 'admin') {
+        <ion-header class="app-shell__admin-header">
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-menu-button menu="admin-navigation" aria-label="Apri il menu amministratore"></ion-menu-button>
+            </ion-buttons>
+            <ion-title>SlotLab</ion-title>
+          </ion-toolbar>
+        </ion-header>
+      }
+
+      <div class="app-shell__view">
+        <ion-router-outlet></ion-router-outlet>
+      </div>
+
+      @if (layout() === 'user') {
+        <ion-footer class="app-shell__footer">
+          <ion-toolbar>
+            <app-mobile-navigation></app-mobile-navigation>
+          </ion-toolbar>
+        </ion-footer>
+      }
+    </div>
+  </ion-split-pane>
   @if (auth.user() && auth.notice()) {
     <div class="session-notice" role="alert">{{ auth.notice() }}</div>
   }

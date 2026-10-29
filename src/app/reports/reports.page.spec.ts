@@ -51,6 +51,8 @@ describe('ReportsPage', () => {
   });
   it('ricarica le segnalazioni tornando nella pagina', () => {
     component.ionViewDidEnter();
+    http.expectNone('/api/v1/reports');
+    component.ionViewDidEnter();
     http
       .expectOne('/api/v1/reports')
       .flush({
@@ -67,5 +69,13 @@ describe('ReportsPage', () => {
         ],
       });
     expect(component.reports.map((report) => report.id)).toEqual(['5']);
+  });
+  it('annulla una lettura precedente quando si torna più volte', () => {
+    component.ionViewDidEnter();
+    component.ionViewDidEnter();
+    const old = http.expectOne('/api/v1/reports');
+    component.ionViewDidEnter();
+    expect(old.cancelled).toBe(true);
+    http.expectOne('/api/v1/reports').flush({ data: [] });
   });
 });

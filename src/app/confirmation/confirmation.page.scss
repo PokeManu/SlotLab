@@ -54,13 +54,14 @@ ion-content {
 }
 
 .confirmation-card {
-  box-sizing: border-box;
+  --background: var(--slot-surface-translucent);
+  --color: var(--slot-text);
+  margin: 0;
   border: 1px solid var(--slot-border);
   border-radius: 15px;
-  background: var(--slot-surface-translucent);
 }
 
-.booking-summary {
+.booking-summary ion-card-content {
   display: flex;
   gap: 20px;
   padding: 22px;
@@ -107,24 +108,21 @@ ion-content {
   font-size: 20px;
 }
 
-.booking-summary .selected-resource {
-  display: block;
-  padding-top: 3px;
-  color: #78dfbd;
+.booking-code {
+  margin-top: 17px;
 }
 
-.booking-code {
+.booking-code ion-card-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 17px;
   padding: 22px;
   color: var(--slot-text-muted);
 }
 
 .booking-code strong {
-  color: #78dfbd;
+  color: var(--slot-success);
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.5px;
@@ -140,22 +138,32 @@ ion-content {
 }
 
 .home-link {
-  display: block;
-  margin-top: 30px;
-  padding: 10px;
-  color: var(--slot-primary);
+  --border-radius: 14px;
+  height: 52px;
+  margin: 10px 0 0;
   font-size: 18px;
-  text-align: center;
-  text-decoration: none;
+  text-transform: none;
 }
 
-.home-link:hover {
-  text-decoration: underline;
+.home-link--primary {
+  margin-top: 30px;
 }
 
-.home-link:focus-visible {
+.home-link::part(native):focus-visible {
   outline: 3px solid #8da8ff;
   outline-offset: 3px;
+}
+
+.confirmation-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirmation-loading ion-spinner {
+  width: 18px;
+  height: 18px;
+  color: var(--slot-primary);
 }
 
 @media (max-width: 380px) {
@@ -164,7 +172,7 @@ ion-content {
     padding-left: 16px;
   }
 
-  .booking-summary {
+  .booking-summary ion-card-content {
     gap: 14px;
     padding: 17px;
   }
@@ -175,7 +183,7 @@ ion-content {
     flex-basis: 64px;
   }
 
-  .booking-code {
+  .booking-code ion-card-content {
     padding: 18px;
   }
 }

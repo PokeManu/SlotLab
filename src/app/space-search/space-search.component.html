@@ -1,15 +1,8 @@
 <div class="space-search" role="search" aria-label="Ricerca degli spazi">
-  <div class="space-search__field">
-    <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-
-    <input
-      class="space-search__input"
-      type="search"
-      name="spaceSearch"
-      [placeholder]="placeholder"
-      [attr.aria-label]="placeholder"
-      autocomplete="off"
-      (input)="searchChange.emit($any($event.target).value)"
-    />
-  </div>
+  <ion-searchbar
+    [placeholder]="placeholder"
+    [attr.aria-label]="placeholder"
+    autocomplete="off"
+    (ionInput)="searchChange.emit($event.detail.value ?? '')"
+  ></ion-searchbar>
 </div>

@@ -20,6 +20,17 @@ describe('ReportListItemComponent', () => {
   });
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ion-card')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('ion-badge')?.textContent).toContain(component.statusLabel);
+  });
+  it('does not display a fabricated floor when the API has no building', () => {
+    fixture.componentRef.setInput('report', {
+      ...SPACE_REPORTS[0],
+      building: '',
+      floor: 0,
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.report-item__location')).toBeNull();
   });
   afterEach(() => vi.unstubAllGlobals());
   it('carica la foto privata e la mostra nella card', async () => {
@@ -36,6 +47,7 @@ describe('ReportListItemComponent', () => {
       photo: 'photo.png',
     });
     fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('ion-spinner')).toBeTruthy();
     const http = TestBed.inject(HttpTestingController);
     http
       .expectOne('/api/v1/reports/7/photo')

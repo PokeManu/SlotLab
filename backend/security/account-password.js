@@ -1,8 +1,9 @@
-const { queries, transaction } = require("../db/transaction");
-const { getDatabase } = require("../db/db");
-const { verifyPassword, hashPassword } = require("./password");
-const { validatePassword } = require("./validation");
+const { verifyPassword } = require("./password");
 const { readConfig } = require("../config");
+const {
+  findAccountForPasswordCheck,
+  findCurrentSessionUser,
+} = require("../models/users.model");
 function accountError(status, code, message) {
   return Object.assign(new Error(message), { status, code });
 }
@@ -14,10 +15,7 @@ async function checkPassword(request) {
       "VALIDATION_ERROR",
       "Inserisci la password corrente.",
     );
-  const user = await queries(getDatabase()).get(
-    "SELECT * FROM users WHERE id = ?",
-    [request.user.id],
-  );
+  const user = await findAccountForPasswordCheck(request.user.id);
   if (!user || !(await verifyPassword(password, user.password_hash))) {
     throw accountError(
       400,
@@ -28,10 +26,11 @@ async function checkPassword(request) {
   return user;
 }
 async function assertCurrent(query, request, user) {
-  const current = await query.get(
-    `SELECT u.id FROM users u JOIN auth_sessions s ON s.user_id = u.id
-    WHERE u.id = ? AND u.password_hash = ? AND u.role = ? AND s.access_token_jti = ?`,
-    [user.id, user.password_hash, request.user.role, request.authJti],
+  const current = await findCurrentSessionUser(
+    query,
+    user,
+    request.user.role,
+    request.authJti,
   );
   if (!current)
     throw accountError(
@@ -45,30 +44,9 @@ function clearSessionCookie(response) {
   const { maxAge, ...options } = auth.refreshCookie;
   response.clearCookie(auth.refreshCookieName, options);
 }
-async function changePassword(request, response) {
-  try {
-    validatePassword(request.body?.newPassword);
-  } catch (e) {
-    e.status = 400;
-    throw e;
-  }
-  const user = await checkPassword(request);
-  const hash = await hashPassword(request.body.newPassword);
-  await transaction(async (query) => {
-    await assertCurrent(query, request, user);
-    await query.run("UPDATE users SET password_hash = ? WHERE id = ?", [
-      hash,
-      user.id,
-    ]);
-    await query.run("DELETE FROM auth_sessions WHERE user_id = ?", [user.id]);
-  });
-  clearSessionCookie(response);
-  response.status(204).end();
-}
 module.exports = {
   accountError,
   checkPassword,
   assertCurrent,
   clearSessionCookie,
-  changePassword,
 };

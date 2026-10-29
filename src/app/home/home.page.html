@@ -1,6 +1,4 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
-
   <main class="home">
     <section class="home__intro">
       <div class="home__heading">
@@ -22,13 +20,13 @@
       <header class="recommended-spaces__header">
         <h2 id="recommended-spaces-title">Spazi consigliati</h2>
 
-        <button
+        <ion-button
           class="recommended-spaces__all"
-          type="button"
+          fill="clear"
           (click)="openAllSpaces()"
         >
           Vedi tutti
-        </button>
+        </ion-button>
       </header>
 
       <div class="recommended-spaces__grid">
@@ -55,5 +53,3 @@
     </section>
   </main>
 </ion-content>
-
-<app-mobile-navigation></app-mobile-navigation>

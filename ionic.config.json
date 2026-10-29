@@ -1,7 +1,4 @@
 {
   "name": "SlotLab",
-  "integrations": {
-    "capacitor": {}
-  },
   "type": "angular-standalone"
 }

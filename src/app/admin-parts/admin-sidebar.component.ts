@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonIcon } from '@ionic/angular';
+import {
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonMenuToggle,
+} from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   barChartOutline,
@@ -19,7 +25,16 @@ import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 import { ProfilePhoto } from '../profile/profile-photo';
 @Component({
   selector: 'app-admin-sidebar',
-  imports: [RouterLink, RouterLinkActive, IonIcon, ThemeToggleComponent],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonMenuToggle,
+    ThemeToggleComponent,
+  ],
   templateUrl: './admin-sidebar.component.html',
   styleUrls: ['./admin-sidebar.component.scss'],
 })

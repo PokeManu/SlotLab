@@ -132,15 +132,16 @@ ion-content {
   font-weight: 500;
 }
 
-.field-content select,
-.participant-emails input {
+.participant-emails ion-input {
   box-sizing: border-box;
   width: 100%;
   min-height: 42px;
-  padding: 9px 11px;
+  --padding-top: 9px;
+  --padding-bottom: 9px;
+  --padding-start: 11px;
+  --padding-end: 11px;
   border: 1px solid var(--slot-border);
   border-radius: 9px;
-  outline: 0;
   background: var(--slot-input);
   color: var(--slot-text);
   font: inherit;
@@ -187,7 +188,7 @@ ion-content {
   font-size: 14px;
 }
 
-.participant-emails input {
+.participant-emails ion-input {
   min-width: 0;
 }
 
@@ -211,29 +212,26 @@ ion-content {
 }
 
 .time-slot {
+  margin: 0;
   min-width: 0;
-  padding: 10px 4px;
-  border: 1px solid var(--slot-border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--slot-text-muted);
+  min-height: 42px;
+  --border-radius: 999px;
+  --border-color: var(--slot-border);
+  --background: transparent;
+  --color: var(--slot-text-muted);
+  --padding-start: 4px;
+  --padding-end: 4px;
   font: inherit;
   font-size: 14px;
-  cursor: pointer;
-  transition:
-    border-color 150ms ease,
-    background 150ms ease,
-    color 150ms ease;
 }
 
 .time-slot:hover {
-  border-color: var(--slot-primary);
+  --border-color: var(--slot-primary);
 }
 
 .time-slot--selected {
-  border-color: #6a8fff;
-  background: var(--slot-primary);
-  color: white;
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
 }
 
 .participants {
@@ -270,36 +268,22 @@ ion-content {
   text-align: center;
 }
 
-.counter button {
+.counter ion-button {
   display: grid;
   width: 42px;
   height: 42px;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: var(--slot-surface-raised);
-  color: var(--slot-text);
-  cursor: pointer;
+  margin: 0;
+  --border-radius: 50%;
+  --background: var(--slot-surface-raised);
+  --color: var(--slot-text);
 }
 
-.counter button ion-icon {
+.counter ion-button ion-icon {
   font-size: 21px;
 }
 
-.counter button:disabled {
+.counter ion-button[disabled] {
   opacity: 0.4;
-  cursor: not-allowed;
-}
-
-select {
-  appearance: none;
-  cursor: pointer;
-}
-
-select option {
-  background: var(--slot-surface);
-  color: var(--slot-text);
 }
 
 .duration {
@@ -328,37 +312,26 @@ select option {
   width: 100%;
   min-height: 66px;
   margin-top: 6px;
-  padding: 14px 20px;
-  border: 0;
-  border-radius: 14px;
-  background: linear-gradient(
+  --border-radius: 14px;
+  --background: linear-gradient(
     135deg,
     var(--slot-primary),
     var(--slot-primary-gradient-end)
   );
-  color: white;
+  --color: var(--ion-color-primary-contrast);
   font: inherit;
   font-size: 19px;
-  cursor: pointer;
-  transition:
-    filter 160ms ease,
-    transform 160ms ease;
 }
 
 .primary-button:hover {
-  filter: brightness(1.08);
-}
-
-.primary-button:active {
-  transform: scale(0.99);
+  --background-hover: var(--slot-primary-gradient-end);
 }
 
 .back-button:focus-visible,
 .time-slot:focus-visible,
-.counter button:focus-visible,
+.counter ion-button:focus-visible,
 .field-content input:focus-visible,
-select:focus-visible,
-.participant-emails input:focus-visible,
+.participant-emails ion-input:focus-within,
 .primary-button:focus-visible {
   outline: 3px solid #8da8ff;
   outline-offset: 3px;
@@ -396,6 +369,12 @@ select:focus-visible,
 .email-error {
   color: #ffb8c2;
 }
-.participant-emails input[aria-invalid="true"] {
+.participant-emails ion-input[aria-invalid="true"] {
   border-color: #ffb8c2;
+}
+
+@media (max-width: 500px) {
+  .time-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

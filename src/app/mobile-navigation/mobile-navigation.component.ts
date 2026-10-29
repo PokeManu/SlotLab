@@ -1,8 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { Auth } from '../auth/auth';
-import { adminNavigation } from '../auth/navigation-items';
+import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { IonIcon } from '@ionic/angular';
+import { IonButton, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   calendarOutline,
@@ -10,23 +8,21 @@ import {
   homeOutline,
   personOutline,
   searchOutline,
-  flagOutline,
-  megaphoneOutline,
-  barChartOutline,
-  businessOutline,
-  gridOutline,
-  peopleOutline,
-  timeOutline,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-mobile-navigation',
   templateUrl: './mobile-navigation.component.html',
   styleUrls: ['./mobile-navigation.component.scss'],
-  imports: [IonIcon, RouterLink, RouterLinkActive],
+  imports: [IonButton, IonIcon, RouterLink, RouterLinkActive],
 })
 export class MobileNavigationComponent {
-  readonly auth = inject(Auth);
-  readonly adminNavigation = adminNavigation;
+  readonly navigation = [
+    { label: 'Home', route: '/home', icon: 'home-outline' },
+    { label: 'Cerca', route: '/spaces', icon: 'search-outline' },
+    { label: 'Prenotazioni', route: '/bookings', icon: 'calendar-outline' },
+    { label: 'Preferiti', route: '/favorites', icon: 'heart-outline' },
+    { label: 'Profilo', route: '/profile', icon: 'person-outline' },
+  ] as const;
   constructor() {
     addIcons({
       calendarOutline,
@@ -34,13 +30,6 @@ export class MobileNavigationComponent {
       homeOutline,
       personOutline,
       searchOutline,
-      flagOutline,
-      megaphoneOutline,
-      barChartOutline,
-      businessOutline,
-      gridOutline,
-      peopleOutline,
-      timeOutline,
     });
   }
 }

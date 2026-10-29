@@ -11,6 +11,10 @@ if (!window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+// jsdom does not implement scrolling used by Ionic's scrollable segments.
+if (!HTMLElement.prototype.scrollTo) {
+  HTMLElement.prototype.scrollTo = () => undefined;
+}
 if (!globalThis.localStorage) {
   const values = new Map<string, string>();
   const storage: Storage = {

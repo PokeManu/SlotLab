@@ -1,25 +1,6 @@
 const sqlite3 = require("sqlite3");
 const { getDatabase } = require("./db");
-function queries(db) {
-  return {
-    get: (sql, values = []) =>
-      new Promise((resolve, reject) =>
-        db.get(sql, values, (e, row) => (e ? reject(e) : resolve(row))),
-      ),
-    all: (sql, values = []) =>
-      new Promise((resolve, reject) =>
-        db.all(sql, values, (e, rows) => (e ? reject(e) : resolve(rows))),
-      ),
-    run: (sql, values = []) =>
-      new Promise((resolve, reject) =>
-        db.run(sql, values, function (e) {
-          e
-            ? reject(e)
-            : resolve({ changes: this.changes, lastId: this.lastID });
-        }),
-      ),
-  };
-}
+const { queries } = require("./query");
 async function transaction(work) {
   const main = await queries(getDatabase()).get("PRAGMA database_list");
   const db = await new Promise((resolve, reject) => {

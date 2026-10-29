@@ -1,6 +1,4 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
-
   <main class="reports-page">
     <header class="reports-page__header">
       <div>
@@ -14,7 +12,8 @@
       </div>
 
       <p class="reports-page__summary">
-        {{ reports.length }} segnalazioni inviate
+        {{ reports.length }}
+        {{ reports.length === 1 ? "segnalazione inviata" : "segnalazioni inviate" }}
       </p>
     </header>
 
@@ -31,5 +30,3 @@
     </section>
   </main>
 </ion-content>
-
-<app-mobile-navigation></app-mobile-navigation>

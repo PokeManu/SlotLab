@@ -1,6 +1,6 @@
 import { Auth } from '../auth/auth';
 import { romeDate } from '../models/rome-date';
-import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
+import { SpacesApi } from '../api/spaces-api';
 import {
   ChangeDetectorRef,
   Component,
@@ -9,11 +9,18 @@ import {
   inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, IonInput } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   addOutline,
@@ -27,29 +34,80 @@ import {
   timeOutline,
 } from 'ionicons/icons';
 import { Space } from '../data/spaces.data';
+import { BookingsApi } from '../api/bookings-api';
 @Component({
   selector: 'app-booking',
   templateUrl: './booking.page.html',
   styleUrls: ['./booking.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink, FormsModule],
+  imports: [
+    IonButton,
+    IonContent,
+    IonIcon,
+    IonInput,
+    RouterLink,
+    ReactiveFormsModule,
+  ],
 })
 export class BookingPage implements OnInit, OnDestroy {
   space: Space;
   get participants(): number {
-    return 1 + this.participantEmails.length;
+    return 1 + this.form.controls.participantEmails.length;
   }
   selectedTime = '';
-  selectedDate = romeDate();
-  participantEmails: string[] = [];
-  emailTouched: boolean[] = [];
   attemptedSubmit = false;
   private readonly auth = inject(Auth);
+  private readonly distinctParticipants = (
+    control: AbstractControl,
+  ): ValidationErrors | null => {
+    const emails = (control.value as string[]).map((email) =>
+      email.trim().toLowerCase(),
+    );
+    return emails.some(
+      (email, index) => email && emails.indexOf(email) !== index,
+    )
+      ? { duplicateEmails: true }
+      : null;
+  };
+  readonly form = new FormGroup({
+    date: new FormControl(romeDate(), {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
+      ],
+    }),
+    availabilityId: new FormControl<number | null>(null, Validators.required),
+    participantEmails: new FormArray<FormControl<string>>(
+      [],
+      this.distinctParticipants,
+    ),
+  });
+  get selectedDate(): string {
+    return this.form.controls.date.value;
+  }
+  set selectedDate(value: string) {
+    this.form.controls.date.setValue(value);
+  }
+  get selectedAvailabilityId(): number | null {
+    return this.form.controls.availabilityId.value;
+  }
+  set selectedAvailabilityId(value: number | null) {
+    this.form.controls.availabilityId.setValue(value);
+  }
+  get participantEmails(): string[] {
+    return this.form.controls.participantEmails.value;
+  }
+  set participantEmails(values: string[]) {
+    const controls = this.form.controls.participantEmails;
+    controls.clear();
+    values.forEach((value) => controls.push(this.participantEmailControl(value)));
+  }
   errorMessage = '';
   submitting = false;
   private lastRequest = '';
   private requestKey = '';
-  selectedAvailabilityId: number | null = null;
-  private readonly http = inject(HttpClient);
+  private readonly spacesApi = inject(SpacesApi);
+  private readonly bookingsApi = inject(BookingsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -110,35 +168,11 @@ export class BookingPage implements OnInit, OnDestroy {
     this.loadingAvailability = true;
     this.availabilityError = '';
     this.changeDetector.markForCheck();
-    this.spaceRequest = this.http
-      .get<{
-        data: {
-          id: number;
-          name: string;
-          building: {
-            name: string;
-          };
-          floor: number;
-          type: string;
-          capacity: number;
-          accessible: boolean;
-          services: string[];
-        };
-      }>(`${environment.apiUrl}/spaces/${id}`)
+    this.spaceRequest = this.spacesApi
+      .detail(id)
       .subscribe({
-        next: (response) => {
-          const value = response.data;
-          this.space = {
-            id: String(value.id),
-            name: value.name,
-            type: value.type,
-            building: value.building.name,
-            floor: value.floor,
-            seats: value.capacity,
-            accessible: value.accessible,
-            image: SPACE_PREVIEW_IMAGE,
-            services: value.services,
-          };
+        next: ({ space }) => {
+          this.space = space;
           this.loadAvailability(id);
           this.changeDetector.markForCheck();
         },
@@ -190,22 +224,12 @@ export class BookingPage implements OnInit, OnDestroy {
     this.timeSlots = [];
     this.selectedAvailabilityId = null;
     this.selectedTime = '';
-    this.availabilityRequest = this.http
-      .get<{
-        data: Array<{
-          availabilityId: number;
-          startTime: string;
-          endTime: string;
-          availableSeats: number;
-          bookable: boolean;
-        }>;
-      }>(
-        `${environment.apiUrl}/spaces/${spaceId}/availability?date=${this.selectedDate}`,
-      )
+    this.availabilityRequest = this.spacesApi
+      .availability(spaceId, this.selectedDate)
       .subscribe({
-        next: (availability) => {
+        next: (slots) => {
           this.loadingAvailability = false;
-          this.timeSlots = availability.data
+          this.timeSlots = slots
             .filter((slot) => slot.bookable)
             .map((slot) => ({
               id: slot.availabilityId,
@@ -236,28 +260,47 @@ export class BookingPage implements OnInit, OnDestroy {
   }
   increaseParticipants(): void {
     if (this.submitting || this.participants >= this.participantLimit) return;
-    this.participantEmails.push('');
-    this.emailTouched.push(false);
+    this.form.controls.participantEmails.push(this.participantEmailControl());
   }
   decreaseParticipants(): void {
     if (this.submitting || this.participants <= 1) return;
-    this.participantEmails.pop();
-    this.emailTouched.pop();
+    this.form.controls.participantEmails.removeAt(this.participants - 2);
+  }
+  private participantEmailControl(value = ''): FormControl<string> {
+    return new FormControl(value, {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        (control) => {
+          const email = String(control.value ?? '').trim().toLowerCase();
+          if (
+            !email ||
+            Validators.email(new FormControl(email)) !== null ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+            /[,;]/.test(email)
+          )
+            return { email: true };
+          return email === this.auth.user()?.email.trim().toLowerCase()
+            ? { organizerEmail: true }
+            : null;
+        },
+      ],
+    });
   }
   emailError(index: number): string {
-    const email = this.participantEmails[index].trim().toLowerCase();
+    const control = this.form.controls.participantEmails.at(index);
+    const email = control.value.trim().toLowerCase();
     if (!email) return 'Inserisci l’email del partecipante.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || /[,;]/.test(email))
+    if (control.hasError('email'))
       return 'Inserisci una sola email valida.';
-    if (email === this.auth.user()?.email.trim().toLowerCase())
+    if (control.hasError('organizerEmail'))
       return 'Sei già incluso come organizzatore.';
-    if (
-      this.participantEmails.some(
+    if (this.form.controls.participantEmails.hasError('duplicateEmails')) {
+      const duplicate = this.participantEmails.some(
         (value, other) =>
           other !== index && value.trim().toLowerCase() === email,
-      )
-    ) {
-      return 'Questa email è già presente nel gruppo.';
+      );
+      if (duplicate) return 'Questa email è già presente nel gruppo.';
     }
     return '';
   }
@@ -278,8 +321,15 @@ export class BookingPage implements OnInit, OnDestroy {
       return;
     this.errorMessage = '';
     this.attemptedSubmit = true;
-    if (this.participantEmails.some((_, index) => this.emailError(index))) {
+    if (this.form.controls.participantEmails.invalid) {
       this.errorMessage = 'Controlla le email dei partecipanti.';
+      return;
+    }
+    if (
+      this.form.controls.date.invalid ||
+      this.form.controls.availabilityId.invalid
+    ) {
+      this.errorMessage = 'Seleziona una data e una fascia valide.';
       return;
     }
     if (this.participants > this.participantLimit) {
@@ -302,14 +352,9 @@ export class BookingPage implements OnInit, OnDestroy {
       this.lastRequest = serialized;
       this.requestKey = crypto.randomUUID();
     }
-    this.http
-      .post<{
-        data: {
-          id: number;
-        };
-      }>(`${environment.apiUrl}/bookings`, body, {
-        headers: { 'Idempotency-Key': this.requestKey },
-      })
+    this.form.disable({ emitEvent: false });
+    this.bookingsApi
+      .create(body, this.requestKey)
       .subscribe({
         next: (response) =>
           this.router
@@ -318,6 +363,7 @@ export class BookingPage implements OnInit, OnDestroy {
             })
             .finally(() => {
               this.submitting = false;
+              this.form.enable({ emitEvent: false });
               this.changeDetector.markForCheck();
             }),
         error: (error: HttpErrorResponse) => {
@@ -325,6 +371,7 @@ export class BookingPage implements OnInit, OnDestroy {
             error.error?.error?.message ??
             'Prenotazione non riuscita. Riprova.';
           this.submitting = false;
+          this.form.enable({ emitEvent: false });
           this.changeDetector.markForCheck();
         },
       });

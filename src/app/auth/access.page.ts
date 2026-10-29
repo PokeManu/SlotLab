@@ -1,7 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, IonInput } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   eyeOffOutline,
@@ -15,9 +22,43 @@ import { finalize } from 'rxjs';
 import { Auth } from './auth';
 import { returnDestination } from './return-url';
 import { passwordValidationMessages } from './password-validation';
+
+function trimmedRequired(control: AbstractControl): ValidationErrors | null {
+  return String(control.value ?? '').trim() ? null : { required: true };
+}
+
+function validEmail(control: AbstractControl): ValidationErrors | null {
+  const email = String(control.value ?? '').trim().toLowerCase();
+  return Validators.email(new FormControl(email)) === null &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ? null
+    : { email: true };
+}
+
+function strongPassword(control: AbstractControl): ValidationErrors | null {
+  return passwordValidationMessages(String(control.value ?? '')).length
+    ? { passwordRules: true }
+    : null;
+}
+
+function matchingPasswords(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password')?.value;
+  const confirmation = control.get('passwordConfirmation')?.value;
+  return password && confirmation && password !== confirmation
+    ? { passwordMismatch: true }
+    : null;
+}
+
 @Component({
   selector: 'app-access',
-  imports: [FormsModule, RouterLink, IonContent, IonIcon],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    IonButton,
+    IonContent,
+    IonIcon,
+    IonInput,
+  ],
   templateUrl: './access.page.html',
   styleUrls: ['./access.page.scss'],
 })
@@ -28,16 +69,70 @@ export class AccessPage {
   readonly registering = this.route.snapshot.data['mode'] === 'register';
   readonly busy = signal(false);
   readonly error = signal('');
+  readonly form = new FormGroup(
+    {
+      firstName: new FormControl('', {
+        nonNullable: true,
+        validators: this.registering
+          ? [Validators.required, trimmedRequired]
+          : [],
+      }),
+      lastName: new FormControl('', {
+        nonNullable: true,
+        validators: this.registering
+          ? [Validators.required, trimmedRequired]
+          : [],
+      }),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, validEmail],
+      }),
+      password: new FormControl('', {
+        nonNullable: true,
+        validators: this.registering
+          ? [Validators.required, strongPassword]
+          : [Validators.required],
+      }),
+      passwordConfirmation: new FormControl('', {
+        nonNullable: true,
+        validators: this.registering ? [Validators.required] : [],
+      }),
+    },
+    { validators: this.registering ? matchingPasswords : [] },
+  );
   registered() {
     return this.queryParams.get('registered') === '1';
   }
-  firstName = '';
-  lastName = '';
-  email = '';
-  password = '';
-  passwordConfirmation = '';
-  passwordTouched = false;
-  confirmationTouched = false;
+  get firstName() {
+    return this.form.controls.firstName.value;
+  }
+  set firstName(value: string) {
+    this.form.controls.firstName.setValue(value);
+  }
+  get lastName() {
+    return this.form.controls.lastName.value;
+  }
+  set lastName(value: string) {
+    this.form.controls.lastName.setValue(value);
+  }
+  get email() {
+    return this.form.controls.email.value;
+  }
+  set email(value: string) {
+    this.form.controls.email.setValue(value);
+  }
+  get password() {
+    return this.form.controls.password.value;
+  }
+  set password(value: string) {
+    this.form.controls.password.setValue(value);
+  }
+  get passwordConfirmation() {
+    return this.form.controls.passwordConfirmation.value;
+  }
+  set passwordConfirmation(value: string) {
+    this.form.controls.passwordConfirmation.setValue(value);
+  }
   attemptedSubmit = false;
   showPassword = false;
   showPasswordConfirmation = false;
@@ -66,8 +161,8 @@ export class AccessPage {
   ionViewWillEnter(): void {
     this.password = '';
     this.passwordConfirmation = '';
-    this.passwordTouched = false;
-    this.confirmationTouched = false;
+    this.form.controls.password.markAsUntouched();
+    this.form.controls.passwordConfirmation.markAsUntouched();
     this.attemptedSubmit = false;
     this.showPassword = false;
     this.showPasswordConfirmation = false;
@@ -77,30 +172,39 @@ export class AccessPage {
     if (!this.registering) return [];
     return passwordValidationMessages(this.password);
   }
+  get showEmailError(): boolean {
+    return (
+      !!this.email &&
+      this.form.controls.email.invalid &&
+      (this.form.controls.email.touched || this.attemptedSubmit)
+    );
+  }
   get showPasswordErrors(): boolean {
     return (
       this.registering &&
       this.passwordErrors.length > 0 &&
-      (this.password.length > 0 || this.passwordTouched || this.attemptedSubmit)
+      (this.password.length > 0 ||
+        this.form.controls.password.touched ||
+        this.attemptedSubmit)
     );
   }
   get confirmationError(): string {
     if (
       !this.registering ||
       (!this.passwordConfirmation &&
-        !this.confirmationTouched &&
+        !this.form.controls.passwordConfirmation.touched &&
         !this.attemptedSubmit)
     )
       return '';
     if (!this.passwordConfirmation) return 'Conferma la password.';
-    if (this.passwordConfirmation !== this.password)
+    if (this.form.hasError('passwordMismatch'))
       return 'Le password non coincidono.';
     return '';
   }
   submit(): void {
     if (this.busy()) return;
     this.error.set('');
-    this.attemptedSubmit = this.registering;
+    this.attemptedSubmit = true;
     const email = this.email.trim().toLowerCase();
     if (
       !email ||
@@ -113,14 +217,14 @@ export class AccessPage {
       this.error.set('Compila tutti i campi.');
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (this.form.controls.email.invalid) {
       this.error.set('Inserisci un indirizzo email valido.');
       return;
     }
     if (this.registering && this.passwordErrors.length > 0) {
       return;
     }
-    if (this.registering && this.password !== this.passwordConfirmation) {
+    if (this.form.invalid) {
       return;
     }
     this.busy.set(true);
@@ -132,7 +236,11 @@ export class AccessPage {
           password: this.password,
         })
       : this.auth.login({ email, password: this.password });
-    request.pipe(finalize(() => this.busy.set(false))).subscribe({
+    this.form.disable({ emitEvent: false });
+    request.pipe(finalize(() => {
+      this.busy.set(false);
+      this.form.enable({ emitEvent: false });
+    })).subscribe({
       next: () => {
         this.password = '';
         this.passwordConfirmation = '';

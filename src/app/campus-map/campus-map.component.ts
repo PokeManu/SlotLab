@@ -9,12 +9,10 @@ import {
   viewChild,
   inject,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { forkJoin, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
-import { environment } from '../../environments/environment';
-import { allPages } from '../api/all-pages';
+import { CampusMapApi } from '../api/campus-map-api';
 interface MapSpace {
   id: number;
   name: string;
@@ -47,7 +45,7 @@ export class CampusMapComponent implements OnInit, AfterViewInit, OnDestroy {
   heading = 'Esplora gli edifici';
   @Input()
   hint = 'Seleziona un edificio sulla mappa';
-  private readonly http = inject(HttpClient);
+  private readonly campusMapApi = inject(CampusMapApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private request?: Subscription;
@@ -84,20 +82,8 @@ export class CampusMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   private loadBuildings(): void {
     this.request = forkJoin({
-      buildings: this.http.get<{
-        data: Array<{
-          id: number;
-          number: number;
-          name: string;
-          address: string;
-          latitude: number;
-          longitude: number;
-        }>;
-      }>(`${environment.apiUrl}/buildings`),
-      spaces: allPages<MapSpace>(
-        this.http,
-        `${environment.apiUrl}/spaces?size=100`,
-      ),
+      buildings: this.campusMapApi.listBuildings(),
+      spaces: this.campusMapApi.listSpaces(),
     }).subscribe({
       next: (response) => {
         const spacesByBuilding = new Map<number, MapSpace[]>();

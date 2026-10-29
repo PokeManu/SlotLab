@@ -1,8 +1,5 @@
 <ion-content [fullscreen]="true" class="admin-content">
-  <div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-
-    <main class="dashboard">
+  <main class="dashboard">
       <header class="dashboard__header">
         <div class="dashboard__greeting">
           <h1>Buongiorno, {{ auth.user()?.firstName }}</h1>
@@ -13,20 +10,28 @@
           </p>
         </div>
 
-        <label class="admin-search">
-          <ion-icon name="search-outline"></ion-icon>
-          <span class="sr-only">Cerca</span>
-          <input
-            type="search"
-            placeholder="Cerca spazi"
-            aria-label="Cerca spazi"
-            [(ngModel)]="searchTerm"
-            (keydown.enter)="searchAdmin()"
-          />
-        </label>
+        <ion-searchbar
+          class="admin-search"
+          placeholder="Cerca spazi"
+          aria-label="Cerca spazi"
+          [value]="searchTerm"
+          (ionInput)="onSearchInput($event.detail.value)"
+          (keydown.enter)="searchAdmin()"
+        ></ion-searchbar>
       </header>
 
       <section class="metrics" aria-label="Riepilogo giornaliero">
+        @if (summaryLoading) {
+          <div class="dashboard-state dashboard-state--metrics" role="status">
+            <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+            Caricamento riepilogo…
+          </div>
+        } @else if (summaryError) {
+          <div class="dashboard-state dashboard-state--metrics" role="alert">
+            <p>{{ summaryError }}</p>
+            <ion-button type="button" fill="outline" (click)="retrySummary()">Riprova</ion-button>
+          </div>
+        } @else {
         <article class="metric-card">
           <div class="metric-card__heading">
             <span>Prenotazioni oggi</span>
@@ -61,18 +66,37 @@
             >non risolte</small
           >
         </article>
+        }
       </section>
 
       <section class="dashboard__details">
         <article class="panel bookings-panel">
           <header class="panel-header">
             <h2>Prossime prenotazioni</h2>
-            <button type="button" (click)="openBookings()">
+            <ion-button
+              fill="clear"
+              size="small"
+              type="button"
+              (click)="openBookings()"
+            >
               Vedi calendario
-            </button>
+            </ion-button>
           </header>
 
           <div class="booking-list">
+            @if (bookingsLoading) {
+              <div class="dashboard-state" role="status">
+                <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+                Caricamento prenotazioni…
+              </div>
+            } @else if (bookingsError) {
+              <div class="dashboard-state" role="alert">
+                <p>{{ bookingsError }}</p>
+                <ion-button type="button" fill="outline" (click)="retryBookings()">Riprova</ion-button>
+              </div>
+            } @else if (!bookings.length) {
+              <p class="dashboard-state">Nessuna prenotazione in programma.</p>
+            } @else {
             @for (booking of bookings; track booking.time){
             <div class="booking-row">
               <time>{{booking.time}}</time>
@@ -84,16 +108,37 @@
               <span class="status-pill"> {{booking.status}} </span>
             </div>
             }
+            }
           </div>
         </article>
 
         <article class="panel spaces-panel">
           <header class="panel-header">
             <h2>Stato degli spazi</h2>
-            <button type="button" (click)="openSpaces()">Gestisci</button>
+            <ion-button
+              fill="clear"
+              size="small"
+              type="button"
+              (click)="openSpaces()"
+            >
+              Gestisci
+            </ion-button>
           </header>
 
           <div class="space-status-list">
+            @if (spacesLoading) {
+              <div class="dashboard-state" role="status">
+                <ion-spinner name="dots" aria-hidden="true"></ion-spinner>
+                Caricamento spazi…
+              </div>
+            } @else if (spacesError) {
+              <div class="dashboard-state" role="alert">
+                <p>{{ spacesError }}</p>
+                <ion-button type="button" fill="outline" (click)="retrySpaces()">Riprova</ion-button>
+              </div>
+            } @else if (!spaceStatuses.length) {
+              <p class="dashboard-state">Nessuno spazio da mostrare.</p>
+            } @else {
             @for(space of spaceStatuses; track space.name){
             <div class="space-status">
               <span class="space-status__icon">
@@ -111,9 +156,9 @@
               ></span>
             </div>
             }
+            }
           </div>
         </article>
       </section>
-    </main>
-  </div>
+  </main>
 </ion-content>

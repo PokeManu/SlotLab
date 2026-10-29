@@ -1,5 +1,5 @@
-<article class="space-list-item">
-  <div class="space-list-item__media">
+<ion-item class="space-list-item" lines="none">
+  <div class="space-list-item__media" slot="start">
     @if (space.image) {
       <img
         class="space-list-item__image"
@@ -13,9 +13,9 @@
   </div>
 
   <div class="space-list-item__content">
-    <span class="space-list-item__type">
+    <ion-badge class="space-list-item__type">
       {{ space.type }}
-    </span>
+    </ion-badge>
 
     <h3 class="space-list-item__name">
       {{ space.name }}
@@ -38,27 +38,36 @@
     </p>
   </div>
 
-  <button
-    class="space-list-item__favorite"
-    type="button"
-    [attr.aria-label]="
-      favorite
-        ? 'Rimuovi ' + space.name + ' dai preferiti'
-        : 'Aggiungi ' + space.name + ' ai preferiti'
-    "
-    [attr.aria-pressed]="favorite"
-    (click)="toggleFavorite()"
-  >
-    <ion-icon
-      [name]="favorite ? 'heart' : 'heart-outline'"
-      aria-hidden="true"
-    ></ion-icon>
-  </button>
+  <div class="space-list-item__actions" slot="end">
+    <ion-button
+      class="space-list-item__favorite"
+      fill="outline"
+      [attr.aria-label]="
+        favorite
+          ? 'Rimuovi ' + space.name + ' dai preferiti'
+          : 'Aggiungi ' + space.name + ' ai preferiti'
+      "
+      [attr.aria-pressed]="favorite"
+      (click)="toggleFavorite()"
+    >
+      <ion-icon
+        slot="icon-only"
+        [name]="favorite ? 'heart' : 'heart-outline'"
+        aria-hidden="true"
+      ></ion-icon>
+    </ion-button>
 
-  <button
-    class="space-list-item__action"
-    type="button"
-    [attr.aria-label]="'Apri ' + space.name"
-    (click)="openSpace()"
-  ></button>
-</article>
+    <ion-button
+      class="space-list-item__action"
+      fill="clear"
+      [attr.aria-label]="'Apri ' + space.name"
+      (click)="openSpace()"
+    >
+      <ion-icon
+        slot="icon-only"
+        name="arrow-forward-outline"
+        aria-hidden="true"
+      ></ion-icon>
+    </ion-button>
+  </div>
+</ion-item>

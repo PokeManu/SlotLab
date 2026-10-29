@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IonIcon } from '@ionic/angular';
+import { IonBadge, IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { locationOutline, peopleOutline, timeOutline } from 'ionicons/icons';
 import { BookingSummary } from '../models/booking-summary.model';
@@ -7,7 +7,7 @@ import { BookingSummary } from '../models/booking-summary.model';
   selector: 'app-next-booking',
   templateUrl: './next-booking.component.html',
   styleUrls: ['./next-booking.component.scss'],
-  imports: [IonIcon],
+  imports: [IonBadge, IonButton, IonCard, IonCardContent, IonIcon],
 })
 export class NextBookingComponent {
   constructor() {

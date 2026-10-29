@@ -1,7 +1,7 @@
 const { closeDatabase, connectDatabase } = require("./db");
 const { hashPassword } = require("../security/password");
 const { normalizeAndValidateAccount } = require("../security/validation");
-const { queries } = require("./transaction");
+const { queries } = require("./query");
 const { consolidateOccurrences } = require("./occurrences");
 const services = [
   { code: "wifi", name: "Wi-Fi" },
@@ -74,28 +74,6 @@ function execute(database, sql) {
     });
   });
 }
-function run(database, sql, parameters = []) {
-  return new Promise((resolve, reject) => {
-    database.run(sql, parameters, function onRun(error) {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve({ lastId: this.lastID, changes: this.changes });
-    });
-  });
-}
-function get(database, sql, parameters = []) {
-  return new Promise((resolve, reject) => {
-    database.get(sql, parameters, (error, row) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(row);
-    });
-  });
-}
 function readAdminFromEnvironment(environment = process.env) {
   const variableNames = [
     "SLOTLAB_ADMIN_FIRST_NAME",
@@ -119,9 +97,9 @@ function readAdminFromEnvironment(environment = process.env) {
   };
 }
 async function insertServices(database) {
+  const databaseQueries = queries(database);
   for (const service of services) {
-    await run(
-      database,
+    await databaseQueries.run(
       `
         INSERT INTO services (code, name)
         VALUES (?, ?)
@@ -132,9 +110,9 @@ async function insertServices(database) {
   }
 }
 async function insertCatalog(database) {
+  const databaseQueries = queries(database);
   for (const buildingData of buildings) {
-    await run(
-      database,
+    await databaseQueries.run(
       `INSERT INTO buildings (number, name, address, latitude, longitude) VALUES (?, ?, ?, ?, ?) ON CONFLICT(number) DO UPDATE SET name = excluded.name, address = excluded.address, latitude = excluded.latitude, longitude = excluded.longitude;`,
       [
         buildingData.number,
@@ -146,19 +124,16 @@ async function insertCatalog(database) {
     );
   }
   for (const spaceData of catalogSpaces) {
-    const building = await get(
-      database,
+    const building = await databaseQueries.get(
       "SELECT id FROM buildings WHERE number = ?;",
       [spaceData.buildingNumber],
     );
-    let space = await get(
-      database,
+    let space = await databaseQueries.get(
       "SELECT id FROM spaces WHERE building_id = ? AND name = ?;",
       [building.id, spaceData.name],
     );
     if (!space) {
-      const inserted = await run(
-        database,
+      const inserted = await databaseQueries.run(
         `INSERT INTO spaces (building_id, name, floor, type, capacity, accessible, status) VALUES (?, ?, ?, ?, ?, ?, 'active');`,
         [
           building.id,
@@ -171,8 +146,7 @@ async function insertCatalog(database) {
       );
       space = { id: inserted.lastId };
     } else {
-      await run(
-        database,
+      await databaseQueries.run(
         `UPDATE spaces SET floor = ?, type = ?, capacity = ?, accessible = ? WHERE id = ?;`,
         [
           spaceData.floor,
@@ -183,24 +157,21 @@ async function insertCatalog(database) {
         ],
       );
     }
-    await run(database, "DELETE FROM space_services WHERE space_id = ?;", [
+    await databaseQueries.run("DELETE FROM space_services WHERE space_id = ?;", [
       space.id,
     ]);
     for (const code of spaceData.services) {
-      const service = await get(
-        database,
+      const service = await databaseQueries.get(
         "SELECT id FROM services WHERE code = ?;",
         [code],
       );
-      await run(
-        database,
+      await databaseQueries.run(
         "INSERT INTO space_services (space_id, service_id) VALUES (?, ?);",
         [space.id, service.id],
       );
     }
     for (let weekday = 1; weekday <= 5; weekday += 1) {
-      await run(
-        database,
+      await databaseQueries.run(
         `INSERT OR IGNORE INTO availabilities (space_id, valid_from, valid_until, weekday, start_time, end_time, is_retired) VALUES (?, '2026-01-01', '2099-12-31', ?, '08:00', '20:00', 0);`,
         [space.id, weekday],
       );
@@ -208,8 +179,8 @@ async function insertCatalog(database) {
   }
 }
 async function insertAdminIfMissing(database, admin) {
-  const existingUser = await get(
-    database,
+  const databaseQueries = queries(database);
+  const existingUser = await databaseQueries.get(
     "SELECT id, role FROM users WHERE email = ?;",
     [admin.email],
   );
@@ -222,8 +193,7 @@ async function insertAdminIfMissing(database, admin) {
     return { adminCreated: false, adminId: existingUser.id };
   }
   const passwordHash = await hashPassword(admin.password);
-  const result = await run(
-    database,
+  const result = await databaseQueries.run(
     `
       INSERT INTO users (
         first_name,

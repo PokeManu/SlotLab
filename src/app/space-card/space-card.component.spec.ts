@@ -21,4 +21,12 @@ describe('SpaceCardComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('apre lo spazio dalla card Ionic', () => {
+    const opened: string[] = [];
+    component.spaceOpened.subscribe((id) => opened.push(id));
+    const card = fixture.nativeElement.querySelector('ion-card');
+    expect(card).toBeTruthy();
+    card.click();
+    expect(opened).toEqual(['space-test']);
+  });
 });

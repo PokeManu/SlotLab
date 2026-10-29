@@ -1,4 +1,4 @@
-<article class="booking-item">
+<ion-card class="booking-item">
   <div class="booking-item__time" aria-label="Orario della prenotazione">
     <span>{{ booking.startTime }}</span>
     <span aria-hidden="true">–</span>
@@ -23,21 +23,25 @@
     </p>
   </div>
 
-  <span class="booking-item__status" [attr.data-status]="booking.status">
+  <ion-badge class="booking-item__status" [attr.data-status]="booking.status">
     {{ statusLabel }}
-  </span>
+  </ion-badge>
 
   <div class="booking-item__actions">
-    <a class="booking-item__check-in" [routerLink]="['/bookings', booking.id]"
-      >Dettaglio e partecipanti</a
+    <ion-button
+      class="booking-item__check-in"
+      [routerLink]="['/bookings', booking.id]"
     >
+      Dettaglio e partecipanti
+    </ion-button>
 
-    <button
+    <ion-button
       class="booking-item__cancel"
       type="button"
+      fill="clear"
       (click)="cancelBooking()"
     >
       Annulla
-    </button>
+    </ion-button>
   </div>
-</article>
+</ion-card>

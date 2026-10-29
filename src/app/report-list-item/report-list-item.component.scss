@@ -7,11 +7,13 @@
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
   gap: 20px;
+  margin: 0;
   padding: 22px;
   border: 1px solid var(--slot-border);
   border-radius: 16px;
-  background: var(--slot-surface);
-  color: var(--slot-text);
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+  box-shadow: none;
 }
 
 .report-item__icon {
@@ -31,6 +33,7 @@
 
 .report-item__content {
   min-width: 0;
+  padding: 0;
 }
 
 .report-item__header {
@@ -61,19 +64,19 @@
   flex: 0 0 auto;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgb(79 127 255 / 14%);
-  color: var(--slot-primary-soft);
+  --background: var(--slot-primary-tint);
+  --color: var(--slot-primary-soft);
   font-size: 14px;
 }
 
 .report-item__status[data-status="in-progress"] {
-  background: var(--slot-warning-surface);
-  color: var(--slot-warning);
+  --background: var(--slot-warning-surface);
+  --color: var(--slot-warning);
 }
 
 .report-item__status[data-status="resolved"] {
-  background: var(--slot-success-surface);
-  color: var(--slot-success);
+  --background: var(--slot-success-surface);
+  --color: var(--slot-success);
 }
 
 .report-item__location {
@@ -146,4 +149,17 @@
   object-fit: contain;
   margin: 12px 0;
   border-radius: 10px;
+}
+
+.report-item__photo-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--slot-text-muted);
+}
+
+.report-item__photo-loading ion-spinner {
+  width: 18px;
+  height: 18px;
+  color: var(--slot-primary);
 }

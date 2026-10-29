@@ -7,15 +7,6 @@ ion-content {
   --color: var(--slot-text);
 }
 
-.admin-layout {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  min-height: 100%;
-  background:
-    radial-gradient(circle at 65% 35%, var(--slot-page-glow), transparent 40%),
-    var(--slot-background);
-}
-
 .admin-main {
   box-sizing: border-box;
   min-width: 0;
@@ -36,34 +27,6 @@ ion-content {
   font-size: clamp(30px, 2.1vw, 38px);
   font-weight: 500;
   letter-spacing: -0.02em;
-}
-
-.primary-button {
-  display: inline-flex;
-  min-height: 55px;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(
-    135deg,
-    var(--slot-primary),
-    var(--slot-primary-gradient-end)
-  );
-  color: #ffffff;
-  box-shadow: 0 10px 25px rgb(42 91 226 / 15%);
-  font-size: 18px;
-}
-
-.primary-button ion-icon {
-  display: none;
-  font-size: 20px;
-}
-
-.page-header__button {
-  min-width: 223px;
 }
 
 .booking-workspace {
@@ -110,16 +73,9 @@ ion-content {
 }
 
 .clear-filters {
-  padding: 7px 10px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--slot-primary-soft);
+  --color: var(--slot-primary-soft);
+  margin: 0;
   font-size: 13px;
-}
-
-.clear-filters:hover {
-  background: var(--slot-primary-tint);
 }
 
 .booking-table-wrapper {
@@ -128,6 +84,7 @@ ion-content {
 
 .booking-table {
   width: 100%;
+  min-width: 700px;
   border-spacing: 0;
   border-collapse: separate;
   table-layout: fixed;
@@ -221,19 +178,20 @@ ion-content {
   justify-content: center;
   box-sizing: border-box;
   padding: 0 14px;
-  border-radius: 999px;
   font-size: 14px;
+  --padding-start: 14px;
+  --padding-end: 14px;
 }
 
 .booking-status--confirmed,
 .booking-status--check-in {
-  background: var(--slot-success-surface);
-  color: var(--slot-success);
+  --background: var(--slot-success-surface);
+  --color: var(--slot-success);
 }
 
 .booking-status--cancelled {
-  background: var(--slot-danger-surface);
-  color: var(--slot-danger);
+  --background: var(--slot-danger-surface);
+  --color: var(--slot-danger);
 }
 
 .booking-table__empty {
@@ -264,41 +222,22 @@ ion-content {
   gap: 9px;
 }
 
-.pagination button {
-  display: grid;
-  min-width: 39px;
+.pagination__button {
+  min-width: 42px;
   height: 39px;
-  padding: 0 9px;
-  place-items: center;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--slot-text);
+  margin: 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --border-color: var(--slot-border);
+  --border-radius: 8px;
+  --color: var(--slot-text);
   font-size: 15px;
 }
 
-.pagination button:hover:not(:disabled) {
-  border-color: var(--slot-border);
-  background: var(--slot-hover);
-}
-
-.pagination button:first-child,
-.pagination button:last-child {
-  border-color: var(--slot-border);
-}
-
-.pagination button:disabled {
-  cursor: default;
-  opacity: 0.35;
-}
-
-.pagination .pagination__page--active {
-  border-color: var(--slot-primary);
-  background: linear-gradient(
-    135deg,
-    var(--slot-primary),
-    var(--slot-primary-gradient-end)
-  );
+.pagination__button--active {
+  --border-color: var(--slot-primary);
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
 }
 
 .sr-only {
@@ -314,9 +253,6 @@ ion-content {
 }
 
 @media (max-width: 1180px) {
-  .admin-layout {
-    grid-template-columns: 100px minmax(0, 1fr);
-  }
   .booking-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -333,10 +269,6 @@ ion-content {
 }
 
 @media (max-width: 900px) {
-  .admin-layout {
-    display: block;
-  }
-
   .admin-main {
     padding: 26px 16px 50px;
   }
@@ -345,26 +277,8 @@ ion-content {
     align-items: flex-start;
   }
 
-  .page-header__button {
-    min-width: 52px;
-    width: 52px;
-    padding: 0;
-  }
-
-  .primary-button.page-header__button ion-icon {
-    display: block;
-  }
-
-  .primary-button.page-header__button span {
-    display: none;
-  }
-
   .booking-panel {
     min-height: auto;
-  }
-
-  .booking-table {
-    min-width: 650px;
   }
 
   .booking-panel__footer {

@@ -7,16 +7,6 @@
   --color: var(--slot-text);
 }
 
-.admin-shell {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-  box-sizing: border-box;
-  background: var(--slot-background);
-}
-
 .dashboard {
   min-width: 0;
   padding: 32px 28px 72px 39px;
@@ -49,36 +39,21 @@
   flex: 0 1 415px;
   min-width: 300px;
   height: 82px;
-  padding: 0 26px;
+  --background: var(--slot-surface-raised);
+  --border-radius: 22px;
+  --box-shadow: none;
+  --color: var(--slot-text);
+  --icon-color: var(--slot-text-muted);
+  --placeholder-color: var(--slot-text-muted);
+  --height: 82px;
+  --padding-end: 26px;
+  --padding-start: 26px;
   border: 2px solid var(--slot-border);
   border-radius: 22px;
-  background: var(--slot-surface-raised);
-  color: var(--slot-text-muted);
 }
 
 .admin-search:focus-within {
   border-color: var(--slot-primary);
-}
-
-.admin-search ion-icon {
-  flex: 0 0 auto;
-  font-size: 30px;
-}
-
-.admin-search input {
-  width: 100%;
-  padding-left: 18px;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--slot-text);
-  font: inherit;
-  font-size: 21px;
-}
-
-.admin-search input::placeholder {
-  color: var(--slot-text-muted);
-  opacity: 1;
 }
 
 .metrics {
@@ -86,6 +61,30 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
   margin-top: 50px;
+}
+
+.dashboard-state {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 24px 30px;
+  color: var(--slot-text-muted);
+}
+
+.dashboard-state--metrics {
+  grid-column: 1 / -1;
+  min-height: 120px;
+  border: 1px solid var(--slot-border);
+  border-radius: 20px;
+  background: var(--slot-panel);
+}
+
+.dashboard-state p {
+  width: 100%;
+  margin: 0;
 }
 
 .metric-card,
@@ -181,18 +180,17 @@
   font-weight: 500;
 }
 
-.panel-header button {
-  padding: 10px;
-  border: 0;
-  background: transparent;
-  color: var(--slot-primary-soft);
-  font: inherit;
+.panel-header ion-button {
+  --color: var(--slot-primary-soft);
+  --padding-bottom: 10px;
+  --padding-end: 10px;
+  --padding-start: 10px;
+  --padding-top: 10px;
   font-size: 21px;
-  cursor: pointer;
 }
 
-.panel-header button:hover {
-  color: var(--slot-text);
+.panel-header ion-button:hover {
+  --color: var(--slot-text);
 }
 
 .booking-row {
@@ -308,25 +306,12 @@
 }
 
 @media (max-width: 1180px) {
-  .admin-shell {
-    grid-template-columns: 100px minmax(0, 1fr);
-  }
-
   .dashboard__details {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 900px) {
-  .admin-shell {
-    display: block;
-    width: 100%;
-    min-height: 100vh;
-    margin: 0;
-    border: 0;
-    border-radius: 0;
-  }
-
   .dashboard {
     padding: 32px 20px 56px;
   }
@@ -349,9 +334,10 @@
     width: 100%;
     min-width: 0;
     height: 68px;
+    --height: 68px;
   }
 
-  .admin-search input {
+  .admin-search {
     font-size: 17px;
   }
 
@@ -371,7 +357,7 @@
     font-size: 23px;
   }
 
-  .panel-header button {
+  .panel-header ion-button {
     font-size: 17px;
   }
 

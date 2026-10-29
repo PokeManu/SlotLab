@@ -1,9 +1,9 @@
 <div class="quick-filters" role="group" aria-label="Filtri rapidi">
   @for (filter of filters; track filter.id) {
-    <button
+    <ion-button
       class="quick-filters__button"
       type="button"
-      [class.quick-filters__button--active]="filter.active"
+      [fill]="filter.active ? 'solid' : 'outline'"
       [class.quick-filters__button--desktop-only]="filter.desktopOnly"
       [attr.aria-pressed]="filter.active"
       (click)="toggleFilter(filter)"
@@ -15,6 +15,6 @@
       <span class="quick-filters__label-mobile">
         {{ filter.mobileLabel ?? filter.label }}
       </span>
-    </button>
+    </ion-button>
   }
 </div>

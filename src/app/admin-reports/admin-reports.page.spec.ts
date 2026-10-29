@@ -44,6 +44,7 @@ describe('AdminReportsPage', () => {
     };
     component.reports.push(report);
     component.selectedReport = report;
+    component.setFilter('open');
     component.updateStatus('resolved');
     const request = http.expectOne({
       method: 'PATCH',
@@ -53,6 +54,9 @@ describe('AdminReportsPage', () => {
     request.flush({ data: { status: 'resolved' } });
     expect(report.status).toBe('resolved');
     expect(report.statusLabel).toBe('Risolta');
+    expect(component.statusMessage).toBe('Aggiornamento salvato.');
+    expect(component.filteredReports).toEqual([]);
+    expect(component.selectedReport).toBeUndefined();
   });
   it('mostra una nuova segnalazione al rientro senza ricaricare il browser', async () => {
     component.ionViewWillEnter();
@@ -99,5 +103,50 @@ describe('AdminReportsPage', () => {
     const status = fixture.nativeElement.querySelector('.status-pill');
     expect(status.textContent).toContain('Stato: In lavorazione');
     expect(status.getAttribute('data-status')).toBe('in-progress');
+  });
+
+  it('usa il segmento Ionic per filtrare le segnalazioni', () => {
+    component.reports.push({
+      id: 11,
+      title: 'other',
+      space: 'Laboratorio',
+      date: '10/09/2026',
+      reporter: 'utente@example.com',
+      description: 'Altro problema',
+      priority: 'low',
+      priorityLabel: 'Bassa',
+      status: 'resolved',
+      statusLabel: 'Risolta',
+      assignee: '—',
+      icon: 'warning-outline',
+    });
+    fixture.detectChanges();
+    const segment = fixture.nativeElement.querySelector('ion-segment');
+    segment.dispatchEvent(
+      new CustomEvent('ionChange', { detail: { value: 'resolved' } }),
+    );
+    fixture.detectChanges();
+    expect(component.activeFilter).toBe('resolved');
+    expect(component.filteredReports.map((report) => report.id)).toEqual([11]);
+    expect(component.selectedReport?.id).toBe(11);
+    component.setFilter('open');
+    expect(component.selectedReport).toBeUndefined();
+  });
+
+  it('mostra errore e permette di riprovare il caricamento', async () => {
+    component.loadReports();
+    const request = http.expectOne('/api/v1/admin/reports');
+    request.flush({ message: 'errore' }, { status: 503, statusText: 'Offline' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(component.loading).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain(
+      'Non è stato possibile caricare le segnalazioni.',
+    );
+    const retry = fixture.nativeElement.querySelector('ion-button');
+    retry.click();
+    expect(component.loading).toBe(true);
+    http.expectOne('/api/v1/admin/reports').flush({ data: [] });
+    await fixture.whenStable();
   });
 });

@@ -13,10 +13,12 @@ process.env.NODE_ENV = "test";
 process.env.HOST = "127.0.0.1";
 process.env.PORT = "0";
 process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString("hex");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const { verifyPassword } = require("../security/password");
 let url;
+let server;
 const account = {
   firstName: " Mario ",
   lastName: " Rossi ",
@@ -24,12 +26,12 @@ const account = {
   password: "TestPassword2026!",
 };
 before(async () => {
-  const server = await startServer();
+  server = await startServer();
   url = `http://127.0.0.1:${server.address().port}/api/v1/auth/register`;
 });
 after(async () => {
   try {
-    await stopServer();
+    await closeTestServer(server);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }

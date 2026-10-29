@@ -1,8 +1,5 @@
 <ion-content [fullscreen]="true">
-  <div class="admin-layout">
-    <app-admin-sidebar></app-admin-sidebar>
-
-    <main class="admin-main">
+  <main class="admin-main">
       <header class="page-header">
         <h1>Gestione prenotazioni</h1>
       </header>
@@ -24,13 +21,15 @@
 
             @if ( searchTerm || selectedDate || selectedSpace || selectedStatus
             ) {
-            <button
+            <ion-button
+              fill="clear"
+              size="small"
               class="clear-filters"
               type="button"
               (click)="resetFilters()"
             >
               Azzera filtri
-            </button>
+            </ion-button>
             }
           </div>
 
@@ -55,6 +54,7 @@
                       "
                   (click)="selectBooking(booking)"
                   (keydown.enter)="selectBooking(booking)"
+                  (keydown.space)="$event.preventDefault(); selectBooking(booking)"
                 >
                   <td data-label="Orario">
                     {{ booking.startTime }}–{{ booking.endTime }}
@@ -67,27 +67,28 @@
                   <td data-label="Partecipanti">{{ booking.participants }}</td>
 
                   <td data-label="Stato">
-                    <span
+                    <ion-badge
                       class="booking-status"
                       [ngClass]="statusModifier(booking.status)"
                     >
                       {{ booking.status }}
-                    </span>
+                    </ion-badge>
                   </td>
                 </tr>
                 } @empty {
                 <tr>
                   <td class="booking-table__empty" colspan="5">
-                    @if (loading) { Caricamento prenotazioni… } @else if
+                    @if (loading) { <ion-spinner name="crescent" aria-label="Caricamento prenotazioni"></ion-spinner> Caricamento prenotazioni… } @else if
                     (errorMessage) {
                     <p role="alert">{{ errorMessage }}</p>
-                    <button
+                    <ion-button
                       type="button"
+                      fill="clear"
                       class="clear-filters"
                       (click)="loadBookings()"
                     >
                       Riprova
-                    </button>
+                    </ion-button>
                     } @else { Nessuna prenotazione corrisponde ai filtri
                     selezionati. }
                   </td>
@@ -104,19 +105,23 @@
             </p>
 
             <nav class="pagination" aria-label="Pagine delle prenotazioni">
-              <button
+              <ion-button
                 type="button"
+                fill="outline"
+                class="pagination__button"
                 aria-label="Pagina precedente"
                 [disabled]="currentPage === 1"
                 (click)="previousPage()"
               >
                 <ion-icon name="chevron-back-outline"></ion-icon>
-              </button>
+              </ion-button>
 
               @for (page of pageNumbers; track page) {
-              <button
+              <ion-button
                 type="button"
-                [class.pagination__page--active]="
+                fill="outline"
+                class="pagination__button"
+                [class.pagination__button--active]="
                       currentPage === page
                     "
                 [attr.aria-current]="
@@ -125,17 +130,19 @@
                 (click)="goToPage(page)"
               >
                 {{ page }}
-              </button>
+              </ion-button>
               }
 
-              <button
+              <ion-button
                 type="button"
+                fill="outline"
+                class="pagination__button"
                 aria-label="Pagina successiva"
                 [disabled]="currentPage === totalPages"
                 (click)="nextPage()"
               >
                 <ion-icon name="chevron-forward-outline"></ion-icon>
-              </button>
+              </ion-button>
             </nav>
           </footer>
         </section>
@@ -144,6 +151,5 @@
         <app-booking-detail [selectedBooking]="booking"></app-booking-detail>
         }
       </div>
-    </main>
-  </div>
+  </main>
 </ion-content>

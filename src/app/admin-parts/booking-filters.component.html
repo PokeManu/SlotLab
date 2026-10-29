@@ -1,65 +1,57 @@
 <section class="filters" aria-label="Filtri delle prenotazioni">
-  <label class="search-field">
-    <ion-icon name="search-outline"></ion-icon>
-
-    <input
-      type="search"
+  <div class="search-field" role="search">
+    <ion-searchbar
       placeholder="Cerca per spazio o utente"
       aria-label="Cerca per spazio, utente o codice"
-      [ngModel]="searchTerm"
-      (ngModelChange)="searchTermChange.emit($event); changed.emit()"
-    />
-  </label>
+      autocomplete="off"
+      [value]="searchTerm"
+      (ionInput)="searchTermChange.emit($event.detail.value ?? ''); changed.emit()"
+    ></ion-searchbar>
+  </div>
 
   <div class="filters__selects">
-    <label class="select-field">
-      <span class="sr-only">Filtra per data</span>
-
-      <select
-        [ngModel]="selectedDate"
-        (ngModelChange)="selectedDateChange.emit($event); changed.emit()"
+    <div class="select-field">
+      <ion-select
+        interface="popover"
+        aria-label="Filtra per data"
+        [value]="selectedDate"
+        (ionChange)="selectedDateChange.emit($event.detail.value ?? ''); changed.emit()"
       >
-        <option value="">Data</option>
+        <ion-select-option value="">Data</ion-select-option>
         @for (date of availableDates; track date) {
-          <option [value]="date">
-            {{ date.split("-").reverse().join("/") }}
-          </option>
+          <ion-select-option [value]="date">
+            {{ date | date: "dd/MM/yyyy" }}
+          </ion-select-option>
         }
-      </select>
+      </ion-select>
+    </div>
 
-      <ion-icon name="chevron-down-outline"></ion-icon>
-    </label>
-
-    <label class="select-field">
-      <span class="sr-only">Filtra per spazio</span>
-
-      <select
-        [ngModel]="selectedSpace"
-        (ngModelChange)="selectedSpaceChange.emit($event); changed.emit()"
+    <div class="select-field">
+      <ion-select
+        interface="popover"
+        aria-label="Filtra per spazio"
+        [value]="selectedSpace"
+        (ionChange)="selectedSpaceChange.emit($event.detail.value ?? ''); changed.emit()"
       >
-        <option value="">Spazio</option>
+        <ion-select-option value="">Spazio</ion-select-option>
 
         @for (space of availableSpaces; track space) {
-          <option [value]="space">{{ space }}</option>
+          <ion-select-option [value]="space">{{ space }}</ion-select-option>
         }
-      </select>
+      </ion-select>
+    </div>
 
-      <ion-icon name="chevron-down-outline"></ion-icon>
-    </label>
-
-    <label class="select-field">
-      <span class="sr-only">Filtra per stato</span>
-
-      <select
-        [ngModel]="selectedStatus"
-        (ngModelChange)="selectedStatusChange.emit($event); changed.emit()"
+    <div class="select-field">
+      <ion-select
+        interface="popover"
+        aria-label="Filtra per stato"
+        [value]="selectedStatus"
+        (ionChange)="selectedStatusChange.emit($event.detail.value ?? ''); changed.emit()"
       >
-        <option value="">Stato</option>
-        <option value="Confermata">Confermata</option>
-        <option value="Completata">Completata</option>
-      </select>
-
-      <ion-icon name="chevron-down-outline"></ion-icon>
-    </label>
+        <ion-select-option value="">Stato</ion-select-option>
+        <ion-select-option value="Confermata">Confermata</ion-select-option>
+        <ion-select-option value="Completata">Completata</ion-select-option>
+      </ion-select>
+    </div>
   </div>
 </section>

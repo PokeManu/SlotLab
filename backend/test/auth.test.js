@@ -12,7 +12,8 @@ process.env.NODE_ENV = "test";
 process.env.HOST = "127.0.0.1";
 process.env.PORT = "0";
 process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString("hex");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const { seed } = require("../db/seed");
 const { requireAuth, requireRole } = require("../middleware/auth");
@@ -27,6 +28,7 @@ const account = {
 let baseUrl;
 let roleServer;
 let roleUrl;
+let server;
 async function post(endpoint, input) {
   const response = await fetch(`${baseUrl}/api/v1/auth/${endpoint}`, {
     method: "POST",
@@ -67,7 +69,7 @@ function sign(claims, options = {}) {
   });
 }
 before(async () => {
-  const server = await startServer();
+  server = await startServer();
   baseUrl = `http://127.0.0.1:${server.address().port}`;
   await post("register", account);
   await seed({
@@ -94,7 +96,7 @@ after(async () => {
       await new Promise((resolve, reject) => {
         roleServer.close((error) => (error ? reject(error) : resolve()));
       });
-    await stopServer();
+    await closeTestServer(server);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
@@ -614,9 +616,12 @@ test("prenotazioni admin: elenco reale con organizzatore e paginazione", async (
   const user = await post("login", account);
   const headers = { Authorization: `Bearer ${admin.accessToken}` };
   const slot = await get("SELECT id,space_id FROM availabilities LIMIT 1");
+  const bookingDate = new Date(Date.now() + 7 * 86400000)
+    .toISOString()
+    .slice(0, 10);
   const bookingId = await run(
-    "INSERT INTO bookings(space_id,availability_id,date,status,created_at) VALUES(?,?,'2026-09-14','confirmed',?)",
-    [slot.space_id, slot.id, new Date().toISOString()],
+    "INSERT INTO bookings(space_id,availability_id,date,status,created_at) VALUES(?,?,?,'confirmed',?)",
+    [slot.space_id, slot.id, bookingDate, new Date().toISOString()],
   );
   await run(
     "INSERT INTO booking_participants(booking_id,user_id,participant_role) VALUES(?,?,'organizer')",

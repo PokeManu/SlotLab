@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs/promises");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
+const { queries } = require("./query");
 const DEFAULT_DATABASE_PATH = path.join(__dirname, "database.sqlite");
 const migrations = [
   {
@@ -75,28 +76,6 @@ function execute(database, sql) {
     });
   });
 }
-function run(database, sql, parameters = []) {
-  return new Promise((resolve, reject) => {
-    database.run(sql, parameters, function onRun(error) {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve({ lastId: this.lastID, changes: this.changes });
-    });
-  });
-}
-function all(database, sql, parameters = []) {
-  return new Promise((resolve, reject) => {
-    database.all(sql, parameters, (error, rows) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(rows);
-    });
-  });
-}
 function closeDatabase(database) {
   return new Promise((resolve, reject) => {
     database.close((error) => {
@@ -155,11 +134,11 @@ function verifyAppliedMigration(migration, appliedMigration) {
   }
 }
 async function applyMigration(database, migration) {
+  const databaseQueries = queries(database);
   await execute(database, "BEGIN IMMEDIATE TRANSACTION;");
   try {
     await execute(database, migration.sql);
-    await run(
-      database,
+    await databaseQueries.run(
       `
         INSERT INTO schema_migrations (version, name, checksum, applied_at)
         VALUES (?, ?, ?, ?);
@@ -189,8 +168,8 @@ async function migrate(options = {}) {
     await execute(database, "PRAGMA busy_timeout = 5000;");
     await prepareMigrationTable(database);
     const availableMigrations = await readMigrations();
-    const appliedRows = await all(
-      database,
+    const databaseQueries = queries(database);
+    const appliedRows = await databaseQueries.all(
       "SELECT version, name, checksum FROM schema_migrations ORDER BY version;",
     );
     const appliedByVersion = new Map(
@@ -205,7 +184,9 @@ async function migrate(options = {}) {
       await applyMigration(database, migration);
       appliedNow.push(migration.version);
     }
-    const foreignKeyErrors = await all(database, "PRAGMA foreign_key_check;");
+    const foreignKeyErrors = await databaseQueries.all(
+      "PRAGMA foreign_key_check;",
+    );
     if (foreignKeyErrors.length > 0) {
       throw new Error(
         "Il controllo finale delle chiavi esterne non e riuscito.",

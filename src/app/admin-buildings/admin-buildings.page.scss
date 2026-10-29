@@ -1,14 +1,6 @@
 :host {
   display: block;
 }
-.admin-shell {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  min-height: 100%;
-  margin: 0;
-  overflow: hidden;
-  background: var(--slot-background);
-}
 .buildings-page {
   padding: 32px 28px 72px 39px;
   color: var(--slot-text);
@@ -23,33 +15,45 @@ h1 {
 }
 .form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr)) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  align-items: end;
+  align-items: start;
   margin: 32px 0;
 }
 label {
   display: grid;
   gap: 6px;
+  min-width: 0;
   color: var(--slot-text-muted);
 }
-input {
+ion-input {
   min-height: 44px;
-  padding: 0 12px;
   border: 1px solid var(--slot-border);
   border-radius: 10px;
   background: var(--slot-input);
   color: var(--slot-text);
-  font: inherit;
+  --padding-start: 12px;
+  --padding-end: 12px;
 }
-button {
+ion-input.invalid {
+  border-color: var(--slot-danger);
+}
+.field-error {
+  color: var(--slot-danger);
+  line-height: 1.4;
+}
+.form ion-button {
+  align-self: end;
   min-height: 44px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--slot-primary);
-  color: white;
-  cursor: pointer;
+  margin: 0;
+  --border-radius: 9px;
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
+}
+ion-input:focus-within,
+ion-button:focus-visible {
+  outline: 2px solid var(--slot-primary);
+  outline-offset: 3px;
 }
 .table {
   overflow: hidden;
@@ -78,9 +82,6 @@ button {
   color: var(--slot-danger);
 }
 @media (max-width: 900px) {
-  .admin-shell {
-    grid-template-columns: 1fr;
-  }
   .buildings-page {
     padding: 32px 20px;
   }
@@ -102,4 +103,7 @@ button {
   flex-wrap: wrap;
   gap: 8px;
   padding-block: 8px;
+}
+.row__actions ion-button {
+  margin: 0;
 }

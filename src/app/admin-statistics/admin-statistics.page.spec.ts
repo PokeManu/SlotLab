@@ -206,4 +206,22 @@ describe('AdminStatisticsPage', () => {
       'Nessun check-in registrato',
     );
   });
+  it('usa azioni Ionic, disabilita Applica durante il carico e consente il retry', () => {
+    const apply = fixture.nativeElement.querySelector('ion-button.apply-button');
+    expect(apply?.disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('ion-spinner')).toBeTruthy();
+    http.expectOne(() => true).flush({}, { status: 500, statusText: 'Error' });
+    fixture.detectChanges();
+    const retry = fixture.nativeElement.querySelector('ion-button.retry-button');
+    expect(retry?.textContent).toContain('Riprova');
+    retry.click();
+    const request = http.expectOne(
+      `/api/v1/admin/statistics?dateFrom=${component.dateFrom}&dateTo=${component.dateTo}`,
+    );
+    expect(component.loading).toBe(true);
+    request.flush({ data: statistics() });
+    fixture.detectChanges();
+    expect(component.loading).toBe(false);
+    expect(apply.disabled).toBe(false);
+  });
 });

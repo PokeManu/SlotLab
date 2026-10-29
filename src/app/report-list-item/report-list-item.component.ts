@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { ReportsApi } from '../api/reports-api';
 import {
   ChangeDetectorRef,
   OnChanges,
@@ -9,7 +9,7 @@ import {
   Component,
   Input,
 } from '@angular/core';
-import { IonIcon } from '@ionic/angular';
+import { IonBadge, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   accessibilityOutline,
@@ -22,10 +22,10 @@ import { SpaceReport } from '../models/space-report.model';
   selector: 'app-report-list-item',
   templateUrl: './report-list-item.component.html',
   styleUrls: ['./report-list-item.component.scss'],
-  imports: [IonIcon],
+  imports: [IonBadge, IonCard, IonCardContent, IonIcon, IonSpinner],
 })
 export class ReportListItemComponent implements OnChanges, OnDestroy {
-  private readonly http = inject(HttpClient);
+  private readonly reportsApi = inject(ReportsApi);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private photoRequest?: Subscription;
   photoUrl = '';
@@ -46,10 +46,8 @@ export class ReportListItemComponent implements OnChanges, OnDestroy {
     this.photoError = '';
     this.photoLoading = Boolean(this.report?.photo);
     if (!this.photoLoading) return;
-    this.photoRequest = this.http
-      .get(`${environment.apiUrl}/reports/${this.report.id}/photo`, {
-        responseType: 'blob',
-      })
+    this.photoRequest = this.reportsApi
+      .photo(this.report.id)
       .subscribe({
         next: (photo) => {
           this.photoUrl = URL.createObjectURL(photo);

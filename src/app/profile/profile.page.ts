@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectorRef,
   Component,
@@ -8,44 +8,29 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, IonItem, IonList } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import {
-  accessibilityOutline,
-  cameraOutline,
-  chevronForwardOutline,
-  flagOutline,
-  notificationsOutline,
-  personOutline,
-  shieldCheckmarkOutline,
-} from 'ionicons/icons';
-import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
-import { TopbarComponent } from '../topbar-component/topbar-component.component';
+import { cameraOutline } from 'ionicons/icons';
 import { Auth } from '../auth/auth';
-import { environment } from '../../environments/environment';
 import { finalize } from 'rxjs';
 import { ThemeToggleComponent } from '../theme/theme-toggle.component';
 import { ProfilePhoto } from './profile-photo';
-interface ProfileMenuItem {
-  label: string;
-  icon: string;
-}
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
   imports: [
+    IonButton,
     IonContent,
     IonIcon,
-    TopbarComponent,
-    MobileNavigationComponent,
+    IonItem,
+    IonList,
     RouterLink,
     ThemeToggleComponent,
   ],
 })
 export class ProfilePage implements OnInit {
   readonly auth = inject(Auth);
-  private readonly http = inject(HttpClient);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly profilePhoto = inject(ProfilePhoto);
@@ -65,30 +50,8 @@ export class ProfilePage implements OnInit {
       email: account?.email ?? '',
     };
   }
-  readonly menuItems: ProfileMenuItem[] = [
-    {
-      label: 'Dati personali',
-      icon: 'person-outline',
-    },
-    {
-      label: 'Preferenze notifiche',
-      icon: 'notifications-outline',
-    },
-    {
-      label: 'Le mie segnalazioni',
-      icon: 'flag-outline',
-    },
-  ];
   constructor() {
-    addIcons({
-      accessibilityOutline,
-      cameraOutline,
-      chevronForwardOutline,
-      flagOutline,
-      notificationsOutline,
-      personOutline,
-      shieldCheckmarkOutline,
-    });
+    addIcons({ cameraOutline });
   }
   ngOnInit(): void {
     this.loadProfilePhoto();
@@ -106,12 +69,12 @@ export class ProfilePage implements OnInit {
       this.photoError = 'L’immagine deve avere una dimensione massima di 2 MB.';
       return;
     }
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
     this.photoSaving = true;
     this.photoError = '';
-    this.http
-      .put<void>(`${environment.apiUrl}/users/me/photo`, file, {
-        headers: { 'Content-Type': file.type },
-      })
+    this.profilePhoto
+      .upload(userId, file)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
@@ -121,8 +84,6 @@ export class ProfilePage implements OnInit {
       )
       .subscribe({
         next: () => {
-          const userId = this.auth.user()?.id;
-          if (userId) this.profilePhoto.update(userId, file);
           this.changeDetector.markForCheck();
         },
         error: (error) => {
@@ -135,10 +96,12 @@ export class ProfilePage implements OnInit {
   }
   removeProfilePhoto(): void {
     if (!this.profilePhotoUrl || this.photoSaving) return;
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
     this.photoSaving = true;
     this.photoError = '';
-    this.http
-      .delete<void>(`${environment.apiUrl}/users/me/photo`)
+    this.profilePhoto
+      .delete(userId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
@@ -148,8 +111,6 @@ export class ProfilePage implements OnInit {
       )
       .subscribe({
         next: () => {
-          const userId = this.auth.user()?.id;
-          if (userId) this.profilePhoto.remove(userId);
           this.changeDetector.markForCheck();
         },
         error: () => {

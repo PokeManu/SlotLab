@@ -4,13 +4,14 @@
     <p role="alert">{{ error }}</p>
     }
     <header class="detail-header">
-      <a
+      <ion-button
         class="back-button"
+        fill="clear"
         [routerLink]="backPath"
         [attr.aria-label]="backLabel"
       >
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </a>
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
 
       <h1>Dettaglio spazio</h1>
     </header>
@@ -48,7 +49,10 @@
       } @else if (spaceStatus === 'deactivated') {
       <p class="availability" role="status">Spazio attualmente disattivato.</p>
       } @else if (loadingAvailability) {
-      <p role="status">Verifica dei posti disponibili…</p>
+      <p class="availability-loading" role="status">
+        <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+        Verifica dei posti disponibili…
+      </p>
       } @else if (availabilityError) {
       <p role="alert">{{ availabilityError }}</p>
       } @else if (!error) {
@@ -69,29 +73,32 @@
       <div class="services__grid">
         @for (service of space.services; track service) { @if
         (serviceDetails[service]; as detail) {
-        <article class="service-card">
-          <ion-icon [name]="detail.icon" aria-hidden="true"></ion-icon>
-          <span>{{ detail.label }}</span>
-        </article>
+        <ion-card class="service-card">
+          <ion-card-content>
+            <ion-icon [name]="detail.icon" aria-hidden="true"></ion-icon>
+            <span>{{ detail.label }}</span>
+          </ion-card-content>
+        </ion-card>
         } }
       </div>
     </section>
 
     <div class="detail-actions">
-      <button
+      <ion-button
         class="primary-button"
         type="button"
+        expand="block"
         (click)="openBooking()"
         [disabled]="spaceStatus !== 'active'"
       >
         Verifica disponibilità
-      </button>
+      </ion-button>
 
-      <button class="secondary-button" type="button" (click)="openReport()">
-        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      <ion-button class="secondary-button" type="button" fill="outline" expand="block" (click)="openReport()">
+        <ion-icon name="alert-circle-outline" slot="start" aria-hidden="true"></ion-icon>
 
         Segnala un problema
-      </button>
+      </ion-button>
     </div>
   </main>
 </ion-content>

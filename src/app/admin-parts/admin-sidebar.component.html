@@ -1,48 +1,56 @@
-<aside class="sidebar" aria-label="Navigazione amministratore">
-  <a
-    class="brand"
-    routerLink="/admin"
-    aria-label="Vai alla panoramica di SlotLab"
-  >
-    <img
-      class="brand__logo"
-      src="assets/branding/slotlab-logo.png"
-      alt="SlotLab"
-    />
-  </a>
+<nav class="sidebar" aria-label="Navigazione amministratore">
+  <ion-menu-toggle [autoHide]="false">
+    <a
+      class="brand"
+      routerLink="/admin"
+      aria-label="Vai alla panoramica di SlotLab"
+    >
+      <img
+        class="brand__logo"
+        src="assets/branding/slotlab-logo.png"
+        alt="SlotLab"
+      />
+    </a>
+  </ion-menu-toggle>
 
-  <nav class="sidebar__navigation">
+  <ion-list class="sidebar__navigation" lines="none">
     @for (item of navigationItems; track item.label) {
-      <button
-        type="button"
-        class="nav-item"
-        routerLinkActive="nav-item--active"
-        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
-        [routerLink]="item.route"
-        [attr.aria-label]="item.label"
-      >
-        <ion-icon [name]="item.icon"></ion-icon>
-        <span>{{ item.label }}</span>
-      </button>
+      <ion-menu-toggle [autoHide]="false">
+        <ion-item
+          button
+          detail="false"
+          lines="none"
+          class="nav-item"
+          routerLinkActive="nav-item--active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+          [routerLink]="item.route"
+          [attr.aria-label]="item.label"
+        >
+          <ion-icon slot="start" [name]="item.icon"></ion-icon>
+          <ion-label>{{ item.label }}</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
     }
-  </nav>
+  </ion-list>
 
   <div class="administrator">
     <app-theme-toggle></app-theme-toggle>
-    <a
-      class="administrator__avatar"
-      routerLink="/profile"
-      [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
-    >
-      @if (profilePhoto.url()) {
-        <img [src]="profilePhoto.url()" alt="" />
-      } @else {
-        {{ auth.initials }}
-      }
-    </a>
+    <ion-menu-toggle [autoHide]="false">
+      <a
+        class="administrator__avatar"
+        routerLink="/profile"
+        [attr.aria-label]="'Apri il profilo di ' + auth.user()?.firstName"
+      >
+        @if (profilePhoto.url()) {
+          <img [src]="profilePhoto.url()" alt="" />
+        } @else {
+          {{ auth.initials }}
+        }
+      </a>
+    </ion-menu-toggle>
     <span class="administrator__information">
       <strong>{{ auth.user()?.firstName }}</strong>
       <small>Amministratore</small>
     </span>
   </div>
-</aside>
+</nav>

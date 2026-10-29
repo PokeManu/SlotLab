@@ -1,8 +1,5 @@
 <ion-content [fullscreen]="true" class="admin-content">
-  <div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-
-    <main class="statistics-management">
+  <main class="statistics-management">
       <header class="statistics-header">
         <div>
           <h1>Statistiche</h1>
@@ -31,14 +28,14 @@
               (change)="changeDate('to', $any($event.target).value)"
             />
           </label>
-          <button
+          <ion-button
             type="button"
             class="apply-button"
             [disabled]="loading || !rangeIsValid"
             (click)="applyPeriod()"
           >
             Applica
-          </button>
+          </ion-button>
         </div>
       </header>
 
@@ -47,13 +44,16 @@
         {{ rangeError }}
       </p>
       } @if (loading) {
-      <p class="state-message" role="status">Caricamento statistiche…</p>
+      <p class="state-message" role="status">
+        <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+        Caricamento statistiche…
+      </p>
       } @else if (error) {
       <div class="state-message state-message--error" role="alert">
         <span>{{ error }}</span>
-        <button type="button" class="retry-button" (click)="retry()">
+        <ion-button type="button" class="retry-button" (click)="retry()">
           Riprova
-        </button>
+        </ion-button>
       </div>
       } @else if (!statistics) {
       <p class="state-message">Seleziona un periodo per visualizzare i dati.</p>
@@ -258,6 +258,5 @@
         </article>
       </section>
       } }
-    </main>
-  </div>
+  </main>
 </ion-content>

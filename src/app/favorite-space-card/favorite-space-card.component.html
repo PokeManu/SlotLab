@@ -1,9 +1,9 @@
-<article class="favorite-space-card">
+<ion-card class="favorite-space-card">
   <div class="favorite-space-card__icon" aria-hidden="true">
     <ion-icon [name]="iconName"></ion-icon>
   </div>
 
-  <div class="favorite-space-card__content">
+  <ion-card-content class="favorite-space-card__content">
     <h2 class="favorite-space-card__name">
       {{ space.name }}
     </h2>
@@ -30,22 +30,32 @@
 
       {{ space.availability }}
     </p>
+  </ion-card-content>
+
+  <div class="favorite-space-card__actions">
+    <ion-button
+      class="favorite-space-card__favorite"
+      type="button"
+      fill="clear"
+      [attr.aria-label]="'Rimuovi ' + space.name + ' dai preferiti'"
+      aria-pressed="true"
+      (click)="removeFavorite()"
+    >
+      <ion-icon slot="icon-only" name="heart" aria-hidden="true"></ion-icon>
+    </ion-button>
+
+    <ion-button
+      class="favorite-space-card__action"
+      type="button"
+      fill="clear"
+      [attr.aria-label]="'Apri ' + space.name"
+      (click)="openSpace()"
+    >
+      <ion-icon
+        slot="icon-only"
+        name="arrow-forward-outline"
+        aria-hidden="true"
+      ></ion-icon>
+    </ion-button>
   </div>
-
-  <button
-    class="favorite-space-card__favorite"
-    type="button"
-    [attr.aria-label]="'Rimuovi ' + space.name + ' dai preferiti'"
-    aria-pressed="true"
-    (click)="removeFavorite()"
-  >
-    <ion-icon name="heart" aria-hidden="true"></ion-icon>
-  </button>
-
-  <button
-    class="favorite-space-card__action"
-    type="button"
-    [attr.aria-label]="'Apri ' + space.name"
-    (click)="openSpace()"
-  ></button>
-</article>
+</ion-card>

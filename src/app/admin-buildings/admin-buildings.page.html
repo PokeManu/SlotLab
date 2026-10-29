@@ -1,7 +1,5 @@
-<ion-content [fullscreen]="true"
-  ><div class="admin-shell">
-    <app-admin-sidebar></app-admin-sidebar>
-    <main class="buildings-page">
+<ion-content [fullscreen]="true">
+  <main class="buildings-page">
       <h1>Gestione edifici</h1>
       <p class="intro">
         Elenco degli edifici del campus di Viale delle Scienze.
@@ -9,42 +7,99 @@
       @if (error) {
       <p class="error" role="alert">{{ error }}</p>
       }
-      <form class="form" (submit)="$event.preventDefault(); create()">
-        <label
-          >Numero<input
-            name="number"
+      @if (deletingId !== null) {
+      <p role="status">Eliminazione edificio in corso…</p>
+      }
+      <form class="form" [formGroup]="form" (ngSubmit)="create()" novalidate>
+        <label>
+          Numero
+          <ion-input
             type="number"
+            aria-label="Numero edificio"
+            inputmode="numeric"
             min="1"
-            [(ngModel)]="form.number"
-            required /></label
-        ><label
-          >Nome<input name="name" [(ngModel)]="form.name" required /></label
-        ><label
-          >Indirizzo<input
-            name="address"
-            [(ngModel)]="form.address"
-            required /></label
-        ><label
-          >Latitudine<input
-            name="latitude"
+            step="1"
+            formControlName="number"
+            (ionBlur)="form.controls.number.markAsTouched()"
+            [class.invalid]="showError('number')"
+            [attr.aria-invalid]="showError('number')"
+            [attr.aria-describedby]="showError('number') ? 'building-number-error' : null"
+          ></ion-input>
+          @if (showError('number')) {
+          <small id="building-number-error" class="field-error" role="alert">Inserisci un numero intero maggiore di zero.</small>
+          }
+        </label>
+        <label>
+          Nome
+          <ion-input
+            type="text"
+            aria-label="Nome edificio"
+            formControlName="name"
+            (ionBlur)="form.controls.name.markAsTouched()"
+            [class.invalid]="showError('name')"
+            [attr.aria-invalid]="showError('name')"
+            [attr.aria-describedby]="showError('name') ? 'building-name-error' : null"
+          ></ion-input>
+          @if (showError('name')) {
+          <small id="building-name-error" class="field-error" role="alert">Inserisci il nome dell’edificio.</small>
+          }
+        </label>
+        <label>
+          Indirizzo
+          <ion-input
+            type="text"
+            aria-label="Indirizzo edificio"
+            formControlName="address"
+            (ionBlur)="form.controls.address.markAsTouched()"
+            [class.invalid]="showError('address')"
+            [attr.aria-invalid]="showError('address')"
+            [attr.aria-describedby]="showError('address') ? 'building-address-error' : null"
+          ></ion-input>
+          @if (showError('address')) {
+          <small id="building-address-error" class="field-error" role="alert">Inserisci l’indirizzo.</small>
+          }
+        </label>
+        <label>
+          Latitudine
+          <ion-input
             type="number"
+            aria-label="Latitudine"
+            inputmode="decimal"
             step="any"
             min="-90"
             max="90"
-            [(ngModel)]="form.latitude"
-            required /></label
-        ><label
-          >Longitudine<input
-            name="longitude"
+            formControlName="latitude"
+            (ionBlur)="form.controls.latitude.markAsTouched()"
+            [class.invalid]="showError('latitude')"
+            [attr.aria-invalid]="showError('latitude')"
+            [attr.aria-describedby]="showError('latitude') ? 'building-latitude-error' : null"
+          ></ion-input>
+          @if (showError('latitude')) {
+          <small id="building-latitude-error" class="field-error" role="alert">Inserisci una latitudine tra −90 e 90.</small>
+          }
+        </label>
+        <label>
+          Longitudine
+          <ion-input
             type="number"
+            aria-label="Longitudine"
+            inputmode="decimal"
             step="any"
             min="-180"
             max="180"
-            [(ngModel)]="form.longitude"
-            required /></label
-        ><button type="submit">
-          {{ editingId === null ? 'Aggiungi edificio' : 'Salva edificio' }}
-        </button>
+            formControlName="longitude"
+            (ionBlur)="form.controls.longitude.markAsTouched()"
+            [class.invalid]="showError('longitude')"
+            [attr.aria-invalid]="showError('longitude')"
+            [attr.aria-describedby]="showError('longitude') ? 'building-longitude-error' : null"
+          ></ion-input>
+          @if (showError('longitude')) {
+          <small id="building-longitude-error" class="field-error" role="alert">Inserisci una longitudine tra −180 e 180.</small>
+          }
+        </label>
+        <ion-button type="submit" [disabled]="saving || deletingId !== null">
+          {{ saving ? 'Salvataggio…' : editingId === null ? 'Aggiungi edificio' : 'Salva edificio' }}
+        </ion-button>
       </form>
       <section class="table" aria-label="Elenco edifici">
         <div class="row row--head">
@@ -56,14 +111,20 @@
           <span>{{ building.number }}</span><strong>{{ building.name }}</strong
           ><span>{{ building.address }}</span>
           <div class="row__actions">
-            <button type="button" (click)="edit(building)">Modifica</button
-            ><button type="button" (click)="remove(building)">Elimina</button>
+            <ion-button type="button" fill="outline" size="small" [disabled]="saving || deletingId !== null" (click)="edit(building)">Modifica</ion-button
+            ><ion-button type="button" fill="clear" color="danger" size="small" [disabled]="saving || deletingId !== null" (click)="remove(building)">Elimina</ion-button>
           </div>
         </div>
         } @empty {
         <p class="empty">Nessun edificio presente.</p>
         }
       </section>
-    </main>
-  </div></ion-content
->
+      <ion-alert
+        [isOpen]="pendingDelete !== null"
+        header="Eliminare edificio?"
+        [message]="pendingDelete?.name ?? ''"
+        [buttons]="deleteButtons"
+        (didDismiss)="pendingDelete = null"
+      ></ion-alert>
+  </main>
+</ion-content>

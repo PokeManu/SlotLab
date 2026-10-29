@@ -1,9 +1,8 @@
-<label class="space-search">
-  <ion-icon name="search-outline"></ion-icon>
-  <span class="sr-only">Cerca uno spazio</span>
-  <input
-    type="search"
+<div class="space-search" role="search" aria-label="Cerca uno spazio">
+  <ion-searchbar
     placeholder="Cerca uno spazio"
-    (input)="searchChange.emit($any($event.target).value)"
-  />
-</label>
+    aria-label="Cerca uno spazio"
+    autocomplete="off"
+    (ionInput)="searchChange.emit($event.detail.value ?? '')"
+  ></ion-searchbar>
+</div>

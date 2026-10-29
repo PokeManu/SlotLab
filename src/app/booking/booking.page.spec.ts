@@ -146,13 +146,13 @@ describe('BookingPage', () => {
   it('aggiunge un input per ogni ospite, conserva gli altri e rispetta i posti liberi', () => {
     prepareGroup();
     component.increaseParticipants();
-    component.participantEmails[0] = 'primo@example.com';
+    component.form.controls.participantEmails.at(0).setValue('primo@example.com');
     component.increaseParticipants();
     component.increaseParticipants();
     fixture.detectChanges();
     expect(component.participants).toBe(3);
     expect(
-      fixture.nativeElement.querySelectorAll('input[type=email]').length,
+      fixture.nativeElement.querySelectorAll('ion-input[type=email]').length,
     ).toBe(2);
     component.decreaseParticipants();
     expect(component.participantEmails).toEqual(['primo@example.com']);
@@ -203,5 +203,29 @@ describe('BookingPage', () => {
     expect(component.participantEmails.length).toBe(2);
     expect(component.errorMessage).toContain('posti disponibili');
     http.expectNone('/api/v1/bookings');
+  });
+  it('collega ion-input al FormArray e blocca il submit del form finché le email non sono valide', async () => {
+    prepareGroup();
+    component.increaseParticipants();
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('ion-input[type=email]') as HTMLIonInputElement;
+    input.value = 'ospite@example.com';
+    input.dispatchEvent(new CustomEvent('ionInput', { detail: { value: input.value } }));
+    expect(component.form.controls.participantEmails.at(0).value).toBe('ospite@example.com');
+    component.increaseParticipants();
+    fixture.detectChanges();
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    http.expectNone('/api/v1/bookings');
+    expect(component.form.controls.participantEmails.invalid).toBe(true);
+    component.form.controls.participantEmails.at(1).setValue('secondo@example.com');
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    const request = http.expectOne('/api/v1/bookings');
+    expect(request.request.body.participantEmails).toEqual(['ospite@example.com', 'secondo@example.com']);
+    expect(component.form.disabled).toBe(true);
+    request.flush({ data: { id: 2 } });
+    await fixture.whenStable();
+    expect(component.form.enabled).toBe(true);
   });
 });

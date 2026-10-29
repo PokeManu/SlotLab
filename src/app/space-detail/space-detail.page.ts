@@ -1,4 +1,4 @@
-import { SPACE_PREVIEW_IMAGE } from '../models/space-image';
+import { SpacesApi } from '../api/spaces-api';
 import {
   ChangeDetectorRef,
   Component,
@@ -7,10 +7,8 @@ import {
   inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   accessibilityOutline,
@@ -30,7 +28,7 @@ import { Space } from '../data/spaces.data';
   selector: 'app-space-detail',
   templateUrl: './space-detail.page.html',
   styleUrls: ['./space-detail.page.scss'],
-  imports: [IonContent, IonIcon, RouterLink],
+  imports: [IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner, RouterLink],
 })
 export class SpaceDetailPage implements OnInit, OnDestroy {
   space: Space;
@@ -68,7 +66,7 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
     if (this.hasEntered) this.ngOnInit();
     this.hasEntered = true;
   }
-  private readonly http = inject(HttpClient);
+  private readonly spacesApi = inject(SpacesApi);
   constructor() {
     const spaceId = this.activatedRoute.snapshot.paramMap.get('id');
     this.space = {
@@ -117,45 +115,12 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
     const id = this.activatedRoute.snapshot.paramMap.get('id');
     if (!id || !/^\d+$/.test(id)) return;
     this.requests.add(
-      this.http
-        .get<{
-          data: {
-            id: number;
-            name: string;
-            building: {
-              name: string;
-            };
-            floor: number;
-            type: string;
-            capacity: number;
-            accessible: boolean;
-            status: string;
-            services: string[];
-          };
-        }>(`${environment.apiUrl}/spaces/${id}`)
+      this.spacesApi
+        .detail(id)
         .subscribe({
-          next: (response) => {
-            const value = response.data;
-            this.space = {
-              id: String(value.id),
-              name: value.name,
-              type:
-                value.type === 'study_room'
-                  ? 'Aula studio'
-                  : value.type === 'laboratory'
-                    ? 'Laboratorio'
-                    : 'Sala riunioni',
-              building: value.building.name,
-              floor: value.floor,
-              seats: value.capacity,
-              accessible: value.accessible,
-              image: SPACE_PREVIEW_IMAGE,
-              services: value.services,
-            };
-            this.spaceStatus =
-              value.status === 'maintenance' || value.status === 'deactivated'
-                ? value.status
-                : 'active';
+          next: ({ space, status }) => {
+            this.space = space;
+            this.spaceStatus = status;
             if (this.spaceStatus !== 'active') {
               this.loadingAvailability = false;
               this.changeDetector.markForCheck();
@@ -168,20 +133,11 @@ export class SpaceDetailPage implements OnInit, OnDestroy {
               day: '2-digit',
             }).format(new Date());
             this.requests.add(
-              this.http
-                .get<{
-                  data: Array<{
-                    bookable: boolean;
-                    availableSeats: number;
-                    startTime: string;
-                    endTime: string;
-                  }>;
-                }>(
-                  `${environment.apiUrl}/spaces/${id}/availability?date=${today}`,
-                )
+              this.spacesApi
+                .availability(id, today)
                 .subscribe({
-                  next: (availability) => {
-                    const firstSlot = availability.data.find(
+                  next: (slots) => {
+                    const firstSlot = slots.find(
                       (slot) => slot.bookable,
                     );
                     this.availableToday = Boolean(firstSlot);

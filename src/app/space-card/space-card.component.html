@@ -1,4 +1,9 @@
-<article class="space-card">
+<ion-card
+  class="space-card"
+  [button]="true"
+  [attr.aria-label]="'Apri ' + space.name"
+  (click)="openSpace()"
+>
   <div class="space-card__media">
     @if (space.image) {
       <img
@@ -11,12 +16,12 @@
       <div class="space-card__placeholder" aria-hidden="true"></div>
     }
 
-    <span class="space-card__type">
+    <ion-badge class="space-card__type">
       {{ space.type }}
-    </span>
+    </ion-badge>
   </div>
 
-  <div class="space-card__content">
+  <ion-card-content class="space-card__content">
     <h3 class="space-card__name">
       {{ space.name }}
     </h3>
@@ -29,12 +34,5 @@
       {{ space.seats }}
       {{ space.seats === 1 ? "posto" : "posti" }}
     </p>
-  </div>
-
-  <button
-    class="space-card__action"
-    type="button"
-    [attr.aria-label]="'Apri ' + space.name"
-    (click)="openSpace()"
-  ></button>
-</article>
+  </ion-card-content>
+</ion-card>

@@ -1,6 +1,4 @@
 <ion-content [fullscreen]="true">
-  <app-topbar></app-topbar>
-
   <main class="bookings">
     <header class="bookings__header">
       <h1>Le mie prenotazioni</h1>
@@ -20,29 +18,20 @@
         />
       </label>
 
-      <div
+      <ion-segment
         class="bookings__tabs"
-        role="group"
         aria-label="Periodo delle prenotazioni"
+        [value]="selectedView"
+        (ionChange)="selectView($event.detail.value === 'past' ? 'past' : 'upcoming')"
       >
-        <button
-          type="button"
-          [class.bookings__tab--active]="selectedView === 'upcoming'"
-          [attr.aria-pressed]="selectedView === 'upcoming'"
-          (click)="selectView('upcoming')"
-        >
-          Prossime
-        </button>
+        <ion-segment-button value="upcoming">
+          <ion-label>Prossime</ion-label>
+        </ion-segment-button>
 
-        <button
-          type="button"
-          [class.bookings__tab--active]="selectedView === 'past'"
-          [attr.aria-pressed]="selectedView === 'past'"
-          (click)="selectView('past')"
-        >
-          Passate
-        </button>
-      </div>
+        <ion-segment-button value="past">
+          <ion-label>Passate</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </section>
 
     @if (cancelError) {
@@ -83,5 +72,3 @@
     }
   </main>
 </ion-content>
-
-<app-mobile-navigation></app-mobile-navigation>

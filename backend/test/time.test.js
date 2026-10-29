@@ -5,7 +5,29 @@ const {
   isAtLeastAhead,
   isMoreThanAhead,
   localDateTimeToInstant,
+  romeLocalDateTime,
+  romeNow,
 } = require("../domain/time");
+test("formatta l’istante in Europe/Rome mantenendo data e minuti", () => {
+  assert.equal(
+    romeLocalDateTime(new Date("2026-01-15T08:07:33.000Z")),
+    "2026-01-15 09:07",
+  );
+  assert.deepEqual(
+    romeNow(new Date("2026-07-15T08:07:33.000Z")),
+    { date: "2026-07-15", time: "10:07", second: 33 },
+  );
+});
+test("formatta correttamente gli istanti ai due cambi dell’ora", () => {
+  assert.equal(
+    romeLocalDateTime(new Date("2026-03-29T01:30:00.000Z")),
+    "2026-03-29 03:30",
+  );
+  assert.equal(
+    romeLocalDateTime(new Date("2026-10-25T01:30:00.000Z")),
+    "2026-10-25 02:30",
+  );
+});
 test("rifiuta un orario locale inesistente nel salto primaverile", () => {
   assert.throws(
     () => localDateTimeToInstant("2026-03-29", "02:30"),

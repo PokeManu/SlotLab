@@ -11,8 +11,6 @@ import { routes } from '../app.routes';
 import { Auth, UserRole } from './auth';
 import { AccessPage } from './access.page';
 import { returnDestination } from './return-url';
-import { TopbarComponent } from '../topbar-component/topbar-component.component';
-import { MobileNavigationComponent } from '../mobile-navigation/mobile-navigation.component';
 @Component({ template: '<h1>Pagina riservata</h1>' })
 class PrivatePage {}
 describe('Route reali e destinazioni dopo accesso', () => {
@@ -187,26 +185,5 @@ describe('Route reali e destinazioni dopo accesso', () => {
     expect(harness.routeNativeElement?.textContent).not.toContain(
       'Pagina riservata',
     );
-  });
-  it('le barre condivise mostrano soltanto i collegamenti del ruolo corrente', () => {
-    login('admin');
-    const topbar = TestBed.createComponent(TopbarComponent);
-    const mobile = TestBed.createComponent(MobileNavigationComponent);
-    for (const fixture of [topbar, mobile]) {
-      fixture.detectChanges();
-      const links = [...fixture.nativeElement.querySelectorAll('a')].map(
-        (a: any) => a.getAttribute('href'),
-      );
-      expect(links).toContain('/admin/bookings');
-      expect(links).toContain('/profile');
-      expect(links).not.toContain('/favorites');
-      expect(links).not.toContain('/notifications');
-      login('user');
-      fixture.detectChanges();
-      expect(
-        fixture.nativeElement.querySelector('a[href="/admin/bookings"]'),
-      ).toBeNull();
-      login('admin');
-    }
   });
 });

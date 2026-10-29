@@ -130,4 +130,39 @@ describe('AdminBookingsPage', () => {
     expect(component.bookings).toEqual([]);
     expect(component.selectedBooking).toBeNull();
   });
+  it('usa controlli Ionic per stato, retry e paginazione senza perdere la selezione', async () => {
+    component.loadBookings();
+    http.expectOne('/api/v1/admin/bookings?page=1&size=100').flush(
+      {},
+      { status: 500, statusText: 'Error' },
+    );
+    await fixture.whenStable();
+    const retry = fixture.nativeElement.querySelector('.booking-table__empty ion-button');
+    expect(retry?.textContent).toContain('Riprova');
+    retry.click();
+    const rows = Array.from({ length: 5 }, (_, index) => ({
+      id: index + 1,
+      date: '2026-10-10',
+      startTime: '10:00',
+      endTime: '12:00',
+      spaceName: `Aula ${index + 1}`,
+      organizerName: 'Utente Test',
+      participantCount: 1,
+      status: 'confirmed',
+      building: 'Edificio 1',
+      floor: 0,
+    }));
+    http.expectOne('/api/v1/admin/bookings?page=1&size=100').flush({
+      data: rows,
+      pagination: { page: 1, totalPages: 1 },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelectorAll('ion-badge.booking-status').length).toBe(4);
+    const pageTwo = fixture.nativeElement.querySelectorAll('.pagination__button')[2];
+    pageTwo.click();
+    fixture.detectChanges();
+    expect(component.currentPage).toBe(2);
+    expect(fixture.nativeElement.textContent).toContain('Aula 5');
+    expect(fixture.nativeElement.querySelector('.pagination__button--active')?.textContent).toContain('2');
+  });
 });

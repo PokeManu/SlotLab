@@ -1,14 +1,6 @@
 :host {
   display: block;
 }
-.admin-shell {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  min-height: 100%;
-  margin: 0;
-  overflow: hidden;
-  background: var(--slot-background);
-}
 .availability-page {
   padding: 32px 28px 72px 39px;
   color: var(--slot-text);
@@ -26,7 +18,6 @@ label {
   gap: 6px;
   color: var(--slot-text-muted);
 }
-select,
 input {
   min-height: 44px;
   padding: 0 12px;
@@ -35,6 +26,54 @@ input {
   background: var(--slot-input);
   color: var(--slot-text);
   font: inherit;
+}
+.space-select ion-select {
+  min-height: 44px;
+  border: 1px solid var(--slot-border);
+  border-radius: 10px;
+  background: var(--slot-input);
+  color: var(--slot-text);
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+.form ion-select {
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid var(--slot-border);
+  border-radius: 10px;
+  background: var(--slot-input);
+  color: var(--slot-text);
+}
+.form ion-input {
+  min-height: 44px;
+  border: 1px solid var(--slot-border);
+  border-radius: 10px;
+  background: var(--slot-input);
+  --color: var(--slot-text);
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+.form ion-button {
+  min-height: 44px;
+  margin: 0;
+  --border-radius: 9px;
+}
+.space-select ion-select:focus-visible,
+.form ion-select:focus-visible,
+.form input:focus-visible {
+  outline: 2px solid var(--slot-primary);
+  outline-offset: 2px;
+}
+.form [aria-invalid='true'] {
+  border-color: var(--slot-danger);
+}
+.field-error {
+  color: var(--slot-danger);
+  font-size: 0.85rem;
+}
+.form-error {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 .space-select {
   max-width: 500px;
@@ -47,17 +86,11 @@ input {
   align-items: end;
   margin: 24px 0 32px;
 }
-button {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--slot-primary);
-  color: white;
-  cursor: pointer;
+.form--exception {
+  grid-template-columns: repeat(4, minmax(100px, 1fr)) minmax(190px, auto);
 }
-button:disabled {
-  opacity: 0.45;
+.form--exception ion-button {
+  white-space: nowrap;
 }
 .table {
   overflow: hidden;
@@ -66,7 +99,7 @@ button:disabled {
 }
 .row {
   display: grid;
-  grid-template-columns: 1.3fr 0.6fr 1fr 0.7fr minmax(170px, 1fr);
+  grid-template-columns: 1.3fr 0.6fr 1fr 0.7fr minmax(220px, 1fr);
   gap: 12px;
   align-items: center;
   min-height: 60px;
@@ -86,9 +119,6 @@ button:disabled {
   color: var(--slot-danger);
 }
 @media (max-width: 900px) {
-  .admin-shell {
-    grid-template-columns: 1fr;
-  }
   .availability-page {
     padding: 32px 20px;
   }
@@ -111,12 +141,11 @@ button:disabled {
   align-items: center;
   gap: 10px;
 }
-.row-actions button {
-  font: inherit;
-}
-.row-actions button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 3px;
+.row-actions ion-button,
+.table > .row > ion-button {
+  min-height: 44px;
+  margin: 0;
+  --border-radius: 9px;
 }
 .intro {
   line-height: 1.5;
@@ -128,14 +157,18 @@ button:disabled {
 }
 .history-toggle,
 .button--secondary {
-  border: 1px solid var(--slot-border);
-  background: var(--slot-surface);
-  color: var(--slot-text);
+  --border-color: var(--slot-border);
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
 }
 .history-toggle:hover,
 .button--secondary:hover {
-  border-color: var(--slot-primary);
-  background: var(--slot-hover);
+  --border-color: var(--slot-primary);
+  --background: var(--slot-hover);
+}
+.history-toggle {
+  min-height: 44px;
+  margin: 0;
 }
 .row--retired {
   color: var(--slot-text-muted);

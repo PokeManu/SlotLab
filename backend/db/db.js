@@ -1,5 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 const { migrate } = require("./migrate");
+const { queries } = require("./query");
 let database = null;
 let connectionPromise = null;
 function openDatabase(databasePath) {
@@ -24,17 +25,6 @@ function execute(databaseConnection, sql) {
     });
   });
 }
-function get(databaseConnection, sql) {
-  return new Promise((resolve, reject) => {
-    databaseConnection.get(sql, (error, row) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(row);
-    });
-  });
-}
 function closeConnection(databaseConnection) {
   return new Promise((resolve, reject) => {
     databaseConnection.close((error) => {
@@ -52,7 +42,7 @@ async function createConnection(options) {
   try {
     await execute(newDatabase, "PRAGMA foreign_keys = ON;");
     await execute(newDatabase, "PRAGMA busy_timeout = 5000;");
-    const foreignKeys = await get(newDatabase, "PRAGMA foreign_keys;");
+    const foreignKeys = await queries(newDatabase).get("PRAGMA foreign_keys;");
     if (foreignKeys.foreign_keys !== 1) {
       throw new Error("Le chiavi esterne SQLite non sono attive.");
     }

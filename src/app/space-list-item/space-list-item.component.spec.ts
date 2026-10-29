@@ -21,4 +21,24 @@ describe('SpaceListItemComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('mantiene separate le azioni di apertura e preferiti', () => {
+    const opened: string[] = [];
+    const favorites: string[] = [];
+    component.spaceOpened.subscribe((id) => opened.push(id));
+    component.favoriteToggled.subscribe((id) => favorites.push(id));
+
+    const favoriteButton = fixture.nativeElement.querySelector(
+      'ion-button.space-list-item__favorite',
+    );
+    const openButton = fixture.nativeElement.querySelector(
+      'ion-button.space-list-item__action',
+    );
+    expect(favoriteButton).toBeTruthy();
+    expect(openButton).toBeTruthy();
+    favoriteButton.click();
+    expect(favorites).toEqual(['space-test']);
+    expect(opened).toEqual([]);
+    openButton.click();
+    expect(opened).toEqual(['space-test']);
+  });
 });

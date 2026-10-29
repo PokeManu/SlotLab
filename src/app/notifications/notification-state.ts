@@ -1,18 +1,26 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { allPages } from '../api/all-pages';
-import { environment } from '../../environments/environment';
+import { NotificationsApi } from '../api/notifications-api';
+import { Auth } from '../auth/auth';
+import { Subscription } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class NotificationState {
-  private readonly http = inject(HttpClient);
+  private readonly notificationsApi = inject(NotificationsApi);
+  private readonly auth = inject(Auth);
   private readonly unread = signal(0);
   readonly unreadCount = this.unread.asReadonly();
+  private refreshRequest?: Subscription;
   refresh(): void {
-    allPages<{
-      read: boolean;
-    }>(this.http, `${environment.apiUrl}/notifications`).subscribe({
-      next: (response) =>
-        this.set(response.data.filter((item) => !item.read).length),
+    this.refreshRequest?.unsubscribe();
+    const userId = this.auth.user()?.id;
+    const sessionVersion = this.auth.sessionVersion;
+    this.refreshRequest = this.notificationsApi.list().subscribe({
+      next: (notifications) => {
+        if (
+          this.auth.user()?.id !== userId ||
+          this.auth.sessionVersion !== sessionVersion
+        ) return;
+        this.set(notifications.filter((item) => !item.read).length);
+      },
       error: () => {},
     });
   }

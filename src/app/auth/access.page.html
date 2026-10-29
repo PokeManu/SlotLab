@@ -22,7 +22,7 @@
       } @if (auth.notice()) {
       <p class="access__message" role="status">{{ auth.notice() }}</p>
       }
-      <form (ngSubmit)="submit()" novalidate [attr.aria-busy]="busy()">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-busy]="busy()">
         <fieldset [disabled]="busy()">
           @if (registering) {
           <div class="access__names">
@@ -34,12 +34,12 @@
                   name="person-outline"
                   aria-hidden="true"
                 ></ion-icon>
-                <input
+                <ion-input
                   name="firstName"
+                  aria-label="Nome"
                   autocomplete="given-name"
-                  [(ngModel)]="firstName"
-                  required
-                />
+                  formControlName="firstName"
+                ></ion-input>
               </span>
             </label>
             <label
@@ -50,12 +50,12 @@
                   name="id-card-outline"
                   aria-hidden="true"
                 ></ion-icon>
-                <input
+                <ion-input
                   name="lastName"
+                  aria-label="Cognome"
                   autocomplete="family-name"
-                  [(ngModel)]="lastName"
-                  required
-                />
+                  formControlName="lastName"
+                ></ion-input>
               </span>
             </label>
           </div>
@@ -68,17 +68,23 @@
                 name="mail-outline"
                 aria-hidden="true"
               ></ion-icon>
-              <input
+              <ion-input
                 name="email"
+                aria-label="Email"
                 type="email"
                 autocomplete="email"
                 inputmode="email"
                 autocapitalize="none"
                 spellcheck="false"
-                [(ngModel)]="email"
-                required
-              />
+                formControlName="email"
+                [class.access__input--invalid]="showEmailError"
+                [attr.aria-invalid]="showEmailError"
+                [attr.aria-describedby]="showEmailError ? 'access-email-error' : null"
+              ></ion-input>
             </span>
+            @if (showEmailError) {
+            <small id="access-email-error" class="access__field-error" role="alert">Inserisci un indirizzo email valido.</small>
+            }
           </label>
           <label
             >Password
@@ -88,21 +94,23 @@
                 name="lock-closed-outline"
                 aria-hidden="true"
               ></ion-icon>
-              <input
+              <ion-input
                 id="access-password"
                 name="password"
+                aria-label="Password"
                 [type]="showPassword ? 'text' : 'password'"
                 [autocomplete]="registering ? 'new-password' : 'current-password'"
-                [(ngModel)]="password"
-                (blur)="passwordTouched = true"
-                required
+                formControlName="password"
+                (ionBlur)="form.controls.password.markAsTouched()"
                 [class.access__input--invalid]="showPasswordErrors"
                 [attr.aria-invalid]="showPasswordErrors"
                 [attr.aria-describedby]="showPasswordErrors ? 'password-requirements' : null"
-              />
-              <button
+              ></ion-input>
+              <ion-button
                 class="access__password-toggle"
                 type="button"
+                fill="clear"
+                [disabled]="busy()"
                 (click)="showPassword = !showPassword"
                 [attr.aria-label]="showPassword ? 'Nascondi password' : 'Mostra password'"
                 [attr.aria-pressed]="showPassword"
@@ -112,7 +120,7 @@
                   [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
                   aria-hidden="true"
                 ></ion-icon>
-              </button>
+              </ion-button>
             </span>
             @if (showPasswordErrors) {
             <ul
@@ -135,21 +143,23 @@
                 name="lock-closed-outline"
                 aria-hidden="true"
               ></ion-icon>
-              <input
+              <ion-input
                 id="access-password-confirmation"
                 name="passwordConfirmation"
+                aria-label="Conferma password"
                 [type]="showPasswordConfirmation ? 'text' : 'password'"
                 autocomplete="new-password"
-                [(ngModel)]="passwordConfirmation"
-                (blur)="confirmationTouched = true"
-                required
+                formControlName="passwordConfirmation"
+                (ionBlur)="form.controls.passwordConfirmation.markAsTouched()"
                 [class.access__input--invalid]="!!confirmationError"
                 [attr.aria-invalid]="!!confirmationError"
                 [attr.aria-describedby]="confirmationError ? 'password-confirmation-error' : null"
-              />
-              <button
+              ></ion-input>
+              <ion-button
                 class="access__password-toggle"
                 type="button"
+                fill="clear"
+                [disabled]="busy()"
                 (click)="showPasswordConfirmation = !showPasswordConfirmation"
                 [attr.aria-label]="showPasswordConfirmation ? 'Nascondi conferma password' : 'Mostra conferma password'"
                 [attr.aria-pressed]="showPasswordConfirmation"
@@ -159,7 +169,7 @@
                   [name]="showPasswordConfirmation ? 'eye-off-outline' : 'eye-outline'"
                   aria-hidden="true"
                 ></ion-icon>
-              </button>
+              </ion-button>
             </span>
             @if (confirmationError) {
             <small
@@ -173,9 +183,9 @@
           } @if (error()) {
           <p class="access__error" role="alert">{{ error() }}</p>
           }
-          <button type="submit">
+          <ion-button class="access__submit" type="submit" expand="block" [disabled]="busy()">
             {{ busy() ? 'Attendi…' : registering ? 'Crea account' : 'Accedi' }}
-          </button>
+          </ion-button>
         </fieldset>
       </form>
       <p class="access__switch">

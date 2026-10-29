@@ -71,18 +71,16 @@ p {
 [role="alert"] {
   color: #ffb8b8;
 }
-button {
+ion-button {
   width: 100%;
   min-height: 48px;
-  padding: 12px 20px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--slot-primary);
-  color: white;
-  font: inherit;
-  cursor: pointer;
+  margin: 0;
+  --background: var(--slot-primary);
+  --color: white;
+  --border-radius: 10px;
+  font-weight: 600;
 }
-button:disabled {
+ion-button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
@@ -93,7 +91,7 @@ a {
   text-align: center;
   color: var(--slot-primary-soft);
 }
-button:focus-visible,
+ion-button:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--slot-primary-soft);
   outline-offset: 3px;

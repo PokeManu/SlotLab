@@ -19,13 +19,15 @@ const { migrate } = require("../db/migrate");
 const { seed } = require("../db/seed");
 const { selectedDatabasePath } = require("../db/seed-demo");
 const { verifyPassword } = require("../security/password");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const testAdmin = {
   firstName: "Test",
   lastName: "Admin",
   email: "ADMIN@example.test",
   password: "TestAdmin2026!",
 };
+let runningServer = null;
 function run(database, sql, parameters = []) {
   return new Promise((resolve, reject) => {
     database.run(sql, parameters, function onRun(error) {
@@ -120,7 +122,7 @@ async function createVersionOneDatabase(t, filename) {
 }
 after(async () => {
   try {
-    await stopServer();
+    if (runningServer) await closeTestServer(runningServer);
   } finally {
     fs.rmSync(testDirectory, { recursive: true, force: true });
   }
@@ -477,7 +479,8 @@ test("il seed non promuove un utente normale", async () => {
   assert.equal(user.role, "user");
 });
 test("Express rispetta la base del contratto HTTP", async () => {
-  const server = await startServer();
+  runningServer = await startServer();
+  const server = runningServer;
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
   const rootResponse = await fetch(`${baseUrl}/`);
   assert.equal(rootResponse.status, 200);
@@ -491,6 +494,16 @@ test("Express rispetta la base del contratto HTTP", async () => {
       message: "La risorsa richiesta non esiste.",
     },
   });
+  for (const path of ["/api/v1/unknown", "/api/v1/unknown/path"]) {
+    const response = await fetch(`${baseUrl}${path}`);
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), {
+      error: {
+        code: "ROUTE_NOT_FOUND",
+        message: "La risorsa richiesta non esiste.",
+      },
+    });
+  }
   const invalidJsonResponse = await fetch(`${baseUrl}/api/v1/test`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -508,6 +521,7 @@ test("Express rispetta la base del contratto HTTP", async () => {
     (await largeBodyResponse.json()).error.code,
     "PAYLOAD_TOO_LARGE",
   );
-  await stopServer();
+  await closeTestServer(server);
+  runningServer = null;
   assert.throws(() => getDatabase(), /non e ancora connesso/);
 });

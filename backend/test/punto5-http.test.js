@@ -10,12 +10,13 @@ process.env.NODE_ENV = "test";
 process.env.HOST = "127.0.0.1";
 process.env.PORT = "0";
 process.env.SLOTLAB_JWT_SECRET = crypto.randomBytes(32).toString("hex");
-const { startServer, stopServer } = require("../server");
+const { startServer } = require("../server");
+const { closeTestServer } = require("./helpers/close-server");
 const { getDatabase } = require("../db/db");
 const { queries, transaction } = require("../db/transaction");
 const { hashPassword } = require("../security/password");
 const { romeNow } = require("../domain/time");
-let db, base, adminToken, userToken, userId, buildingId;
+let db, base, adminToken, userToken, userId, buildingId, server;
 const password = "FixturePassword2026!";
 async function request(url, method = "GET", body, token = adminToken) {
   const response = await fetch(`${base}/api/v1${url}`, {
@@ -84,7 +85,7 @@ async function booking(spaceId, availabilityId, date) {
   return id;
 }
 before(async () => {
-  const server = await startServer();
+  server = await startServer();
   base = `http://127.0.0.1:${server.address().port}`;
   db = queries(getDatabase());
   const hash = await hashPassword(password);
@@ -111,7 +112,7 @@ before(async () => {
   ).lastId;
 });
 after(async () => {
-  await stopServer();
+  await closeTestServer(server);
   fs.rmSync(directory, { recursive: true, force: true });
 });
 test("statistiche HTTP: ruoli, date rigorose, snapshot senza prenotazioni e capienza storica", async () => {

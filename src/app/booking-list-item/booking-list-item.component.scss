@@ -12,11 +12,13 @@
   min-height: 190px;
   align-items: center;
   gap: 16px 24px;
+  margin: 0;
   padding: 28px 32px;
   border: 1px solid var(--slot-border);
   border-radius: 18px;
-  background: var(--slot-surface);
-  color: var(--slot-text);
+  --background: var(--slot-surface);
+  --color: var(--slot-text);
+  box-shadow: none;
 }
 
 .booking-item__time {
@@ -79,16 +81,17 @@
 .booking-item__status {
   grid-area: status;
   align-self: start;
+  justify-self: end;
   padding: 7px 13px;
   border-radius: 999px;
-  background: var(--slot-success-surface);
-  color: var(--slot-success);
+  --background: var(--slot-success-surface);
+  --color: var(--slot-success);
   font-size: 14px;
 }
 
 .booking-item__status[data-status="cancelled"] {
-  background: var(--slot-danger-surface);
-  color: var(--slot-danger);
+  --background: var(--slot-danger-surface);
+  --color: var(--slot-danger);
 }
 
 .booking-item__actions {
@@ -100,25 +103,17 @@
   gap: 36px;
 }
 
-.booking-item__actions button {
-  border: 0;
-  font: inherit;
-  cursor: pointer;
-}
-
 .booking-item__check-in {
-  text-decoration: none;
-  display: flex;
+  --background: var(--slot-primary);
+  --color: var(--ion-color-primary-contrast);
+  --border-radius: 13px;
+  --padding-start: 24px;
+  --padding-end: 24px;
   min-width: 220px;
-  min-height: 54px;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 24px;
-  border-radius: 13px;
-  background: var(--slot-primary);
-  color: var(--slot-text);
+  height: 54px;
+  margin: 0;
   font-size: 17px;
+  text-transform: none;
 }
 
 .booking-item__check-in ion-icon {
@@ -126,14 +121,16 @@
 }
 
 .booking-item__cancel {
-  padding: 10px 0;
-  background: transparent;
-  color: var(--slot-primary-soft);
+  --color: var(--slot-primary-soft);
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 44px;
+  margin: 0;
   font-size: 17px;
+  text-transform: none;
 }
 
-.booking-item__actions button:focus-visible,
-.booking-item__actions a:focus-visible {
+.booking-item__actions ion-button::part(native):focus-visible {
   outline: 3px solid var(--slot-text);
   outline-offset: 3px;
 }
@@ -192,18 +189,20 @@
 
   .booking-item__actions {
     width: 100%;
-    gap: 20px;
+    gap: 12px;
   }
 
   .booking-item__check-in {
+    --padding-start: 12px;
+    --padding-end: 12px;
     flex: 1;
     min-width: 0;
-    min-height: 48px;
+    height: 48px;
     font-size: 15px;
   }
 
   .booking-item__cancel {
-    flex: 0 0 120px;
+    flex: 0 0 90px;
     font-size: 15px;
   }
 }

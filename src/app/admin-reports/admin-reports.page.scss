@@ -7,16 +7,6 @@
   --color: var(--slot-text);
 }
 
-.admin-shell {
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-  box-sizing: border-box;
-  background: var(--slot-background);
-}
-
 .reports-management {
   box-sizing: border-box;
   width: 100%;
@@ -34,34 +24,24 @@
 
 .report-filters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  --background: var(--slot-surface-raised);
+  --background-checked: var(--slot-primary);
+  --border-color: var(--slot-border);
+  --color: var(--slot-text);
+  --color-checked: var(--ion-color-primary-contrast);
+  --indicator-color: var(--slot-primary);
   margin-top: 36px;
-}
-
-.report-filters button {
-  min-height: 52px;
-  padding: 0 20px;
   border: 2px solid var(--slot-border);
   border-radius: 13px;
-  background: var(--slot-surface-raised);
-  color: var(--slot-text);
-  font: inherit;
-  font-size: 17px;
-  cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease;
 }
 
-.report-filters button:hover {
-  border-color: var(--slot-primary-soft);
-}
-
-.report-filters button.report-filter--active {
-  border-color: var(--slot-primary);
-  background: var(--slot-primary);
-  color: var(--slot-text);
+.report-filters ion-segment-button {
+  min-height: 52px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  font-size: 16px;
 }
 
 .reports-layout {
@@ -79,43 +59,30 @@
   border: 2px solid var(--slot-border);
   border-radius: 24px;
   background: var(--slot-panel);
+  --background: transparent;
 }
 
 .report-item {
-  display: grid;
-  grid-template-columns: 58px minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 18px;
-  width: 100%;
-  min-height: 128px;
-  padding: 24px 20px;
-  border: 0;
-  border-bottom: 2px solid var(--slot-border);
-  background: transparent;
-  color: var(--slot-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  --background: transparent;
+  --color: var(--slot-text);
+  --inner-padding-end: 20px;
+  --inner-padding-start: 0;
+  --min-height: 128px;
+  --padding-start: 20px;
+}
+
+.report-item::part(native) {
   transition:
     background-color 160ms ease,
     box-shadow 160ms ease;
 }
 
-.report-item:last-child {
-  border-bottom: 0;
-}
-
-.report-item:hover {
-  background: var(--slot-hover);
-}
-
 .report-item--selected {
-  background: var(--slot-primary-tint);
-  box-shadow: inset 3px 0 var(--slot-primary);
+  --background: var(--slot-primary-tint);
 }
 
-.report-item--selected:hover {
-  background: var(--slot-primary-tint);
+.report-item--selected::part(native) {
+  box-shadow: inset 3px 0 var(--slot-primary);
 }
 
 .report-item__icon {
@@ -123,6 +90,7 @@
   place-items: center;
   width: 52px;
   height: 52px;
+  margin-inline-end: 18px;
   border-radius: 15px;
 }
 
@@ -149,6 +117,8 @@
   display: grid;
   gap: 7px;
   min-width: 0;
+  margin-block: 24px;
+  white-space: normal;
 }
 
 .report-item__information strong {
@@ -168,7 +138,7 @@
   display: grid;
   justify-items: end;
   gap: 8px;
-  align-self: center;
+  margin-inline-start: 18px;
 }
 
 .priority-pill,
@@ -216,11 +186,17 @@
   text-align: center;
 }
 
-@media (max-width: 1180px) {
-  .admin-shell {
-    grid-template-columns: 100px minmax(0, 1fr);
-  }
+.empty-reports ion-spinner {
+  margin-inline-end: 8px;
+  vertical-align: middle;
+}
 
+.empty-reports ion-button {
+  margin-top: 12px;
+  --border-radius: 10px;
+}
+
+@media (max-width: 1180px) {
   .reports-management {
     padding: 40px 32px;
   }
@@ -230,11 +206,12 @@
   }
 
   .report-item {
-    grid-template-columns: 52px minmax(0, 1fr);
+    --min-height: 116px;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
   }
 
   .report-item__badges {
-    grid-column: 2;
     justify-self: start;
     justify-items: start;
   }
@@ -245,27 +222,13 @@
     grid-template-columns: 1fr;
   }
 
-  .report-item {
-    grid-template-columns: 58px minmax(0, 1fr) auto;
-  }
-
   .report-item__badges {
-    grid-column: auto;
     justify-self: auto;
     justify-items: end;
   }
 }
 
 @media (max-width: 900px) {
-  .admin-shell {
-    display: block;
-    width: 100%;
-    min-height: 100vh;
-    margin: 0;
-    border: 0;
-    border-radius: 0;
-  }
-
   .reports-management {
     padding: 32px 20px 56px;
   }
@@ -275,31 +238,28 @@
   }
 
   .report-filters {
-    flex-wrap: nowrap;
+    width: 100%;
     margin-top: 28px;
     overflow-x: auto;
-    padding-bottom: 4px;
   }
 
-  .report-filters button {
+  .report-filters ion-segment-button {
     flex: 0 0 auto;
     min-height: 48px;
-    padding-inline: 16px;
+    --padding-start: 16px;
+    --padding-end: 16px;
     font-size: 15px;
   }
 
-  .reports-layout {
-    grid-template-columns: 1fr;
-  }
-
   .report-item {
-    grid-template-columns: 52px minmax(0, 1fr);
+    --min-height: 0;
   }
 
   .report-item__badges {
-    grid-column: 2;
     justify-self: start;
     justify-items: start;
+    margin-inline-start: 0;
+    margin-block: 0 18px;
   }
 }
 
