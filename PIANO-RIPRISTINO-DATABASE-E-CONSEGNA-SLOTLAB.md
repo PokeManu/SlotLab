@@ -2,7 +2,7 @@
 
 **Data:** 29 ottobre 2026.
 **Stato:** IN ESECUZIONE — autorizzato dall’utente il 29 ottobre 2026.
-**Avanzamento dell'esecuzione:** 95% — collaudo locale della consegna superato; in attesa della conferma ARM del collega e della pubblicazione.
+**Avanzamento dell'esecuzione:** 95% — collaudo locale della consegna superato; pubblicazione su Finale autorizzata prima della conferma ARM del collega.
 **Progetto:** `/Users/Shared/Programmazione Web e Mobile/SlotLab`.
 **Branch di destinazione:** `Finale` del repository `PokeManu/SlotLab`; riferimento remoto verificato il 29 ottobre 2026: `d75fd757ef710e8eaf78cb98e3d7d8cd04f34220`. Ricontrollare il riferimento prima dell'integrazione e del push.
 **Ultimo aggiornamento del piano:** confronto con il branch `Finale`, pubblicato dal collega a partire dalla copia ricevuta su WhatsApp.
@@ -143,10 +143,10 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 
 **Criterio del 95%:** prova locale completa della consegna estratta superata; eventuali ambienti esterni non ancora provati elencati esplicitamente.
 
-### Fase G — Riscontro del destinatario, pubblicazione su `Finale` e chiusura: 95–100%
+### Fase G — Pubblicazione su `Finale`, riscontro del destinatario e chiusura: 95–100%
 
-- Consegnare il percorso dello ZIP e la guida aggiornata; l'utente inoltrerà il pacchetto al collega.
-- Far rieseguire al collega la procedura sulla propria copia, senza riutilizzare `node_modules` dello ZIP precedente, e raccogliere l'esito di installazione, migrazioni, backend, frontend e login.
+- Aggiornamento autorizzato dall'utente: pubblicare prima su GitHub, poi il collega scaricherà il branch `Finale` per il collaudo ARM. L'invio dello ZIP tramite WhatsApp non è più necessario; lo ZIP rimane un artefatto del collaudo locale.
+- Dopo il push, far rieseguire al collega la procedura scaricando `Finale`, senza riutilizzare `node_modules` dello ZIP precedente, e raccogliere l'esito di installazione, migrazioni, backend, frontend e login.
 - Se compare un errore, correggerlo nel progetto di riferimento, aggiornare le verifiche e rigenerare l'archivio: non lasciare il destinatario con correzioni manuali non riportate nel progetto.
 - Quando i collaudi risultano positivi, preparare commit mirati nella storia di `Finale` con codice corretto, test, documentazione, snapshot verificato previsto dalla consegna e rimozione delle dipendenze tracciate. Controllare il diff completo e l'assenza di segreti, backup o file operativi inseriti per errore.
 - Prima del push ricontrollare il branch remoto: se è avanzato, integrare il nuovo lavoro e ripetere le prove pertinenti. Pubblicare con un push normale verso `Finale`, senza force push, dopo l'ok all'esecuzione del piano e il superamento delle verifiche. Non pubblicare su `main` come destinazione alternativa.
@@ -179,8 +179,8 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 
 **Revisione del piano:** un subagent ha svolto una revisione indipendente in sola lettura; integrate le indicazioni su integrità SQLite, preservazione dei dati, casi negativi e collaudo della consegna. Nessuna implementazione delegata o iniziata.
 **Aggiornamento del 29 ottobre 2026:** integrate le evidenze del confronto remoto con `Finale`, i quattro manifest/lockfile diversi, la distinzione fra snapshot versionato e database operativo, la pulizia delle dipendenze tracciate, i test delle dipendenze aggiornate e la pubblicazione finale. Un secondo subagent ha revisionato i criteri di integrazione. Esecuzione ferma allo 0%; nessuna riparazione o pubblicazione iniziata.
-**Attività attuale:** attendere il riscontro del collega sul pacchetto corretto e completare poi il push verificato su Finale.
-**Prossimo passo:** inoltrare al collega lo ZIP corretto e la guida; raccogliere l'esito sul suo Mac ARM. Se positivo, ricontrollare il remoto e pubblicare il commit mirato su Finale.
+**Attività attuale:** pubblicare la versione collaudata su Finale, poi attendere la prova del collega dal branch remoto.
+**Prossimo passo:** push normale su Finale e verifica del commit remoto; poi il collega seguirà AVVIO-SLOTLAB.md dalla copia scaricata da GitHub. La conferma ARM resta necessaria per dichiarare il 100%.
 **Nota sulla dichiarazione precedente:** il completamento delle revisioni frontend/backend non equivaleva al collaudo della copia completa con il database storico. Questo piano aggiunge esplicitamente la verifica della consegna prima della dichiarazione finale di funzionamento.
 
 ## Registro esecuzione autorizzata — 29 ottobre 2026
@@ -202,3 +202,7 @@ Le percentuali rappresentano traguardi verificati del presente piano, non percen
 - Revisione finale indipendente del subagent: SQL/checksum, integrità dei due database, conservazione dei record, fixture e guida coerenti. Precisato che lo snapshot contiene il catalogo ma nessun account: la guida indica come creare il proprio amministratore, senza distribuire credenziali di collaudo.
 
 - Correzione salvata nel commit locale `7b1008d` su `Finale`; main e remoto invariati. Ultima revisione del Markdown salvata separatamente. Server di collaudo fermati alla fine delle prove. Stato corrente: 95%, in attesa del destinatario, non della sua nuova autorizzazione a correggere.
+
+## Aggiornamento della modalità di consegna — 29 ottobre 2026
+
+L’utente ha autorizzato esplicitamente la pubblicazione su GitHub prima del collaudo del collega: il riscontro ARM non è più una condizione preventiva del push. Rimane una verifica finale aperta. Il remoto è stato ricontrollato ed è ancora d75fd75; nessun aggiornamento concorrente rilevato. I commit locali 7b1008d e 9af3814 contengono la correzione già collaudata; questo aggiornamento riguarda soltanto il piano. Non si pubblicano .env, database operativo o node_modules.
