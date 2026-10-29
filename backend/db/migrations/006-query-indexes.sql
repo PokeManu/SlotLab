@@ -1,3 +1,5 @@
+-- Indici per le chiavi esterne e i filtri usati dalle API.
+-- I vincoli UNIQUE esistenti coprono gia i rispettivi prefissi.
 CREATE INDEX idx_spaces_building ON spaces (building_id);
 CREATE INDEX idx_space_services_service ON space_services (service_id);
 CREATE INDEX idx_availabilities_space_schedule
