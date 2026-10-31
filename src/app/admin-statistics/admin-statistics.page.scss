@@ -24,7 +24,7 @@
 .statistics-header h1 {
   margin: 0;
   color: var(--slot-text);
-  font-size: clamp(30px, 2.1vw, 38px);
+  font-size: var(--slot-title-page);
   font-weight: 500;
 }
 .date-controls {
@@ -112,7 +112,7 @@
 }
 .metric-card__label {
   color: var(--slot-text-muted);
-  font-size: 17px;
+  font-size: var(--slot-text-base);
 }
 .metric-card__value {
   color: var(--slot-text);
@@ -122,7 +122,7 @@
 }
 .metric-card__trend {
   color: var(--slot-success);
-  font-size: 14px;
+  font-size: var(--slot-text-sm);
 }
 .summary-strip {
   display: flex;
@@ -176,6 +176,7 @@
   border-bottom: 1px solid var(--slot-border);
 }
 .bar-chart__bar {
+  position: relative;
   flex: 1;
   min-width: 4px;
   border-radius: 5px 5px 0 0;
@@ -354,7 +355,7 @@
 
 .period-label {
   color: var(--slot-text-muted);
-  font-size: 14px;
+  font-size: var(--slot-text-sm);
   line-height: 1.5;
 }
 .chart-scroll {

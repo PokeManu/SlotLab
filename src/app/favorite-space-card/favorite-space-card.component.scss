@@ -57,7 +57,7 @@
 .favorite-space-card__capacity {
   margin: 10px 0 0;
   color: var(--slot-text-muted);
-  font-size: 16px;
+  font-size: var(--slot-text-base);
   line-height: 1.4;
 }
 
@@ -67,7 +67,7 @@
   gap: 9px;
   margin: 18px 0 0;
   color: var(--slot-text-muted);
-  font-size: 15px;
+  font-size: var(--slot-text-sm);
   line-height: 1.4;
 }
 

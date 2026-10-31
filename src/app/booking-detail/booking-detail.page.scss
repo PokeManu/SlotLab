@@ -131,6 +131,7 @@ ion-input {
   flex: 1;
   min-width: 0;
   min-height: 44px;
+  overflow: hidden;
   --padding-top: 10px;
   --padding-bottom: 10px;
   --padding-start: 12px;
@@ -140,6 +141,10 @@ ion-input {
   background: var(--slot-input);
   color: var(--slot-text);
   font: inherit;
+  --background: transparent;
+  --border-width: 0;
+  --border-radius: 10px;
+  --highlight-height: 0;
 }
 .field-error {
   color: var(--slot-danger);

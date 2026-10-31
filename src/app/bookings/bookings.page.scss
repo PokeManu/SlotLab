@@ -47,7 +47,7 @@ ion-content {
   background: var(--slot-surface);
   color: var(--slot-text);
   font: inherit;
-  font-size: 17px;
+  font-size: var(--slot-text-base);
   cursor: pointer;
   overflow: hidden;
 }
@@ -88,7 +88,7 @@ ion-content {
   --indicator-color: var(--slot-primary);
   --border-radius: 11px;
   min-height: 50px;
-  font-size: 16px;
+  font-size: var(--slot-text-base);
   text-transform: none;
 }
 

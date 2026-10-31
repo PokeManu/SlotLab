@@ -13,6 +13,24 @@
 
 @import "@ionic/angular/css/palettes/dark.class.css";
 
+body {
+  font-family: var(--slot-font-family);
+  font-size: var(--slot-text-base);
+  line-height: var(--slot-leading-normal);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+ion-button {
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
 html,
 body,
 ion-app {
@@ -252,13 +270,22 @@ app-admin-spaces {
 
   .space-create-form ion-input,
   .space-create-form ion-select {
-    min-height: 44px;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 48px;
+    overflow: hidden;
     border: 1px solid var(--slot-border);
     border-radius: 8px;
     background: var(--slot-input);
     color: var(--slot-text);
-    --padding-start: 10px;
-    --padding-end: 10px;
+    --background: transparent;
+    --border-width: 0;
+    --border-radius: 8px;
+    --highlight-height: 0;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
     --placeholder-color: var(--slot-text-muted);
   }
 
@@ -303,8 +330,10 @@ app-admin-spaces {
 
   .space-create-form__options ion-checkbox {
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
     min-height: 48px;
-    padding: 0 12px;
+    padding: 10px 12px;
     border: 1px solid var(--slot-border);
     border-radius: 9px;
     background: var(--slot-input);

@@ -35,7 +35,7 @@ ion-content {
 .spaces__context {
   margin: 0 0 4px;
   color: var(--slot-text-muted);
-  font-size: 17px;
+  font-size: var(--slot-text-base);
   text-align: right;
 }
 

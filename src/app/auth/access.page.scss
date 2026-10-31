@@ -91,10 +91,15 @@ ion-input {
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--slot-border);
   border-radius: 10px;
   background: var(--slot-background);
   color: var(--slot-text);
+  --background: transparent;
+  --border-width: 0;
+  --border-radius: 10px;
+  --highlight-height: 0;
   --padding-top: 13px;
   --padding-bottom: 13px;
   --padding-start: 43px;

@@ -7,7 +7,7 @@
 }
 h1 {
   margin: 0;
-  font-size: clamp(30px, 2.1vw, 38px);
+  font-size: var(--slot-title-page);
   font-weight: 500;
 }
 .intro {
@@ -27,11 +27,18 @@ label {
   color: var(--slot-text-muted);
 }
 ion-input {
+  box-sizing: border-box;
+  width: 100%;
   min-height: 44px;
+  overflow: hidden;
   border: 1px solid var(--slot-border);
   border-radius: 10px;
   background: var(--slot-input);
   color: var(--slot-text);
+  --background: transparent;
+  --border-width: 0;
+  --border-radius: 10px;
+  --highlight-height: 0;
   --padding-start: 12px;
   --padding-end: 12px;
 }

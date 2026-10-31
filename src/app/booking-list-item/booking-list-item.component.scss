@@ -64,7 +64,7 @@
 .booking-item__information p {
   margin: 8px 0 0;
   color: var(--slot-text-muted);
-  font-size: 17px;
+  font-size: var(--slot-text-base);
 }
 
 .booking-item__participants {
@@ -86,7 +86,7 @@
   border-radius: 999px;
   --background: var(--slot-success-surface);
   --color: var(--slot-success);
-  font-size: 14px;
+  font-size: var(--slot-text-sm);
 }
 
 .booking-item__status[data-status="cancelled"] {
@@ -112,7 +112,7 @@
   min-width: 220px;
   height: 54px;
   margin: 0;
-  font-size: 17px;
+  font-size: var(--slot-text-base);
   text-transform: none;
 }
 

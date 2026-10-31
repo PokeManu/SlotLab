@@ -7,7 +7,7 @@
 }
 h1 {
   margin: 0;
-  font-size: clamp(30px, 2.1vw, 38px);
+  font-size: var(--slot-title-page);
   font-weight: 500;
 }
 .intro {
@@ -27,31 +27,27 @@ input {
   color: var(--slot-text);
   font: inherit;
 }
-.space-select ion-select {
-  min-height: 44px;
-  border: 1px solid var(--slot-border);
-  border-radius: 10px;
-  background: var(--slot-input);
-  color: var(--slot-text);
-  --padding-start: 12px;
-  --padding-end: 12px;
-}
-.form ion-select {
-  min-height: 44px;
-  padding-inline: 12px;
-  border: 1px solid var(--slot-border);
-  border-radius: 10px;
-  background: var(--slot-input);
-  color: var(--slot-text);
-}
+.space-select ion-select,
+.form ion-select,
 .form ion-input {
+  box-sizing: border-box;
+  width: 100%;
   min-height: 44px;
+  overflow: hidden;
   border: 1px solid var(--slot-border);
   border-radius: 10px;
   background: var(--slot-input);
-  --color: var(--slot-text);
+  color: var(--slot-text);
+  --background: transparent;
+  --border-width: 0;
+  --border-radius: 10px;
+  --highlight-height: 0;
   --padding-start: 12px;
   --padding-end: 12px;
+}
+
+.form ion-input {
+  --color: var(--slot-text);
 }
 .form ion-button {
   min-height: 44px;
@@ -69,7 +65,7 @@ input {
 }
 .field-error {
   color: var(--slot-danger);
-  font-size: 0.85rem;
+  font-size: var(--slot-text-sm);
 }
 .form-error {
   grid-column: 1 / -1;

@@ -43,7 +43,7 @@ ion-content {
 .favorites-page__summary {
   margin: 0 0 6px;
   color: var(--slot-text-muted);
-  font-size: 17px;
+  font-size: var(--slot-text-base);
   text-align: right;
 }
 

@@ -35,7 +35,7 @@ ion-content {
 .spaces-header h1 {
   margin: 0;
   color: var(--slot-text);
-  font-size: clamp(30px, 2.1vw, 38px);
+  font-size: var(--slot-title-page);
   font-weight: 500;
   line-height: 1.2;
 }

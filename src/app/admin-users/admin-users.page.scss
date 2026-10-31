@@ -7,7 +7,7 @@
 }
 h1 {
   margin: 0;
-  font-size: clamp(30px, 2.1vw, 38px);
+  font-size: var(--slot-title-page);
   font-weight: 500;
 }
 header p {
@@ -49,7 +49,7 @@ header p {
   border-top: 0;
   background: var(--slot-surface);
   color: var(--slot-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--slot-text-sm);
 }
 .row ion-button {
   margin: 0;

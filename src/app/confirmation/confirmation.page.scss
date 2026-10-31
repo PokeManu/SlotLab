@@ -50,7 +50,7 @@ ion-content {
 .confirmation-heading p {
   margin: 0;
   color: var(--slot-text-muted);
-  font-size: 16px;
+  font-size: var(--slot-text-base);
 }
 
 .confirmation-card {
@@ -100,7 +100,7 @@ ion-content {
   gap: 10px;
   margin: 12px 0;
   color: var(--slot-text-muted);
-  font-size: 15px;
+  font-size: var(--slot-text-sm);
 }
 
 .booking-summary p ion-icon {
@@ -141,7 +141,7 @@ ion-content {
   --border-radius: 14px;
   height: 52px;
   margin: 10px 0 0;
-  font-size: 18px;
+  font-size: var(--slot-text-lg);
   text-transform: none;
 }
 

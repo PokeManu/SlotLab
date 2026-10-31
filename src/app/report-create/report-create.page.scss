@@ -159,7 +159,11 @@ ion-content {
 
 .report-create-page__field ion-select,
 .report-create-page__field ion-textarea {
-  --background: var(--slot-background);
+  display: block;
+  background: var(--slot-background);
+  overflow: hidden;
+  --background: transparent;
+  --highlight-height: 0;
   --color: var(--slot-text);
   --placeholder-color: var(--slot-text-muted);
   --padding-start: 14px;
@@ -186,7 +190,7 @@ ion-content {
   border: 0;
   border-radius: 8px;
   background: var(--slot-primary);
-  color: var(--slot-text);
+  color: var(--ion-color-primary-contrast);
   font: inherit;
   cursor: pointer;
 }

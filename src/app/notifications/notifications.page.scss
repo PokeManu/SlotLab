@@ -73,7 +73,7 @@ ion-content {
 .notification-group__title {
   margin: 0 0 14px;
   color: var(--slot-text);
-  font-size: 18px;
+  font-size: var(--slot-text-lg);
   font-weight: 400;
 }
 
@@ -157,7 +157,7 @@ ion-content {
 
 .notification-card__title {
   color: var(--slot-text);
-  font-size: 18px;
+  font-size: var(--slot-text-lg);
   font-weight: 500;
   line-height: 1.3;
   overflow-wrap: anywhere;
@@ -166,7 +166,7 @@ ion-content {
 .notification-card__context {
   margin-top: 5px;
   color: var(--slot-text-muted);
-  font-size: 16px;
+  font-size: var(--slot-text-base);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -174,7 +174,7 @@ ion-content {
 .notification-card__message {
   margin-top: 5px;
   color: var(--slot-text-muted);
-  font-size: 16px;
+  font-size: var(--slot-text-base);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -191,7 +191,7 @@ ion-content {
 
 .notification-card__time {
   color: var(--slot-text-muted);
-  font-size: 15px;
+  font-size: var(--slot-text-sm);
   white-space: nowrap;
 }
 

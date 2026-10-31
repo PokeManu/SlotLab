@@ -82,13 +82,13 @@
 .report-item__location {
   margin: 12px 0 0;
   color: var(--slot-text-muted);
-  font-size: 15px;
+  font-size: var(--slot-text-sm);
 }
 
 .report-item__description {
   margin: 16px 0 0;
   color: var(--slot-text);
-  font-size: 16px;
+  font-size: var(--slot-text-base);
   line-height: 1.5;
 }
 

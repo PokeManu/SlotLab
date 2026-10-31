@@ -136,6 +136,7 @@ ion-content {
   box-sizing: border-box;
   width: 100%;
   min-height: 42px;
+  overflow: hidden;
   --padding-top: 9px;
   --padding-bottom: 9px;
   --padding-start: 11px;
@@ -145,6 +146,10 @@ ion-content {
   background: var(--slot-input);
   color: var(--slot-text);
   font: inherit;
+  --background: transparent;
+  --border-width: 0;
+  --border-radius: 9px;
+  --highlight-height: 0;
 }
 
 .date-field {
