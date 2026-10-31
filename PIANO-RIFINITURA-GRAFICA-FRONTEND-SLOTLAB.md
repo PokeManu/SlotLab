@@ -200,7 +200,7 @@ Per i tre difetti iniziali applicare tutta la matrice. Per le altre pagine verif
 - Stato effettivo e prossimo passo:
 
 **Attività attuale:** nessuna; implementazione, verifiche e documentazione concluse.
-**Prossimo intervento previsto:** nessuno per questo piano. Eventuale pubblicazione su GitHub su istruzione dell’utente.
+**Prossimo intervento previsto:** nessuno; revisione e pubblicazione autorizzata concluse.
 
 ## Registro di esecuzione — 30 ottobre 2026
 
@@ -336,10 +336,17 @@ Il backup iniziale rimane `Backup-SlotLab-UI-20261030-181716`; seguire il relati
 - Operazioni di prova solo su DB/upload isolati e account fittizi. Nessuna email inviata, password reale modificata, cancellazione account o check-in fuori finestra.
 - I 404 della foto profilo facoltativa e il PNG 1×1 di prova non sono difetti CSS. Gli avvisi Browserslist, budget CSS e CommonJS sono riportati nei log; nessun errore bloccante.
 - Le verifiche responsive usano viewport browser; non costituiscono una certificazione su ogni dispositivo fisico o browser. Chrome e lo smoke Firefox descritti sono effettivamente verificati; Safari non è stato usato.
-- Server 3100/4201 di collaudo chiusi, browser/profili temporanei chiusi. Nessun commit o push effettuato per questa revisione.
+- Server 3100/4201 di collaudo chiusi, browser/profili temporanei chiusi. Alla chiusura del collaudo non era stata effettuata alcuna pubblicazione automatica; la pubblicazione successiva è registrata sotto.
 
 **Lavoro ancora necessario per questo piano: nessuno.**
 
 ## Pubblicazione autorizzata — 31 ottobre 2026
 
 L’utente ha autorizzato esplicitamente commit e push sul branch Finale, seguiti da un controllo finale. Fetch iniziale: HEAD e origin/Finale allineati a 827a109, nessun commit remoto da integrare. Revisione indipendente: 28 SCSS e questo piano, senza backend, dipendenze, configurazione privata o dati. Il file temporaneo Word rimane escluso. Dopo il push verranno verificati il riferimento remoto e i controlli frontend; l’esito sarà registrato qui.
+
+### Esito dei controlli dopo il push
+
+- Codice pubblicato su origin/Finale con commit `1e7a57a136a89be464450ebfe30baa983c532d81` (Corregge i form Ionic e uniforma lo stile responsive). Push riuscito senza forzatura; riferimento remoto confrontato con HEAD e risultato identico.
+- Sul codice pubblicato sono stati ripetuti i controlli frontend: **256 test su 66 file superati**, lint superato, build di produzione riuscita. Restano gli avvisi già documentati su Browserslist, budget SCSS e CommonJS, senza errori bloccanti.
+- Confronto con il commit iniziale: nessuna modifica a backend, package.json o package-lock.json. I 28 SCSS e il piano sono gli unici file inclusi nella revisione. Il file temporaneo Word resta locale ed escluso. Backup, dati di collaudo e screenshot rimangono nelle cartelle esterne al repository.
+- Questo aggiornamento documentale registra la verifica post-pubblicazione; non cambia il codice applicativo verificato. Nessuna workflow CI è presente in .github nel commit: i controlli indicati sono quelli effettivamente eseguiti localmente dopo il push.
